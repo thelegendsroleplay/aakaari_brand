@@ -376,6 +376,72 @@ function fashionmen_render_setup_page() {
                 </div>
             </div>
 
+            <!-- CSS Debug Information -->
+            <div class="card" style="margin: 20px 0; padding: 20px; background: #fef3c7; border-radius: 8px; border: 2px solid #f59e0b;">
+                <h2><?php esc_html_e('🎨 CSS Loading Diagnostics', 'fashionmen'); ?></h2>
+                <p style="color: #92400e; margin-bottom: 15px;">
+                    <strong><?php esc_html_e('Use this to verify CSS files are loading correctly.', 'fashionmen'); ?></strong>
+                </p>
+
+                <?php
+                global $wp_styles;
+                $theme_uri = get_template_directory_uri();
+                $css_files = array(
+                    'fashionmen-tailwind-cdn' => 'Tailwind CSS CDN',
+                    'fashionmen-tailwind' => 'Custom Tailwind Styles',
+                    'fashionmen-style' => 'Theme Stylesheet',
+                    'fashionmen-custom' => 'Custom CSS',
+                );
+                ?>
+
+                <table style="width: 100%; border-collapse: collapse; background: white;">
+                    <thead>
+                        <tr style="background: #f9fafb;">
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e5e7eb;"><?php esc_html_e('CSS File', 'fashionmen'); ?></th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e5e7eb;"><?php esc_html_e('Status', 'fashionmen'); ?></th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e5e7eb;"><?php esc_html_e('URL', 'fashionmen'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($css_files as $handle => $name) : ?>
+                            <?php
+                            $is_enqueued = wp_style_is($handle, 'enqueued');
+                            $style_src = isset($wp_styles->registered[$handle]) ? $wp_styles->registered[$handle]->src : '';
+                            ?>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong><?php echo esc_html($name); ?></strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+                                    <?php if ($is_enqueued) : ?>
+                                        <span style="color: #10b981; font-weight: 600;">✅ Loaded</span>
+                                    <?php else : ?>
+                                        <span style="color: #ef4444; font-weight: 600;">❌ Not Loaded</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; font-size: 12px; word-break: break-all;">
+                                    <?php echo $style_src ? esc_html($style_src) : '<span style="color: #9ca3af;">N/A</span>'; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; border-left: 4px solid #3b82f6;">
+                    <p style="margin: 0;"><strong>💡 <?php esc_html_e('Troubleshooting:', 'fashionmen'); ?></strong></p>
+                    <ol style="margin: 10px 0 0 20px; color: #4b5563;">
+                        <li><?php esc_html_e('Clear your browser cache (Ctrl+Shift+Delete)', 'fashionmen'); ?></li>
+                        <li><?php esc_html_e('Clear WordPress cache if using a cache plugin', 'fashionmen'); ?></li>
+                        <li><?php esc_html_e('Do a hard refresh (Ctrl+Shift+R or Cmd+Shift+R)', 'fashionmen'); ?></li>
+                        <li><?php esc_html_e('Check browser console for CSS loading errors (F12)', 'fashionmen'); ?></li>
+                        <li><?php esc_html_e('View page source (Ctrl+U) and search for "tailwind" to see if CSS links are in <head>', 'fashionmen'); ?></li>
+                    </ol>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <a href="<?php echo esc_url(home_url('/')); ?>" class="button button-primary" target="_blank"><?php esc_html_e('View Homepage (New Tab)', 'fashionmen'); ?></a>
+                    <button onclick="location.reload();" class="button"><?php esc_html_e('Refresh This Page', 'fashionmen'); ?></button>
+                </div>
+            </div>
+
         </div>
     </div>
 

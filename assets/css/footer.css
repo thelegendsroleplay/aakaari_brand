@@ -1,0 +1,24 @@
+/**
+ * Footer Styles for FashionMen Theme
+ * Footer links, widgets, and layout
+ */
+
+/* Footer Styles */
+.site-footer a {
+    text-decoration: none;
+}
+
+.site-footer .widget-title {
+    color: #ffffff;
+    margin-bottom: 1rem;
+}
+
+.site-footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.site-footer ul li {
+    margin-bottom: 0.5rem;
+}
