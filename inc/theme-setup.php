@@ -27,6 +27,7 @@ add_action('admin_menu', 'fashionmen_add_setup_page');
  * Handle manual page creation
  */
 function fashionmen_handle_manual_setup() {
+    // Handle page creation
     if (isset($_POST['fashionmen_create_pages']) && check_admin_referer('fashionmen_setup', 'fashionmen_setup_nonce')) {
         // Reset the flag
         delete_option('fashionmen_pages_created');
@@ -41,6 +42,14 @@ function fashionmen_handle_manual_setup() {
             exit;
         }
     }
+
+    // Handle reset setup flags (for debugging)
+    if (isset($_GET['fashionmen_reset']) && $_GET['fashionmen_reset'] === '1' && check_admin_referer('fashionmen_reset', 'reset_nonce')) {
+        delete_option('fashionmen_pages_created');
+        delete_option('fashionmen_created_page_ids');
+        wp_safe_redirect(add_query_arg('reset_done', '1', admin_url('themes.php?page=fashionmen-setup')));
+        exit;
+    }
 }
 add_action('admin_init', 'fashionmen_handle_manual_setup');
 
@@ -52,6 +61,14 @@ function fashionmen_setup_admin_notices() {
         ?>
         <div class="notice notice-success is-dismissible">
             <p><?php esc_html_e('✅ Pages and menus have been created successfully!', 'fashionmen'); ?></p>
+        </div>
+        <?php
+    }
+
+    if (isset($_GET['reset_done']) && $_GET['reset_done'] === '1') {
+        ?>
+        <div class="notice notice-info is-dismissible">
+            <p><?php esc_html_e('✅ Setup flags have been reset. You can now create pages again.', 'fashionmen'); ?></p>
         </div>
         <?php
     }
@@ -249,6 +266,51 @@ function fashionmen_render_setup_page() {
                     <li><?php esc_html_e('Visit WooCommerce documentation for e-commerce features', 'fashionmen'); ?></li>
                     <li><?php esc_html_e('Contact your theme developer for specific customizations', 'fashionmen'); ?></li>
                 </ul>
+            </div>
+
+            <!-- Debug Information -->
+            <div class="card" style="margin: 20px 0; padding: 20px; background: #f9fafb; border-radius: 8px; border: 1px dashed #d1d5db;">
+                <h2><?php esc_html_e('🔍 Debug Information', 'fashionmen'); ?></h2>
+                <p style="color: #6b7280; margin-bottom: 15px;"><?php esc_html_e('Use this section if pages are not being created automatically.', 'fashionmen'); ?></p>
+
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong><?php esc_html_e('Setup Flag Status:', 'fashionmen'); ?></strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+                            <?php echo get_option('fashionmen_pages_created') ? '<span style="color: #10b981;">✅ Set (True)</span>' : '<span style="color: #ef4444;">❌ Not Set (False)</span>'; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong><?php esc_html_e('Pages Created Count:', 'fashionmen'); ?></strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+                            <?php echo count($created_page_ids); ?> pages
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong><?php esc_html_e('WooCommerce Active:', 'fashionmen'); ?></strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+                            <?php echo class_exists('WooCommerce') ? '<span style="color: #10b981;">✅ Yes</span>' : '<span style="color: #f59e0b;">⚠️ No</span>'; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px;"><strong><?php esc_html_e('Current User Can:', 'fashionmen'); ?></strong></td>
+                        <td style="padding: 10px;">
+                            <?php echo current_user_can('manage_options') ? '<span style="color: #10b981;">✅ Manage Options</span>' : '<span style="color: #ef4444;">❌ Cannot Manage</span>'; ?>
+                        </td>
+                    </tr>
+                </table>
+
+                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px;">
+                    <p style="margin: 0 0 10px 0;"><strong><?php esc_html_e('Reset Setup Flags:', 'fashionmen'); ?></strong></p>
+                    <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px;">
+                        <?php esc_html_e('If the flag is set but no pages exist, click this button to reset and try again.', 'fashionmen'); ?>
+                    </p>
+                    <a href="<?php echo wp_nonce_url(add_query_arg('fashionmen_reset', '1'), 'fashionmen_reset', 'reset_nonce'); ?>"
+                       class="button button-secondary"
+                       onclick="return confirm('<?php esc_attr_e('This will reset the setup flags. Continue?', 'fashionmen'); ?>');">
+                        <?php esc_html_e('Reset Setup Flags', 'fashionmen'); ?>
+                    </a>
+                </div>
             </div>
 
         </div>
