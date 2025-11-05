@@ -243,8 +243,28 @@ require get_template_directory() . '/inc/theme-setup.php';
  */
 function fashionmen_create_default_pages() {
     // Check if pages have already been created
-    if (get_option('fashionmen_pages_created')) {
+    $created_page_ids = get_option('fashionmen_created_page_ids', array());
+
+    // Verify if the pages actually exist
+    $pages_exist = false;
+    if (!empty($created_page_ids)) {
+        foreach ($created_page_ids as $page_id) {
+            if (get_post_status($page_id) !== false) {
+                $pages_exist = true;
+                break;
+            }
+        }
+    }
+
+    // If flag is set and pages exist, don't recreate
+    if (get_option('fashionmen_pages_created') && $pages_exist) {
         return;
+    }
+
+    // If flag is set but no pages exist, reset the flag
+    if (get_option('fashionmen_pages_created') && !$pages_exist) {
+        delete_option('fashionmen_pages_created');
+        delete_option('fashionmen_created_page_ids');
     }
 
     // Array of pages to create
@@ -462,3 +482,13 @@ function fashionmen_theme_activation() {
     flush_rewrite_rules();
 }
 add_action('after_switch_theme', 'fashionmen_theme_activation');
+
+/**
+ * Run when switching away from this theme
+ */
+function fashionmen_theme_deactivation() {
+    // Reset the setup flag so pages can be created again if theme is reactivated
+    delete_option('fashionmen_pages_created');
+    delete_option('fashionmen_created_page_ids');
+}
+add_action('switch_theme', 'fashionmen_theme_deactivation');
