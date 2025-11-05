@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Theme version
-define('FASHIONMEN_VERSION', '1.0.0');
+define('FASHIONMEN_VERSION', '1.0.1');
 
 /**
  * Theme Setup
