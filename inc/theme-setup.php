@@ -166,9 +166,72 @@ function fashionmen_render_setup_page() {
                 <?php endif; ?>
             </div>
 
+            <!-- Homepage Setup Guide -->
+            <div class="card" style="margin: 20px 0; padding: 20px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; border-left: 4px solid #3b82f6;">
+                <h2><?php esc_html_e('🏠 Setting Up Your Homepage', 'fashionmen'); ?></h2>
+
+                <p style="font-size: 16px; margin-bottom: 15px;">
+                    <?php esc_html_e('Your homepage template is installed and ready! To see the full Figma design with hero section, categories, and featured products, you need to:', 'fashionmen'); ?>
+                </p>
+
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; color: #1e40af;"><?php esc_html_e('✅ Required Steps (in order):', 'fashionmen'); ?></h3>
+
+                    <ol style="margin-left: 20px; line-height: 2;">
+                        <li>
+                            <strong><?php esc_html_e('Install & Activate WooCommerce', 'fashionmen'); ?></strong>
+                            <?php if (!class_exists('WooCommerce')) : ?>
+                                - <a href="<?php echo esc_url(admin_url('plugin-install.php?s=woocommerce&tab=search&type=term')); ?>" class="button button-small"><?php esc_html_e('Install Now', 'fashionmen'); ?></a>
+                            <?php else : ?>
+                                <span style="color: #10b981;">✅ Done</span>
+                            <?php endif; ?>
+                        </li>
+
+                        <li>
+                            <strong><?php esc_html_e('Add Product Categories', 'fashionmen'); ?></strong>
+                            <?php if (class_exists('WooCommerce')) : ?>
+                                - <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=product_cat&post_type=product')); ?>"><?php esc_html_e('Manage Categories', 'fashionmen'); ?></a>
+                                <br><span style="color: #6b7280; font-size: 14px;"><?php esc_html_e('Suggested: Jackets, Shirts, Shoes, Accessories', 'fashionmen'); ?></span>
+                            <?php endif; ?>
+                        </li>
+
+                        <li>
+                            <strong><?php esc_html_e('Add Products', 'fashionmen'); ?></strong>
+                            <?php if (class_exists('WooCommerce')) : ?>
+                                - <a href="<?php echo esc_url(admin_url('post-new.php?post_type=product')); ?>"><?php esc_html_e('Add Product', 'fashionmen'); ?></a>
+                                <br><span style="color: #6b7280; font-size: 14px;"><?php esc_html_e('Add at least 4 products and mark some as "Featured" for the homepage', 'fashionmen'); ?></span>
+                            <?php endif; ?>
+                        </li>
+
+                        <li>
+                            <strong><?php esc_html_e('Upload Hero Image', 'fashionmen'); ?></strong>
+                            - <a href="<?php echo esc_url(admin_url('customize.php')); ?>"><?php esc_html_e('Go to Customizer', 'fashionmen'); ?></a>
+                            <br><span style="color: #6b7280; font-size: 14px;"><?php esc_html_e('Recommended size: 1920x600px or larger', 'fashionmen'); ?></span>
+                        </li>
+
+                        <li>
+                            <strong><?php esc_html_e('Add Category Images', 'fashionmen'); ?></strong>
+                            <?php if (class_exists('WooCommerce')) : ?>
+                                - <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=product_cat&post_type=product')); ?>"><?php esc_html_e('Edit Categories', 'fashionmen'); ?></a>
+                                <br><span style="color: #6b7280; font-size: 14px;"><?php esc_html_e('Each category needs a thumbnail image', 'fashionmen'); ?></span>
+                            <?php endif; ?>
+                        </li>
+                    </ol>
+                </div>
+
+                <div style="background: #dbeafe; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <p style="margin: 0;"><strong>💡 <?php esc_html_e('Pro Tip:', 'fashionmen'); ?></strong> <?php esc_html_e('After adding products and categories, visit your homepage to see the beautiful Figma design come to life! The hero section, category grid, and featured products will all be displayed automatically.', 'fashionmen'); ?></p>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <a href="<?php echo esc_url(home_url('/')); ?>" class="button button-primary" target="_blank"><?php esc_html_e('👁️ View Homepage', 'fashionmen'); ?></a>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=wc-settings')); ?>" class="button"><?php esc_html_e('WooCommerce Setup', 'fashionmen'); ?></a>
+                </div>
+            </div>
+
             <!-- Next Steps -->
             <div class="card" style="margin: 20px 0; padding: 20px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px;">
-                <h2><?php esc_html_e('📋 Next Steps', 'fashionmen'); ?></h2>
+                <h2><?php esc_html_e('📋 Quick Links', 'fashionmen'); ?></h2>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
 
