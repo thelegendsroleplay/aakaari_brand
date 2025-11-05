@@ -141,8 +141,8 @@ add_action('widgets_init', 'fashionmen_widgets_init');
  * Enqueue scripts and styles
  */
 function fashionmen_scripts() {
-    // Enqueue Tailwind CSS (compiled)
-    wp_enqueue_style('fashionmen-tailwind', get_template_directory_uri() . '/assets/css/tailwind.css', array(), FASHIONMEN_VERSION);
+    // Enqueue Tailwind CSS (compiled with CDN)
+    wp_enqueue_style('fashionmen-tailwind', get_template_directory_uri() . '/assets/css/tailwind-compiled.css', array(), FASHIONMEN_VERSION);
 
     // Enqueue custom styles
     wp_enqueue_style('fashionmen-style', get_stylesheet_uri(), array('fashionmen-tailwind'), FASHIONMEN_VERSION);
