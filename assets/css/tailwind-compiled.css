@@ -1,7 +1,5 @@
 /* Tailwind CSS Compiled for FashionMen Theme */
-
-/* Use Tailwind CDN for full utility support */
-@import url('https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.css');
+/* CDN is loaded via functions.php wp_enqueue_style */
 
 /* Custom CSS Variables */
 :root {
