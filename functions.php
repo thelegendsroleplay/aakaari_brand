@@ -234,6 +234,11 @@ if (class_exists('WooCommerce')) {
 require get_template_directory() . '/inc/customizer.php';
 
 /**
+ * Theme setup and welcome page
+ */
+require get_template_directory() . '/inc/theme-setup.php';
+
+/**
  * Create default pages on theme activation
  */
 function fashionmen_create_default_pages() {
