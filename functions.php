@@ -232,3 +232,228 @@ if (class_exists('WooCommerce')) {
  * Custom template tags for this theme
  */
 require get_template_directory() . '/inc/customizer.php';
+
+/**
+ * Create default pages on theme activation
+ */
+function fashionmen_create_default_pages() {
+    // Check if pages have already been created
+    if (get_option('fashionmen_pages_created')) {
+        return;
+    }
+
+    // Array of pages to create
+    $pages = array(
+        array(
+            'title'     => 'Home',
+            'content'   => 'Welcome to our men\'s fashion store. Discover premium clothing and accessories for the modern gentleman.',
+            'template'  => '',
+            'is_front'  => true,
+        ),
+        array(
+            'title'     => 'About',
+            'slug'      => 'about',
+            'content'   => '<h2>About Us</h2><p>We are a premium men\'s fashion brand dedicated to providing high-quality clothing and accessories for the modern gentleman.</p><p>Our collection features timeless pieces and contemporary designs that help you express your unique style.</p>',
+            'template'  => 'template-about.php',
+        ),
+        array(
+            'title'     => 'Contact',
+            'slug'      => 'contact',
+            'content'   => '<h2>Get In Touch</h2><p>Have questions? We\'d love to hear from you. Send us a message and we\'ll respond as soon as possible.</p>',
+            'template'  => 'template-contact.php',
+        ),
+        array(
+            'title'     => 'FAQ',
+            'slug'      => 'faq',
+            'content'   => '<h2>Frequently Asked Questions</h2><p>Find answers to common questions about our products, shipping, returns, and more.</p>',
+            'template'  => 'template-faq.php',
+        ),
+        array(
+            'title'     => 'Terms & Conditions',
+            'slug'      => 'terms',
+            'content'   => '<h2>Terms & Conditions</h2><p>Please read these terms and conditions carefully before using our website.</p>',
+            'template'  => '',
+        ),
+        array(
+            'title'     => 'Privacy Policy',
+            'slug'      => 'privacy',
+            'content'   => '<h2>Privacy Policy</h2><p>We are committed to protecting your privacy. This policy explains how we collect, use, and safeguard your information.</p>',
+            'template'  => '',
+        ),
+        array(
+            'title'     => 'Shipping Information',
+            'slug'      => 'shipping',
+            'content'   => '<h2>Shipping Information</h2><p>We offer worldwide shipping. Learn more about our shipping options, delivery times, and costs.</p>',
+            'template'  => '',
+        ),
+    );
+
+    $created_pages = array();
+
+    foreach ($pages as $page_data) {
+        // Check if page already exists
+        $page_check = get_page_by_path($page_data['slug'] ?? sanitize_title($page_data['title']));
+
+        if ($page_check) {
+            $created_pages[$page_data['title']] = $page_check->ID;
+            continue;
+        }
+
+        // Create the page
+        $page_id = wp_insert_post(array(
+            'post_title'     => $page_data['title'],
+            'post_name'      => $page_data['slug'] ?? sanitize_title($page_data['title']),
+            'post_content'   => $page_data['content'],
+            'post_status'    => 'publish',
+            'post_type'      => 'page',
+            'post_author'    => 1,
+            'comment_status' => 'closed',
+            'ping_status'    => 'closed',
+        ));
+
+        if ($page_id && !is_wp_error($page_id)) {
+            $created_pages[$page_data['title']] = $page_id;
+
+            // Assign template if specified
+            if (!empty($page_data['template'])) {
+                update_post_meta($page_id, '_wp_page_template', $page_data['template']);
+            }
+
+            // Set as front page if specified
+            if (isset($page_data['is_front']) && $page_data['is_front']) {
+                update_option('page_on_front', $page_id);
+                update_option('show_on_front', 'page');
+            }
+        }
+    }
+
+    // Create navigation menus
+    fashionmen_create_default_menus($created_pages);
+
+    // Mark pages as created
+    update_option('fashionmen_pages_created', true);
+    update_option('fashionmen_created_page_ids', $created_pages);
+}
+
+/**
+ * Create default navigation menus
+ */
+function fashionmen_create_default_menus($pages) {
+    // Check if menus already exist
+    $menu_exists = wp_get_nav_menu_object('Primary Menu');
+
+    if ($menu_exists) {
+        return;
+    }
+
+    // Create Primary Menu
+    $primary_menu_id = wp_create_nav_menu('Primary Menu');
+
+    if (!is_wp_error($primary_menu_id)) {
+        // Add Home
+        if (isset($pages['Home'])) {
+            wp_update_nav_menu_item($primary_menu_id, 0, array(
+                'menu-item-title'     => 'Home',
+                'menu-item-object-id' => $pages['Home'],
+                'menu-item-object'    => 'page',
+                'menu-item-type'      => 'post_type',
+                'menu-item-status'    => 'publish',
+                'menu-item-position'  => 1,
+            ));
+        }
+
+        // Add Shop (if WooCommerce is active)
+        if (class_exists('WooCommerce')) {
+            $shop_page_id = get_option('woocommerce_shop_page_id');
+            if ($shop_page_id) {
+                wp_update_nav_menu_item($primary_menu_id, 0, array(
+                    'menu-item-title'     => 'Shop',
+                    'menu-item-object-id' => $shop_page_id,
+                    'menu-item-object'    => 'page',
+                    'menu-item-type'      => 'post_type',
+                    'menu-item-status'    => 'publish',
+                    'menu-item-position'  => 2,
+                ));
+            }
+        }
+
+        // Add About
+        if (isset($pages['About'])) {
+            wp_update_nav_menu_item($primary_menu_id, 0, array(
+                'menu-item-title'     => 'About',
+                'menu-item-object-id' => $pages['About'],
+                'menu-item-object'    => 'page',
+                'menu-item-type'      => 'post_type',
+                'menu-item-status'    => 'publish',
+                'menu-item-position'  => 3,
+            ));
+        }
+
+        // Add Contact
+        if (isset($pages['Contact'])) {
+            wp_update_nav_menu_item($primary_menu_id, 0, array(
+                'menu-item-title'     => 'Contact',
+                'menu-item-object-id' => $pages['Contact'],
+                'menu-item-object'    => 'page',
+                'menu-item-type'      => 'post_type',
+                'menu-item-status'    => 'publish',
+                'menu-item-position'  => 4,
+            ));
+        }
+
+        // Add FAQ
+        if (isset($pages['FAQ'])) {
+            wp_update_nav_menu_item($primary_menu_id, 0, array(
+                'menu-item-title'     => 'FAQ',
+                'menu-item-object-id' => $pages['FAQ'],
+                'menu-item-object'    => 'page',
+                'menu-item-type'      => 'post_type',
+                'menu-item-status'    => 'publish',
+                'menu-item-position'  => 5,
+            ));
+        }
+
+        // Assign menu to location
+        $locations = get_theme_mod('nav_menu_locations');
+        $locations['primary'] = $primary_menu_id;
+        $locations['mobile'] = $primary_menu_id;
+        set_theme_mod('nav_menu_locations', $locations);
+    }
+
+    // Create Footer Menu
+    $footer_menu_id = wp_create_nav_menu('Footer Menu');
+
+    if (!is_wp_error($footer_menu_id)) {
+        $position = 1;
+
+        foreach (array('Terms & Conditions', 'Privacy Policy', 'Shipping Information', 'FAQ') as $page_title) {
+            if (isset($pages[$page_title])) {
+                wp_update_nav_menu_item($footer_menu_id, 0, array(
+                    'menu-item-title'     => $page_title,
+                    'menu-item-object-id' => $pages[$page_title],
+                    'menu-item-object'    => 'page',
+                    'menu-item-type'      => 'post_type',
+                    'menu-item-status'    => 'publish',
+                    'menu-item-position'  => $position++,
+                ));
+            }
+        }
+
+        // Assign footer menu to location
+        $locations = get_theme_mod('nav_menu_locations');
+        $locations['footer'] = $footer_menu_id;
+        set_theme_mod('nav_menu_locations', $locations);
+    }
+}
+
+/**
+ * Run on theme activation
+ */
+function fashionmen_theme_activation() {
+    // Create default pages
+    fashionmen_create_default_pages();
+
+    // Flush rewrite rules
+    flush_rewrite_rules();
+}
+add_action('after_switch_theme', 'fashionmen_theme_activation');
