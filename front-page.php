@@ -12,11 +12,16 @@ get_header();
 <main id="primary" class="site-main">
 
     <!-- Hero Section -->
-    <section class="hero-section relative h-[500px] md:h-[600px] bg-gray-100">
+    <section class="hero-section relative h-[500px] md:h-[600px] bg-gradient-to-r from-gray-900 to-gray-800">
         <?php
-        $hero_image = get_theme_mod('hero_image', get_template_directory_uri() . '/assets/images/hero-placeholder.jpg');
+        $hero_image = get_theme_mod('hero_image');
+        if ($hero_image) :
         ?>
-        <img src="<?php echo esc_url($hero_image); ?>" alt="<?php esc_attr_e('Hero fashion', 'fashionmen'); ?>" class="w-full h-full object-cover">
+            <img src="<?php echo esc_url($hero_image); ?>" alt="<?php esc_attr_e('Hero fashion', 'fashionmen'); ?>" class="w-full h-full object-cover">
+        <?php else : ?>
+            <!-- Default gradient background if no hero image set -->
+            <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black"></div>
+        <?php endif; ?>
 
         <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
             <div class="text-center text-white px-4">
