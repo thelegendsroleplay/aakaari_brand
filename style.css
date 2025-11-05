@@ -1,0 +1,169 @@
+/*
+Theme Name: FashionMen
+Theme URI: https://example.com/fashionmen
+Author: Your Name
+Author URI: https://example.com
+Description: A modern, elegant WordPress theme for men's fashion e-commerce. Features a stunning homepage with hero section, product categories, and featured products. Built with Tailwind CSS and optimized for WooCommerce.
+Version: 1.0.0
+Requires at least: 5.8
+Tested up to: 6.4
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: fashionmen
+Tags: e-commerce, custom-menu, custom-logo, featured-images, full-width-template, theme-options, translation-ready, woocommerce
+
+FashionMen is a premium WordPress theme designed specifically for men's fashion online stores.
+It features a beautiful homepage template with:
+- Full-width hero section with customizable image and CTA buttons
+- Product categories grid
+- Featured products showcase
+- Fully responsive design
+- WooCommerce integration
+*/
+
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #000000;
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ============================================
+   SITE STRUCTURE
+   ============================================ */
+
+.site {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.site-main {
+    flex: 1;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.screen-reader-text {
+    clip: rect(1px, 1px, 1px, 1px);
+    position: absolute !important;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    word-wrap: normal !important;
+}
+
+.screen-reader-text:focus {
+    background-color: #f1f1f1;
+    border-radius: 3px;
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
+    clip: auto !important;
+    color: #21759b;
+    display: block;
+    font-size: 0.875rem;
+    font-weight: bold;
+    height: auto;
+    left: 5px;
+    line-height: normal;
+    padding: 15px 23px 14px;
+    text-decoration: none;
+    top: 5px;
+    width: auto;
+    z-index: 100000;
+}
+
+/* Skip link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #000;
+    color: #fff;
+    padding: 8px;
+    z-index: 100000;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* ============================================
+   WOOCOMMERCE BASE STYLES
+   ============================================ */
+
+.woocommerce-message,
+.woocommerce-info,
+.woocommerce-error {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+    border-left: 4px solid;
+}
+
+.woocommerce-message {
+    background: #d1fae5;
+    border-color: #10b981;
+    color: #065f46;
+}
+
+.woocommerce-info {
+    background: #dbeafe;
+    border-color: #3b82f6;
+    color: #1e40af;
+}
+
+.woocommerce-error {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ============================================
+   END OF STYLE.CSS
+   Note: Homepage-specific styles are in assets/css/homepage.css
+   ============================================ */
