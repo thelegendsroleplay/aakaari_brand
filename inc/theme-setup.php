@@ -24,6 +24,41 @@ function fashionmen_add_setup_page() {
 add_action('admin_menu', 'fashionmen_add_setup_page');
 
 /**
+ * Handle manual page creation
+ */
+function fashionmen_handle_manual_setup() {
+    if (isset($_POST['fashionmen_create_pages']) && check_admin_referer('fashionmen_setup', 'fashionmen_setup_nonce')) {
+        // Reset the flag
+        delete_option('fashionmen_pages_created');
+        delete_option('fashionmen_created_page_ids');
+
+        // Run the setup
+        if (function_exists('fashionmen_create_default_pages')) {
+            fashionmen_create_default_pages();
+
+            // Redirect back with success message
+            wp_safe_redirect(add_query_arg('setup_done', '1', admin_url('themes.php?page=fashionmen-setup')));
+            exit;
+        }
+    }
+}
+add_action('admin_init', 'fashionmen_handle_manual_setup');
+
+/**
+ * Display setup success notice
+ */
+function fashionmen_setup_admin_notices() {
+    if (isset($_GET['setup_done']) && $_GET['setup_done'] === '1') {
+        ?>
+        <div class="notice notice-success is-dismissible">
+            <p><?php esc_html_e('✅ Pages and menus have been created successfully!', 'fashionmen'); ?></p>
+        </div>
+        <?php
+    }
+}
+add_action('admin_notices', 'fashionmen_setup_admin_notices');
+
+/**
  * Redirect to setup page on theme activation
  */
 function fashionmen_setup_redirect() {
@@ -56,11 +91,11 @@ function fashionmen_render_setup_page() {
 
             <!-- Setup Status -->
             <div class="card" style="margin: 20px 0; padding: 20px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px;">
-                <h2><?php esc_html_e('✅ Auto-Setup Completed', 'fashionmen'); ?></h2>
+                <h2><?php esc_html_e('🔧 Theme Setup Status', 'fashionmen'); ?></h2>
 
-                <?php if ($pages_created) : ?>
+                <?php if ($pages_created && !empty($created_page_ids)) : ?>
                     <div style="background: #d1fae5; border-left: 4px solid #10b981; padding: 15px; margin: 15px 0; border-radius: 4px;">
-                        <h3 style="margin-top: 0; color: #065f46;"><?php esc_html_e('Pages Created', 'fashionmen'); ?></h3>
+                        <h3 style="margin-top: 0; color: #065f46;"><?php esc_html_e('✅ Pages Created', 'fashionmen'); ?></h3>
                         <p><?php esc_html_e('The following pages have been automatically created:', 'fashionmen'); ?></p>
                         <ul>
                             <?php foreach ($created_page_ids as $title => $page_id) : ?>
@@ -74,14 +109,42 @@ function fashionmen_render_setup_page() {
                     </div>
 
                     <div style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px; margin: 15px 0; border-radius: 4px;">
-                        <h3 style="margin-top: 0; color: #1e40af;"><?php esc_html_e('Navigation Menus', 'fashionmen'); ?></h3>
+                        <h3 style="margin-top: 0; color: #1e40af;"><?php esc_html_e('✅ Navigation Menus', 'fashionmen'); ?></h3>
                         <p><?php esc_html_e('Primary and Footer menus have been created and assigned.', 'fashionmen'); ?></p>
                         <a href="<?php echo esc_url(admin_url('nav-menus.php')); ?>" class="button"><?php esc_html_e('Manage Menus', 'fashionmen'); ?></a>
                     </div>
                 <?php else : ?>
-                    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0; border-radius: 4px;">
-                        <h3 style="margin-top: 0; color: #92400e;"><?php esc_html_e('Setup Not Complete', 'fashionmen'); ?></h3>
-                        <p><?php esc_html_e('Pages have not been created yet. This might be because they already exist.', 'fashionmen'); ?></p>
+                    <div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 15px; margin: 15px 0; border-radius: 4px;">
+                        <h3 style="margin-top: 0; color: #991b1b;"><?php esc_html_e('⚠️ Pages Not Created', 'fashionmen'); ?></h3>
+                        <p><?php esc_html_e('The automatic page creation did not run. This can happen if:', 'fashionmen'); ?></p>
+                        <ul>
+                            <li><?php esc_html_e('Pages with the same name already exist', 'fashionmen'); ?></li>
+                            <li><?php esc_html_e('The theme was previously activated', 'fashionmen'); ?></li>
+                            <li><?php esc_html_e('There was an error during activation', 'fashionmen'); ?></li>
+                        </ul>
+                        <p><strong><?php esc_html_e('Click the button below to create pages manually:', 'fashionmen'); ?></strong></p>
+                        <form method="post" action="" style="margin-top: 15px;">
+                            <?php wp_nonce_field('fashionmen_setup', 'fashionmen_setup_nonce'); ?>
+                            <button type="submit" name="fashionmen_create_pages" class="button button-primary button-hero">
+                                <?php esc_html_e('🚀 Create Pages & Menus Now', 'fashionmen'); ?>
+                            </button>
+                        </form>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Manual Recreate Option -->
+                <?php if ($pages_created) : ?>
+                    <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 4px;">
+                        <p style="margin: 0; color: #6b7280;">
+                            <strong><?php esc_html_e('Need to recreate pages?', 'fashionmen'); ?></strong>
+                            <?php esc_html_e('This will delete the setup flag and allow you to create pages again (existing pages won\'t be deleted).', 'fashionmen'); ?>
+                        </p>
+                        <form method="post" action="" style="margin-top: 10px;">
+                            <?php wp_nonce_field('fashionmen_setup', 'fashionmen_setup_nonce'); ?>
+                            <button type="submit" name="fashionmen_create_pages" class="button" onclick="return confirm('<?php esc_attr_e('This will reset the setup and create pages. Continue?', 'fashionmen'); ?>');">
+                                <?php esc_html_e('Recreate Pages & Menus', 'fashionmen'); ?>
+                            </button>
+                        </form>
                     </div>
                 <?php endif; ?>
             </div>
