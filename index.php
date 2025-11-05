@@ -9,42 +9,12 @@
 get_header();
 ?>
 
-<main id="primary" class="site-main container mx-auto px-4 py-8">
-
-    <?php if (have_posts()) : ?>
-
-        <?php if (is_home() && !is_front_page()) : ?>
-            <header class="page-header mb-8">
-                <h1 class="page-title text-3xl font-bold"><?php single_post_title(); ?></h1>
-            </header>
-        <?php endif; ?>
-
-        <div class="posts-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <?php
-            // Start the Loop.
-            while (have_posts()) :
-                the_post();
-                get_template_part('template-parts/content', get_post_type());
-            endwhile;
-            ?>
-        </div>
-
-        <?php
-        // Pagination
-        the_posts_pagination(array(
-            'mid_size'  => 2,
-            'prev_text' => __('← Previous', 'fashionmen'),
-            'next_text' => __('Next →', 'fashionmen'),
-        ));
-        ?>
-
-    <?php else : ?>
-
-        <?php get_template_part('template-parts/content', 'none'); ?>
-
-    <?php endif; ?>
-
-</main><!-- #primary -->
+<main id="primary" class="site-main">
+    <div class="container" style="padding: 3rem 1rem; text-align: center;">
+        <h1><?php esc_html_e('Welcome to FashionMen', 'fashionmen'); ?></h1>
+        <p><?php esc_html_e('To use the homepage template, create a new page and select "Homepage" from the Template dropdown in the Page Attributes section.', 'fashionmen'); ?></p>
+    </div>
+</main>
 
 <?php
 get_footer();

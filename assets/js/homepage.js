@@ -1,142 +1,245 @@
 /**
- * Homepage JavaScript for FashionMen Theme
- * Hero slider, category interactions, featured products
+ * Homepage JavaScript
+ * Handles all homepage interactions and animations
+ *
+ * @package FashionMen
+ * @since 1.0.0
  */
 
-(function($) {
+(function() {
     'use strict';
 
-    $(document).ready(function() {
-        initHeroSlider();
-        initCategoryHover();
-        initFeaturedProducts();
+    /**
+     * Initialize when DOM is ready
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+        initHeroSection();
+        initCategoryCards();
+        initProductCards();
+        initScrollAnimations();
     });
 
     /**
-     * Hero Slider (if multiple hero images)
+     * Hero Section Interactions
      */
-    function initHeroSlider() {
-        const heroSlider = $('.hero-slider');
+    function initHeroSection() {
+        const heroButtons = document.querySelectorAll('.hero-buttons .btn');
 
-        if (!heroSlider.length || heroSlider.children().length <= 1) {
-            return;
-        }
-
-        let currentSlide = 0;
-        const slides = heroSlider.children();
-        const slideCount = slides.length;
-
-        // Auto-advance slider
-        setInterval(() => {
-            currentSlide = (currentSlide + 1) % slideCount;
-            heroSlider.css('transform', `translateX(-${currentSlide * 100}%)`);
-        }, 5000);
-    }
-
-    /**
-     * Category Card Hover Effects
-     */
-    function initCategoryHover() {
-        $('.category-card').on('mouseenter', function() {
-            $(this).find('img').css('transform', 'scale(1.05)');
-        }).on('mouseleave', function() {
-            $(this).find('img').css('transform', 'scale(1)');
+        heroButtons.forEach(function(button) {
+            // Add ripple effect on click
+            button.addEventListener('click', function(e) {
+                createRipple(e, this);
+            });
         });
     }
 
     /**
-     * Featured Products Carousel
+     * Category Card Interactions
      */
-    function initFeaturedProducts() {
-        const carousel = $('.featured-products-carousel');
+    function initCategoryCards() {
+        const categoryCards = document.querySelectorAll('.category-card');
 
-        if (!carousel.length) {
-            return;
-        }
+        categoryCards.forEach(function(card) {
+            // Add keyboard support
+            card.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
 
-        // Add navigation buttons
-        carousel.wrap('<div class="carousel-wrapper"></div>');
-        carousel.parent().append('<button class="carousel-prev">‹</button><button class="carousel-next">›</button>');
+            // Add focus indicator
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
 
-        let scrollPosition = 0;
-        const scrollAmount = 300;
-
-        $('.carousel-next').on('click', function() {
-            const maxScroll = carousel[0].scrollWidth - carousel[0].clientWidth;
-            scrollPosition = Math.min(scrollPosition + scrollAmount, maxScroll);
-            carousel.animate({ scrollLeft: scrollPosition }, 300);
-        });
-
-        $('.carousel-prev').on('click', function() {
-            scrollPosition = Math.max(scrollPosition - scrollAmount, 0);
-            carousel.animate({ scrollLeft: scrollPosition }, 300);
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+            });
         });
     }
 
     /**
-     * Newsletter Subscription
+     * Product Card Interactions
      */
-    $('.newsletter-form').on('submit', function(e) {
-        e.preventDefault();
-        const form = $(this);
-        const email = form.find('input[type="email"]').val();
-        const submitBtn = form.find('button[type="submit"]');
+    function initProductCards() {
+        const productCards = document.querySelectorAll('.product-card');
 
-        // Simple email validation
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            alert('Please enter a valid email address');
-            return;
-        }
+        productCards.forEach(function(card) {
+            // Add hover effect
+            card.addEventListener('mouseenter', function() {
+                const image = this.querySelector('.product-image');
+                if (image) {
+                    image.style.transform = 'scale(1.05)';
+                }
+            });
 
-        // Show loading state
-        submitBtn.prop('disabled', true).text('Subscribing...');
+            card.addEventListener('mouseleave', function() {
+                const image = this.querySelector('.product-image');
+                if (image) {
+                    image.style.transform = 'scale(1)';
+                }
+            });
 
-        // Simulate AJAX request (replace with actual implementation)
-        setTimeout(() => {
-            submitBtn.text('Subscribed!');
-            form.find('input[type="email"]').val('');
-
-            setTimeout(() => {
-                submitBtn.prop('disabled', false).text('Subscribe');
-            }, 2000);
-        }, 1000);
-    });
-
-    /**
-     * Countdown Timer (for sales/promotions)
-     */
-    function initCountdown() {
-        const countdown = $('.countdown-timer');
-
-        if (!countdown.length) {
-            return;
-        }
-
-        const endDate = new Date(countdown.data('end-date'));
-
-        setInterval(() => {
-            const now = new Date();
-            const diff = endDate - now;
-
-            if (diff <= 0) {
-                countdown.html('Sale Ended!');
-                return;
+            // Add keyboard support
+            const link = card.querySelector('.product-link');
+            if (link) {
+                link.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
             }
-
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            countdown.html(`
-                <span class="time-unit"><span class="time-value">${days}</span><span class="time-label">Days</span></span>
-                <span class="time-unit"><span class="time-value">${hours}</span><span class="time-label">Hours</span></span>
-                <span class="time-unit"><span class="time-value">${minutes}</span><span class="time-label">Min</span></span>
-                <span class="time-unit"><span class="time-value">${seconds}</span><span class="time-label">Sec</span></span>
-            `);
-        }, 1000);
+        });
     }
 
-    initCountdown();
+    /**
+     * Scroll-based Animations
+     */
+    function initScrollAnimations() {
+        // Check if Intersection Observer is supported
+        if (!('IntersectionObserver' in window)) {
+            return;
+        }
 
-})(jQuery);
+        const animatedElements = document.querySelectorAll(
+            '.categories-section, .featured-products-section'
+        );
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                    // Optional: Stop observing after animation
+                    // observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        animatedElements.forEach(function(element) {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(30px)';
+            element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(element);
+        });
+
+        // Add CSS class when element is visible
+        const style = document.createElement('style');
+        style.textContent = `
+            .animate-in {
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    /**
+     * Create Ripple Effect
+     * @param {Event} e - Click event
+     * @param {Element} element - Button element
+     */
+    function createRipple(e, element) {
+        const ripple = document.createElement('span');
+        const rect = element.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        ripple.classList.add('ripple-effect');
+
+        element.style.position = 'relative';
+        element.style.overflow = 'hidden';
+        element.appendChild(ripple);
+
+        // Remove ripple after animation
+        setTimeout(function() {
+            ripple.remove();
+        }, 600);
+    }
+
+    /**
+     * Lazy Load Images
+     * Load images when they come into viewport
+     */
+    function initLazyLoading() {
+        if (!('IntersectionObserver' in window)) {
+            return;
+        }
+
+        const images = document.querySelectorAll('img[data-src]');
+
+        const imageObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+
+        images.forEach(function(img) {
+            imageObserver.observe(img);
+        });
+    }
+
+    /**
+     * Smooth Scroll to Sections
+     */
+    function initSmoothScroll() {
+        const links = document.querySelectorAll('a[href^="#"]');
+
+        links.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href === '#') return;
+
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    }
+
+    // Initialize lazy loading and smooth scroll
+    initLazyLoading();
+    initSmoothScroll();
+
+    /**
+     * Add ripple effect styles
+     */
+    const style = document.createElement('style');
+    style.textContent = `
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+            transform: scale(0);
+            animation: ripple-animation 0.6s ease-out;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+})();
