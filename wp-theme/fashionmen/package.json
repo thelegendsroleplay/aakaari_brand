@@ -1,0 +1,21 @@
+{
+  "name": "fashionmen-theme",
+  "version": "1.0.0",
+  "description": "Modern WordPress WooCommerce theme for men's fashion",
+  "scripts": {
+    "dev": "tailwindcss -i ./assets/css/tailwind.css -o ./style.css --watch",
+    "build": "tailwindcss -i ./assets/css/tailwind.css -o ./style.css --minify"
+  },
+  "keywords": [
+    "wordpress",
+    "theme",
+    "woocommerce",
+    "fashion",
+    "ecommerce"
+  ],
+  "author": "FashionMen Team",
+  "license": "GPL-2.0-or-later",
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
