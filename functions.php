@@ -63,20 +63,12 @@ add_action('after_setup_theme', 'fashionmen_setup');
  * Enqueue Scripts and Styles
  */
 function fashionmen_enqueue_assets() {
-    // Enqueue main stylesheet
+    // Enqueue main stylesheet (global base styles)
     wp_enqueue_style('fashionmen-style', get_stylesheet_uri(), array(), FASHIONMEN_VERSION);
-
-    // Enqueue Tailwind CSS from CDN
-    wp_enqueue_style(
-        'fashionmen-tailwind',
-        'https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.css',
-        array(),
-        '3.4.0'
-    );
 
     // Check if we're on a page using the Homepage template
     if (is_page_template('homepage.php')) {
-        // Enqueue homepage CSS
+        // Enqueue homepage CSS (all custom styles, no Tailwind)
         wp_enqueue_style(
             'fashionmen-homepage',
             get_template_directory_uri() . '/assets/css/homepage.css',
