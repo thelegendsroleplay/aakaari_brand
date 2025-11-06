@@ -1,0 +1,118 @@
+/* Checkout Page Specific Styles */
+
+.checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.checkout-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.checkout-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.checkout-step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e5e5e5;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.checkout-step.active .checkout-step-circle {
+  background: #000;
+  color: #fff;
+}
+
+.checkout-step.completed .checkout-step-circle {
+  background: #10b981;
+  color: #fff;
+}
+
+.checkout-form-section {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.checkout-order-summary {
+  position: sticky;
+  top: 100px;
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.checkout-payment-method {
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkout-payment-method:hover {
+  border-color: #000;
+}
+
+.checkout-payment-method.selected {
+  border-color: #000;
+  background: #f9f9f9;
+}
+
+.checkout-shipping-method {
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.checkout-shipping-method:hover {
+  border-color: #000;
+}
+
+.checkout-shipping-method.selected {
+  border-color: #000;
+  background: #f9f9f9;
+}
+
+@media (max-width: 1024px) {
+  .checkout-order-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .checkout-steps {
+    margin-bottom: 2rem;
+  }
+  
+  .checkout-step-circle {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .checkout-form-section {
+    padding: 1.5rem;
+  }
+}
