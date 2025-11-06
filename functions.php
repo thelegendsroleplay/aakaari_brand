@@ -82,6 +82,9 @@ function aakaari_enqueue_scripts() {
     // Home CSS
     wp_enqueue_style( 'aakaari-home', AAKAARI_THEME_URI . '/assets/css/home.css', array(), AAKAARI_VERSION );
 
+    // Font Awesome
+    wp_enqueue_style( 'font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', array(), '6.5.1' );
+
     // Layout JS
     wp_enqueue_script( 'aakaari-layout', AAKAARI_THEME_URI . '/assets/js/layout.js', array(), AAKAARI_VERSION, true );
 

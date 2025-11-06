@@ -72,7 +72,7 @@ get_header();
         </section>
 
         <!-- Featured Products -->
-        <section class="products-section">
+        <section class="products-section" id="products-section">
             <div class="page-container">
                 <div class="section-title-wrapper">
                     <h2 class="section-main-title"><?php esc_html_e( 'Featured Products', 'aakaari-brand' ); ?></h2>
@@ -82,28 +82,66 @@ get_header();
                 </div>
 
                 <div class="product-carousel-wrapper">
-                    <?php
-                    if ( class_exists( 'WooCommerce' ) ) {
-                        $featured_products = wc_get_products( array(
-                            'status'   => 'publish',
-                            'featured' => true,
-                            'limit'    => 8,
-                        ) );
+                    <div class="product-list">
+                        <?php
+                        if ( class_exists( 'WooCommerce' ) ) {
+                            $featured_products = wc_get_products( array(
+                                'status'   => 'publish',
+                                'featured' => true,
+                                'limit'    => 8,
+                            ) );
 
-                        if ( $featured_products ) {
-                            echo '<div class="products-grid">';
-                            foreach ( $featured_products as $product ) {
-                                wc_get_template_part( 'content', 'product' );
-                                global $product;
-                                $product = $product; // Set global product
-                                wc_setup_product_data( $product->get_id() );
+                            if ( $featured_products ) {
+                                foreach ( $featured_products as $product ) {
+                                    $product_id = $product->get_id();
+                                    $product_name = $product->get_name();
+                                    $product_price = $product->get_price_html();
+                                    $product_image = wp_get_attachment_image_url( $product->get_image_id(), 'medium' );
+                                    $product_link = get_permalink( $product_id );
+                                    $categories = wc_get_product_category_list( $product_id );
+
+                                    ?>
+                                    <a href="<?php echo esc_url( $product_link ); ?>" class="product-card">
+                                        <?php if ( $product_image ) : ?>
+                                            <img src="<?php echo esc_url( $product_image ); ?>" alt="<?php echo esc_attr( $product_name ); ?>" class="product-image">
+                                        <?php else : ?>
+                                            <img src="<?php echo esc_url( wc_placeholder_img_src() ); ?>" alt="<?php echo esc_attr( $product_name ); ?>" class="product-image">
+                                        <?php endif; ?>
+                                        <div class="product-info">
+                                            <p class="product-category"><?php echo wp_strip_all_tags( $categories ); ?></p>
+                                            <h4 class="product-name"><?php echo esc_html( $product_name ); ?></h4>
+                                            <div class="product-price"><?php echo wp_kses_post( $product_price ); ?></div>
+                                        </div>
+                                    </a>
+                                    <?php
+                                }
+                            } else {
+                                // Fallback placeholder products if no featured products
+                                $placeholder_products = array(
+                                    array( 'name' => 'Essential Cotton Tee', 'category' => 'T-shirt', 'price' => '$35.00', 'image' => 'https://images.unsplash.com/photo-1603252109315-cb2860a92f03?w=400&q=80' ),
+                                    array( 'name' => 'Minimalist Hoodie', 'category' => 'Outerwear', 'price' => '$79.99', 'image' => 'https://images.unsplash.com/photo-1593032128860-6421591f4229?w=400&q=80' ),
+                                    array( 'name' => 'Slim Fit Chinos', 'category' => 'Trousers', 'price' => '$59.50', 'image' => 'https://images.unsplash.com/photo-1604176354204-92b8d5066668?w=400&q=80' ),
+                                    array( 'name' => 'Graphic Print Tee', 'category' => 'T-shirt', 'price' => '$39.00', 'image' => 'https://images.unsplash.com/photo-1596756608931-e404b8b80b01?w=400&q=80' ),
+                                    array( 'name' => 'Heavyweight Pullover', 'category' => 'Hoodie', 'price' => '$85.00', 'image' => 'https://images.unsplash.com/photo-1592209774640-c3d5e23769c0?w=400&q=80' ),
+                                    array( 'name' => 'Denim Trucker Jacket', 'category' => 'Jacket', 'price' => '$120.00', 'image' => 'https://images.unsplash.com/photo-1588820698188-75553e414c62?w=400&q=80' ),
+                                );
+
+                                foreach ( $placeholder_products as $item ) {
+                                    ?>
+                                    <div class="product-card">
+                                        <img src="<?php echo esc_url( $item['image'] ); ?>" alt="<?php echo esc_attr( $item['name'] ); ?>" class="product-image">
+                                        <div class="product-info">
+                                            <p class="product-category"><?php echo esc_html( $item['category'] ); ?></p>
+                                            <h4 class="product-name"><?php echo esc_html( $item['name'] ); ?></h4>
+                                            <p class="product-price"><?php echo esc_html( $item['price'] ); ?></p>
+                                        </div>
+                                    </div>
+                                    <?php
+                                }
                             }
-                            echo '</div>';
-                        } else {
-                            echo '<p>' . esc_html__( 'No featured products found.', 'aakaari-brand' ) . '</p>';
                         }
-                    }
-                    ?>
+                        ?>
+                    </div>
                 </div>
             </div>
         </section>
@@ -139,17 +177,6 @@ get_header();
                         </a>
                     </div>
                     <div class="promo-image-wrapper">
-                        <img
-                            src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600&q=80"
-                            alt="<?php esc_attr_e( 'Premium Collection', 'aakaari-brand' ); ?>"
-                            class="promo-image"
-                        />
-                        <div class="promo-image-overlay">
-                            <div class="promo-quality-badge">
-                                <span class="quality-badge-label"><?php esc_html_e( 'Premium Quality', 'aakaari-brand' ); ?></span>
-                                <span class="quality-badge-subtitle"><?php esc_html_e( 'Since 2024', 'aakaari-brand' ); ?></span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -166,26 +193,66 @@ get_header();
                 </div>
 
                 <div class="product-carousel-wrapper">
-                    <?php
-                    if ( class_exists( 'WooCommerce' ) ) {
-                        $new_products = wc_get_products( array(
-                            'status'  => 'publish',
-                            'limit'   => 8,
-                            'orderby' => 'date',
-                            'order'   => 'DESC',
-                        ) );
+                    <div class="product-list">
+                        <?php
+                        if ( class_exists( 'WooCommerce' ) ) {
+                            $new_products = wc_get_products( array(
+                                'status'  => 'publish',
+                                'limit'   => 8,
+                                'orderby' => 'date',
+                                'order'   => 'DESC',
+                            ) );
 
-                        if ( $new_products ) {
-                            echo '<div class="products-grid">';
-                            foreach ( $new_products as $product ) {
-                                wc_get_template_part( 'content', 'product' );
+                            if ( $new_products ) {
+                                foreach ( $new_products as $product ) {
+                                    $product_id = $product->get_id();
+                                    $product_name = $product->get_name();
+                                    $product_price = $product->get_price_html();
+                                    $product_image = wp_get_attachment_image_url( $product->get_image_id(), 'medium' );
+                                    $product_link = get_permalink( $product_id );
+                                    $categories = wc_get_product_category_list( $product_id );
+
+                                    ?>
+                                    <a href="<?php echo esc_url( $product_link ); ?>" class="product-card">
+                                        <?php if ( $product_image ) : ?>
+                                            <img src="<?php echo esc_url( $product_image ); ?>" alt="<?php echo esc_attr( $product_name ); ?>" class="product-image">
+                                        <?php else : ?>
+                                            <img src="<?php echo esc_url( wc_placeholder_img_src() ); ?>" alt="<?php echo esc_attr( $product_name ); ?>" class="product-image">
+                                        <?php endif; ?>
+                                        <div class="product-info">
+                                            <p class="product-category"><?php echo wp_strip_all_tags( $categories ); ?></p>
+                                            <h4 class="product-name"><?php echo esc_html( $product_name ); ?></h4>
+                                            <div class="product-price"><?php echo wp_kses_post( $product_price ); ?></div>
+                                        </div>
+                                    </a>
+                                    <?php
+                                }
+                            } else {
+                                // Fallback placeholder products
+                                $placeholder_products = array(
+                                    array( 'name' => 'Minimalist Backpack', 'category' => 'Accessories', 'price' => '$65.00', 'image' => 'https://images.unsplash.com/photo-1599852230005-9f5a77c7847b?w=400&q=80' ),
+                                    array( 'name' => 'Canvas Sneakers', 'category' => 'Footwear', 'price' => '$89.00', 'image' => 'https://images.unsplash.com/photo-1602737632616-538a7c2e0b50?w=400&q=80' ),
+                                    array( 'name' => 'Lightweight Bomber', 'category' => 'Outerwear', 'price' => '$110.00', 'image' => 'https://images.unsplash.com/photo-1527719363071-86311d43a50d?w=400&q=80' ),
+                                    array( 'name' => 'Oversized Oxford Shirt', 'category' => 'Shirting', 'price' => '$75.00', 'image' => 'https://images.unsplash.com/photo-1512496016147-380d39e31ff8?w=400&q=80' ),
+                                    array( 'name' => 'Pocket Tee', 'category' => 'T-shirt', 'price' => '$38.00', 'image' => 'https://images.unsplash.com/photo-1582046294320-b570e676105c?w=400&q=80' ),
+                                );
+
+                                foreach ( $placeholder_products as $item ) {
+                                    ?>
+                                    <div class="product-card">
+                                        <img src="<?php echo esc_url( $item['image'] ); ?>" alt="<?php echo esc_attr( $item['name'] ); ?>" class="product-image">
+                                        <div class="product-info">
+                                            <p class="product-category"><?php echo esc_html( $item['category'] ); ?></p>
+                                            <h4 class="product-name"><?php echo esc_html( $item['name'] ); ?></h4>
+                                            <p class="product-price"><?php echo esc_html( $item['price'] ); ?></p>
+                                        </div>
+                                    </div>
+                                    <?php
+                                }
                             }
-                            echo '</div>';
-                        } else {
-                            echo '<p>' . esc_html__( 'No new products found.', 'aakaari-brand' ) . '</p>';
                         }
-                    }
-                    ?>
+                        ?>
+                    </div>
                 </div>
             </div>
         </section>
@@ -196,9 +263,7 @@ get_header();
                 <div class="trust-grid">
                     <div class="trust-item">
                         <div class="trust-icon-box">
-                            <svg class="trust-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"></path>
-                            </svg>
+                            <i class="fa-solid fa-truck trust-icon" aria-hidden="true"></i>
                         </div>
                         <div class="trust-text">
                             <h4 class="trust-title"><?php esc_html_e( 'Free Shipping', 'aakaari-brand' ); ?></h4>
@@ -208,9 +273,7 @@ get_header();
 
                     <div class="trust-item">
                         <div class="trust-icon-box">
-                            <svg class="trust-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"></path>
-                            </svg>
+                            <i class="fa-solid fa-shield-halved trust-icon" aria-hidden="true"></i>
                         </div>
                         <div class="trust-text">
                             <h4 class="trust-title"><?php esc_html_e( 'Secure Payment', 'aakaari-brand' ); ?></h4>
@@ -220,9 +283,7 @@ get_header();
 
                     <div class="trust-item">
                         <div class="trust-icon-box">
-                            <svg class="trust-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
-                            </svg>
+                            <i class="fa-solid fa-rotate-left trust-icon" aria-hidden="true"></i>
                         </div>
                         <div class="trust-text">
                             <h4 class="trust-title"><?php esc_html_e( 'Easy Returns', 'aakaari-brand' ); ?></h4>
