@@ -17,6 +17,59 @@
 }
 
 /* ============================================
+   PRODUCT CARDS - For Carousel
+   ============================================ */
+
+.product-card {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  text-align: left;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  display: block;
+}
+
+.product-info {
+  padding: 12px;
+}
+
+.product-category {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.product-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: #000000;
+}
+
+/* ============================================
    HERO BANNER - E-Commerce Style
    ============================================ */
 
@@ -102,6 +155,7 @@
 }
 
 .hero-cta-button {
+  display: inline-block;
   background: #ffffff;
   color: #000000;
   padding: 14px 40px;
@@ -112,12 +166,15 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  text-align: center;
 }
 
 .hero-cta-button:hover {
   background: #f5f5f5;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
+  color: #000000;
 }
 
 /* ============================================
@@ -150,6 +207,8 @@
   cursor: pointer;
   height: 340px;
   background: #000000;
+  display: block;
+  text-decoration: none;
 }
 
 .category-card-image {
@@ -227,6 +286,7 @@
 }
 
 .section-view-link {
+  display: inline-block;
   background: transparent;
   border: none;
   color: #000000;
@@ -236,14 +296,36 @@
   padding: 8px 16px;
   transition: all 0.2s ease;
   border-radius: 4px;
+  text-decoration: none;
 }
 
 .section-view-link:hover {
   background: #f8f9fa;
+  color: #000000;
 }
 
 .product-carousel-wrapper {
   margin: 0 -8px;
+  overflow-x: scroll;
+  padding: 8px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+
+.product-carousel-wrapper::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.product-list {
+  display: flex;
+  gap: 16px;
+  padding: 0 8px;
+}
+
+/* Enforce minimum width for product cards in the carousel */
+.product-carousel-wrapper .product-card {
+  flex-shrink: 0;
+  width: 280px;
 }
 
 /* ============================================
@@ -329,6 +411,7 @@
 }
 
 .promo-button {
+  display: inline-block;
   background: #ffffff;
   color: #000000;
   padding: 12px 32px;
@@ -338,11 +421,14 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none;
+  text-align: center;
 }
 
 .promo-button:hover {
   background: #f5f5f5;
   transform: scale(1.02);
+  color: #000000;
 }
 
 .promo-image-wrapper {
@@ -387,6 +473,11 @@
   width: 24px;
   height: 24px;
   color: #ffffff;
+}
+
+/* Style for Font Awesome icons used as placeholders */
+.trust-icon.fa-solid {
+  font-size: 20px;
 }
 
 .trust-text {
