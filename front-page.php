@@ -1,6 +1,7 @@
 <?php
 /**
- * The template for displaying the homepage
+ * Template Name: Homepage
+ * The front page template file
  *
  * @package Aakaari_Brand
  */
@@ -8,8 +9,7 @@
 get_header();
 ?>
 
-<div id="homepage-wrapper" class="homepage-wrapper">
-
+<main id="primary" class="site-main">
     <?php
     // Hero Section
     aakaari_brand_hero_section();
@@ -19,15 +19,8 @@ get_header();
 
     // Featured Products Section
     aakaari_brand_featured_products_section();
-
-    // Newsletter Section (Optional)
-    aakaari_brand_newsletter_section();
-
-    // Features Section (Optional)
-    aakaari_brand_features_section();
     ?>
-
-</div>
+</main>
 
 <?php
 get_footer();
