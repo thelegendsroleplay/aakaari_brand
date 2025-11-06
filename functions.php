@@ -54,36 +54,39 @@ function fashionmen_enqueue_assets() {
         wp_enqueue_script('fashionmen-home', get_template_directory_uri() . '/assets/js/home.js', array(), FASHIONMEN_VERSION, true);
     }
 
-    if (is_shop() || is_product_category() || is_product_tag()) {
-        // Shop page
-        wp_enqueue_style('fashionmen-shop', get_template_directory_uri() . '/assets/css/shop.css', array('fashionmen-style'), FASHIONMEN_VERSION);
-        wp_enqueue_script('fashionmen-shop', get_template_directory_uri() . '/assets/js/shop.js', array(), FASHIONMEN_VERSION, true);
-    }
+    // WooCommerce pages (only if WooCommerce is active)
+    if (class_exists('WooCommerce')) {
+        if (is_shop() || is_product_category() || is_product_tag()) {
+            // Shop page
+            wp_enqueue_style('fashionmen-shop', get_template_directory_uri() . '/assets/css/shop.css', array('fashionmen-style'), FASHIONMEN_VERSION);
+            wp_enqueue_script('fashionmen-shop', get_template_directory_uri() . '/assets/js/shop.js', array(), FASHIONMEN_VERSION, true);
+        }
 
-    if (is_product()) {
-        // Product detail page
-        wp_enqueue_style('fashionmen-product', get_template_directory_uri() . '/assets/css/product.css', array('fashionmen-style'), FASHIONMEN_VERSION);
-        wp_enqueue_script('fashionmen-product', get_template_directory_uri() . '/assets/js/product.js', array(), FASHIONMEN_VERSION, true);
-    }
+        if (is_product()) {
+            // Product detail page
+            wp_enqueue_style('fashionmen-product', get_template_directory_uri() . '/assets/css/product.css', array('fashionmen-style'), FASHIONMEN_VERSION);
+            wp_enqueue_script('fashionmen-product', get_template_directory_uri() . '/assets/js/product.js', array(), FASHIONMEN_VERSION, true);
+        }
 
-    if (is_cart()) {
-        // Cart page
-        wp_enqueue_style('fashionmen-cart', get_template_directory_uri() . '/assets/css/cart.css', array('fashionmen-style'), FASHIONMEN_VERSION);
-        wp_enqueue_script('fashionmen-cart', get_template_directory_uri() . '/assets/js/cart.js', array(), FASHIONMEN_VERSION, true);
-    }
+        if (is_cart()) {
+            // Cart page
+            wp_enqueue_style('fashionmen-cart', get_template_directory_uri() . '/assets/css/cart.css', array('fashionmen-style'), FASHIONMEN_VERSION);
+            wp_enqueue_script('fashionmen-cart', get_template_directory_uri() . '/assets/js/cart.js', array(), FASHIONMEN_VERSION, true);
+        }
 
-    if (is_checkout()) {
-        // Checkout page
-        wp_enqueue_style('fashionmen-checkout', get_template_directory_uri() . '/assets/css/checkout.css', array('fashionmen-style'), FASHIONMEN_VERSION);
-        wp_enqueue_script('fashionmen-checkout', get_template_directory_uri() . '/assets/js/checkout.js', array(), FASHIONMEN_VERSION, true);
-    }
+        if (is_checkout()) {
+            // Checkout page
+            wp_enqueue_style('fashionmen-checkout', get_template_directory_uri() . '/assets/css/checkout.css', array('fashionmen-style'), FASHIONMEN_VERSION);
+            wp_enqueue_script('fashionmen-checkout', get_template_directory_uri() . '/assets/js/checkout.js', array(), FASHIONMEN_VERSION, true);
+        }
 
-    if (is_page_template('page-login.php') || is_account_page()) {
-        // Auth & User Dashboard
-        wp_enqueue_style('fashionmen-auth', get_template_directory_uri() . '/assets/css/auth.css', array('fashionmen-style'), FASHIONMEN_VERSION);
-        wp_enqueue_style('fashionmen-user-dashboard', get_template_directory_uri() . '/assets/css/user-dashboard.css', array('fashionmen-style'), FASHIONMEN_VERSION);
-        wp_enqueue_script('fashionmen-auth', get_template_directory_uri() . '/assets/js/auth.js', array(), FASHIONMEN_VERSION, true);
-        wp_enqueue_script('fashionmen-user-dashboard', get_template_directory_uri() . '/assets/js/user-dashboard.js', array(), FASHIONMEN_VERSION, true);
+        if (is_page_template('page-login.php') || is_account_page()) {
+            // Auth & User Dashboard
+            wp_enqueue_style('fashionmen-auth', get_template_directory_uri() . '/assets/css/auth.css', array('fashionmen-style'), FASHIONMEN_VERSION);
+            wp_enqueue_style('fashionmen-user-dashboard', get_template_directory_uri() . '/assets/css/user-dashboard.css', array('fashionmen-style'), FASHIONMEN_VERSION);
+            wp_enqueue_script('fashionmen-auth', get_template_directory_uri() . '/assets/js/auth.js', array(), FASHIONMEN_VERSION, true);
+            wp_enqueue_script('fashionmen-user-dashboard', get_template_directory_uri() . '/assets/js/user-dashboard.js', array(), FASHIONMEN_VERSION, true);
+        }
     }
 
     if (is_search()) {
@@ -117,8 +120,9 @@ function fashionmen_enqueue_assets() {
         wp_enqueue_script('comment-reply');
     }
 
-    // Global AJAX support for wishlist functionality (used across all pages)
-    wp_localize_script('fashionmen-style', 'aakaari_ajax', array(
+    // Global script for AJAX support
+    wp_enqueue_script('fashionmen-global', get_template_directory_uri() . '/assets/js/global.js', array('jquery'), FASHIONMEN_VERSION, true);
+    wp_localize_script('fashionmen-global', 'aakaari_ajax', array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'search_nonce' => wp_create_nonce('aakaari-search-nonce'),
         'wishlist_nonce' => wp_create_nonce('aakaari-wishlist-nonce')
@@ -200,14 +204,15 @@ add_action('customize_register', 'fashionmen_customize_register');
 /**
  * WooCommerce Customizations
  */
+if (class_exists('WooCommerce')) {
+    // Change number of products per page
+    add_filter('loop_shop_per_page', function() {
+        return 12;
+    });
 
-// Change number of products per page
-add_filter('loop_shop_per_page', function() {
-    return 12;
-});
-
-// Remove WooCommerce default styles (we'll use our own)
-add_filter('woocommerce_enqueue_styles', '__return_empty_array');
+    // Remove WooCommerce default styles (we'll use our own)
+    add_filter('woocommerce_enqueue_styles', '__return_empty_array');
+}
 
 /**
  * Include Page Functions

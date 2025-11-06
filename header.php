@@ -50,7 +50,10 @@
                     </a>
 
                     <!-- Account Icon -->
-                    <a href="<?php echo esc_url(wc_get_account_endpoint_url('dashboard')); ?>" class="header-icon account-icon" aria-label="<?php esc_attr_e('My Account', 'fashionmen'); ?>">
+                    <?php
+                    $account_url = class_exists('WooCommerce') ? wc_get_account_endpoint_url('dashboard') : wp_login_url();
+                    ?>
+                    <a href="<?php echo esc_url($account_url); ?>" class="header-icon account-icon" aria-label="<?php esc_attr_e('My Account', 'fashionmen'); ?>">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
