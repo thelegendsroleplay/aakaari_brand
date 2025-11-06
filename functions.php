@@ -265,3 +265,40 @@ require get_template_directory() . '/inc/template-tags.php';
  * Customizer additions
  */
 require get_template_directory() . '/inc/customizer.php';
+
+/**
+ * Homepage functions
+ */
+require get_template_directory() . '/inc/homepage.php';
+
+/**
+ * Enqueue homepage specific styles and scripts
+ */
+function aakaari_brand_homepage_scripts() {
+    // Only load on front page
+    if ( is_front_page() ) {
+        // Homepage CSS
+        wp_enqueue_style(
+            'aakaari-brand-homepage',
+            get_template_directory_uri() . '/assets/css/homepage.css',
+            array( 'aakaari-brand-style' ),
+            '1.0.0'
+        );
+
+        // Homepage JS
+        wp_enqueue_script(
+            'aakaari-brand-homepage',
+            get_template_directory_uri() . '/assets/js/homepage.js',
+            array( 'jquery' ),
+            '1.0.0',
+            true
+        );
+
+        // Localize script for AJAX
+        wp_localize_script( 'aakaari-brand-homepage', 'aakaariBrandHomepage', array(
+            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+            'nonce'   => wp_create_nonce( 'aakaari-brand-homepage' ),
+        ) );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'aakaari_brand_homepage_scripts' );
