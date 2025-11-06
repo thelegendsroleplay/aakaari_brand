@@ -31,16 +31,39 @@ function aakaari_theme_setup() {
 add_action( 'after_setup_theme', 'aakaari_theme_setup' );
 
 /**
- * Enqueue homepage assets from assets/css and assets/js
+ * Enqueue assets from assets/css and assets/js
  */
 function aakaari_enqueue_assets() {
 	$theme = wp_get_theme();
 	$theme_version = $theme ? $theme->get( 'Version' ) : time();
 	$assets_base = get_stylesheet_directory_uri() . '/assets';
 
-	// Only load on front page to keep other pages light
+	// Global styles (header, footer) - load on all pages
+	wp_enqueue_style(
+		'aakaari-header',
+		$assets_base . '/css/header.css',
+		array(),
+		$theme_version
+	);
+
+	wp_enqueue_style(
+		'aakaari-footer',
+		$assets_base . '/css/footer.css',
+		array(),
+		$theme_version
+	);
+
+	// Header JS (mobile menu)
+	wp_enqueue_script(
+		'aakaari-header-js',
+		$assets_base . '/js/header.js',
+		array( 'jquery' ),
+		$theme_version,
+		true
+	);
+
+	// Homepage assets
 	if ( is_front_page() || is_home() ) {
-		// CSS
 		wp_enqueue_style(
 			'aakaari-homepage',
 			$assets_base . '/css/homepage.css',
@@ -48,7 +71,6 @@ function aakaari_enqueue_assets() {
 			$theme_version
 		);
 
-		// JS (depends on jQuery)
 		wp_enqueue_script(
 			'aakaari-homepage-js',
 			$assets_base . '/js/homepage.js',
@@ -57,11 +79,76 @@ function aakaari_enqueue_assets() {
 			true
 		);
 
-		// Localize a few values for JS if needed
 		wp_localize_script( 'aakaari-homepage-js', 'AakaariData', array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'site_url' => home_url( '/' ),
 		) );
+	}
+
+	// Products/Shop pages
+	if ( is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy() ) {
+		wp_enqueue_style(
+			'aakaari-products',
+			$assets_base . '/css/products.css',
+			array(),
+			$theme_version
+		);
+	}
+
+	// Single product page
+	if ( is_product() ) {
+		wp_enqueue_style(
+			'aakaari-product-detail',
+			$assets_base . '/css/product-detail.css',
+			array(),
+			$theme_version
+		);
+	}
+
+	// Cart page
+	if ( is_cart() ) {
+		wp_enqueue_style(
+			'aakaari-cart',
+			$assets_base . '/css/cart.css',
+			array(),
+			$theme_version
+		);
+	}
+
+	// Checkout page
+	if ( is_checkout() ) {
+		wp_enqueue_style(
+			'aakaari-checkout',
+			$assets_base . '/css/checkout.css',
+			array(),
+			$theme_version
+		);
+	}
+
+	// Account pages
+	if ( is_account_page() ) {
+		wp_enqueue_style(
+			'aakaari-account',
+			$assets_base . '/css/account.css',
+			array(),
+			$theme_version
+		);
+	}
+
+	// Page-specific styles
+	if ( is_page() ) {
+		$page_slug = get_post_field( 'post_name', get_post() );
+		$page_css_file = $assets_base . '/css/' . $page_slug . '.css';
+
+		// Check if a CSS file exists for this page
+		if ( file_exists( get_stylesheet_directory() . '/assets/css/' . $page_slug . '.css' ) ) {
+			wp_enqueue_style(
+				'aakaari-page-' . $page_slug,
+				$page_css_file,
+				array(),
+				$theme_version
+			);
+		}
 	}
 }
 add_action( 'wp_enqueue_scripts', 'aakaari_enqueue_assets' );

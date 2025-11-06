@@ -1,0 +1,295 @@
+/* ============================================
+   HEADER - E-COMMERCE NAVIGATION
+   ============================================ */
+
+.header-main {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.header-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+/* ============================================
+   LOGO
+   ============================================ */
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.header-logo:hover {
+  opacity: 0.7;
+}
+
+.header-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: #000000;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-logo-text {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.header-logo-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000;
+}
+
+@media (max-width: 640px) {
+  .header-logo-name {
+    display: none;
+  }
+}
+
+/* ============================================
+   NAVIGATION
+   ============================================ */
+
+.header-nav {
+  display: none;
+  align-items: center;
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .header-nav {
+    display: flex;
+  }
+}
+
+.header-nav-link {
+  font-size: 14px;
+  font-weight: 500;
+  color: #666666;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 8px 4px;
+}
+
+.header-nav-link:hover {
+  color: #000000;
+}
+
+.header-nav-link-active {
+  color: #000000;
+  font-weight: 600;
+}
+
+/* ============================================
+   ACTIONS
+   ============================================ */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (min-width: 640px) {
+  .header-actions {
+    gap: 8px;
+  }
+}
+
+.header-action-btn {
+  height: 36px;
+  width: 36px;
+}
+
+.header-action-btn:hover {
+  background: #f8f9fa;
+}
+
+.header-wishlist-btn,
+.header-cart-btn {
+  position: relative;
+}
+
+.header-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 10px;
+  background: #000000;
+  color: #ffffff;
+}
+
+/* ============================================
+   USER DROPDOWN
+   ============================================ */
+
+.header-user-menu {
+  position: relative;
+}
+
+.header-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 8px;
+  width: 176px;
+  background: #ffffff;
+  border: 1px solid #f1f1f1;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+
+.header-user-menu:hover .header-dropdown {
+  opacity: 1;
+  visibility: visible;
+}
+
+.header-dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.header-dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.header-dropdown-admin {
+  border-top: 1px solid #f1f1f1;
+}
+
+.header-dropdown-logout {
+  border-top: 1px solid #f1f1f1;
+  color: #dc2626;
+}
+
+.header-dropdown-logout:hover {
+  background: #fef2f2;
+}
+
+/* ============================================
+   MOBILE TOGGLE
+   ============================================ */
+
+.header-mobile-toggle {
+  display: flex;
+  height: 36px;
+  width: 36px;
+}
+
+.header-mobile-toggle:hover {
+  background: #f8f9fa;
+}
+
+@media (min-width: 768px) {
+  .header-mobile-toggle {
+    display: none;
+  }
+}
+
+/* ============================================
+   MOBILE MENU
+   ============================================ */
+
+.header-mobile-menu {
+  display: block;
+  border-top: 1px solid #f1f1f1;
+  background: #ffffff;
+}
+
+@media (min-width: 768px) {
+  .header-mobile-menu {
+    display: none;
+  }
+}
+
+.header-mobile-menu-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header-mobile-menu-item {
+  text-align: left;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #000000;
+}
+
+.header-mobile-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.header-mobile-menu-item-active {
+  background: #000000;
+  color: #ffffff;
+}
+
+.header-mobile-divider {
+  border-top: 1px solid #f1f1f1;
+  margin: 8px 0;
+}
+
+.header-mobile-menu-admin {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.header-mobile-menu-logout {
+  color: #dc2626;
+}
+
+.header-mobile-menu-logout:hover {
+  background: #fef2f2;
+}

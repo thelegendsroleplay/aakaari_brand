@@ -1,0 +1,49 @@
+/* About Page Styles */
+.about-page {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.about-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.hero-about {
+  text-align: center;
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin: 0 -1rem 4rem;
+}
+
+.hero-about h1 {
+  font-size: 3rem;
+  margin: 0 0 1rem;
+}
+
+.hero-about p {
+  font-size: 1.25rem;
+  opacity: 0.9;
+}
+
+.about-content {
+  padding: 2rem 0 4rem;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.content-block h2 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+}
+
+.content-block p {
+  color: #4b5563;
+  line-height: 1.6;
+}
