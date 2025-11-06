@@ -181,6 +181,10 @@
             </svg>
         </button>
     </footer>
+
+    <!-- Mobile Navigation -->
+    <?php get_template_part( 'template-parts/mobile-navigation' ); ?>
+
 </div><!-- #page -->
 
 <?php wp_footer(); ?>
