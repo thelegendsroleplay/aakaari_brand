@@ -89,13 +89,21 @@ function fashionmen_enqueue_assets() {
     if (is_search()) {
         // Search page
         wp_enqueue_style('fashionmen-search', get_template_directory_uri() . '/assets/css/search.css', array('fashionmen-style'), FASHIONMEN_VERSION);
-        wp_enqueue_script('fashionmen-search', get_template_directory_uri() . '/assets/js/search.js', array(), FASHIONMEN_VERSION, true);
+        wp_enqueue_script('fashionmen-search', get_template_directory_uri() . '/assets/js/search.js', array('jquery'), FASHIONMEN_VERSION, true);
+        wp_localize_script('fashionmen-search', 'ajax_object', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('aakaari-search-nonce')
+        ));
     }
 
     if (is_page_template('page-wishlist.php')) {
         // Wishlist page
         wp_enqueue_style('fashionmen-wishlist', get_template_directory_uri() . '/assets/css/wishlist.css', array('fashionmen-style'), FASHIONMEN_VERSION);
-        wp_enqueue_script('fashionmen-wishlist', get_template_directory_uri() . '/assets/js/wishlist.js', array(), FASHIONMEN_VERSION, true);
+        wp_enqueue_script('fashionmen-wishlist', get_template_directory_uri() . '/assets/js/wishlist.js', array('jquery'), FASHIONMEN_VERSION, true);
+        wp_localize_script('fashionmen-wishlist', 'ajax_object', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('aakaari-wishlist-nonce')
+        ));
     }
 
     if (is_page_template('page-about.php') || is_page_template('page-contact.php') || is_page_template('page-faq.php')) {
@@ -108,6 +116,13 @@ function fashionmen_enqueue_assets() {
     if (is_singular() && comments_open() && get_option('thread_comments')) {
         wp_enqueue_script('comment-reply');
     }
+
+    // Global AJAX support for wishlist functionality (used across all pages)
+    wp_localize_script('fashionmen-style', 'aakaari_ajax', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'search_nonce' => wp_create_nonce('aakaari-search-nonce'),
+        'wishlist_nonce' => wp_create_nonce('aakaari-wishlist-nonce')
+    ));
 }
 add_action('wp_enqueue_scripts', 'fashionmen_enqueue_assets');
 
