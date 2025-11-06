@@ -1,235 +1,184 @@
 <?php
 /**
- * Aakaari Brand Theme Functions
+ * functions.php
+ * Aakaari custom WooCommerce theme
  *
- * @package Aakaari_Brand
+ * - Enqueues CSS/JS from assets/css/ and assets/js/
+ * - Deletes all pages on theme activation, then recreates required WooCommerce pages
+ *   (Home, Shop, Cart, Checkout, My Account, Terms)
+ *
+ * WARNING: Activating this theme permanently deletes all pages (if activation code runs).
+ * Please back up your database before activating.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly
+	exit;
 }
 
-// Theme constants
-define( 'AAKAARI_VERSION', '1.0.0' );
-define( 'AAKAARI_THEME_DIR', get_template_directory() );
-define( 'AAKAARI_THEME_URI', get_template_directory_uri() );
-
 /**
- * Theme Setup
+ * Theme setup (support, menus, image sizes)
  */
 function aakaari_theme_setup() {
-    // Add default posts and comments RSS feed links to head
-    add_theme_support( 'automatic-feed-links' );
+	add_theme_support( 'title-tag' );
+	add_theme_support( 'woocommerce' );
 
-    // Let WordPress manage the document title
-    add_theme_support( 'title-tag' );
+	register_nav_menus( array(
+		'primary' => __( 'Primary Menu', 'aakaari' ),
+	) );
 
-    // Enable support for Post Thumbnails
-    add_theme_support( 'post-thumbnails' );
-
-    // Add support for responsive embeds
-    add_theme_support( 'responsive-embeds' );
-
-    // Add support for custom logo
-    add_theme_support( 'custom-logo', array(
-        'height'      => 100,
-        'width'       => 400,
-        'flex-height' => true,
-        'flex-width'  => true,
-    ) );
-
-    // Register navigation menus
-    register_nav_menus( array(
-        'primary' => __( 'Primary Menu', 'aakaari-brand' ),
-        'footer'  => __( 'Footer Menu', 'aakaari-brand' ),
-    ) );
-
-    // Add support for HTML5 markup
-    add_theme_support( 'html5', array(
-        'search-form',
-        'comment-form',
-        'comment-list',
-        'gallery',
-        'caption',
-        'script',
-        'style',
-    ) );
-
-    // WooCommerce support
-    add_theme_support( 'woocommerce' );
-    add_theme_support( 'wc-product-gallery-zoom' );
-    add_theme_support( 'wc-product-gallery-lightbox' );
-    add_theme_support( 'wc-product-gallery-slider' );
+	add_image_size( 'aakaari-product', 600, 600, true );
 }
 add_action( 'after_setup_theme', 'aakaari_theme_setup' );
 
 /**
- * Enqueue scripts and styles
+ * Enqueue homepage assets from assets/css and assets/js
  */
-function aakaari_enqueue_scripts() {
-    // Theme stylesheet
-    wp_enqueue_style( 'aakaari-style', get_stylesheet_uri(), array(), AAKAARI_VERSION );
+function aakaari_enqueue_assets() {
+	$theme = wp_get_theme();
+	$theme_version = $theme ? $theme->get( 'Version' ) : time();
+	$assets_base = get_stylesheet_directory_uri() . '/assets';
 
-    // Layout CSS
-    wp_enqueue_style( 'aakaari-layout', AAKAARI_THEME_URI . '/assets/css/layout.css', array(), AAKAARI_VERSION );
+	// Only load on front page to keep other pages light
+	if ( is_front_page() || is_home() ) {
+		// CSS
+		wp_enqueue_style(
+			'aakaari-homepage',
+			$assets_base . '/css/homepage.css',
+			array(),
+			$theme_version
+		);
 
-    // Header CSS
-    wp_enqueue_style( 'aakaari-header', AAKAARI_THEME_URI . '/assets/css/header.css', array(), AAKAARI_VERSION );
+		// JS (depends on jQuery)
+		wp_enqueue_script(
+			'aakaari-homepage-js',
+			$assets_base . '/js/homepage.js',
+			array( 'jquery' ),
+			$theme_version,
+			true
+		);
 
-    // Footer CSS
-    wp_enqueue_style( 'aakaari-footer', AAKAARI_THEME_URI . '/assets/css/footer.css', array(), AAKAARI_VERSION );
-
-    // Home CSS
-    wp_enqueue_style( 'aakaari-home', AAKAARI_THEME_URI . '/assets/css/home.css', array(), AAKAARI_VERSION );
-
-    // Font Awesome
-    wp_enqueue_style( 'font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', array(), '6.5.1' );
-
-    // Layout JS
-    wp_enqueue_script( 'aakaari-layout', AAKAARI_THEME_URI . '/assets/js/layout.js', array(), AAKAARI_VERSION, true );
-
-    // Home JS
-    if ( is_front_page() ) {
-        wp_enqueue_script( 'aakaari-home', AAKAARI_THEME_URI . '/assets/js/home.js', array(), AAKAARI_VERSION, true );
-    }
-
-    // Localize script for AJAX
-    wp_localize_script( 'aakaari-layout', 'aakaariData', array(
-        'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-        'nonce'   => wp_create_nonce( 'aakaari-nonce' ),
-        'homeUrl' => home_url( '/' ),
-    ) );
+		// Localize a few values for JS if needed
+		wp_localize_script( 'aakaari-homepage-js', 'AakaariData', array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'site_url' => home_url( '/' ),
+		) );
+	}
 }
-add_action( 'wp_enqueue_scripts', 'aakaari_enqueue_scripts' );
+add_action( 'wp_enqueue_scripts', 'aakaari_enqueue_assets' );
 
 /**
- * Register widget areas
+ * Include homepage helper functions if present
  */
-function aakaari_widgets_init() {
-    register_sidebar( array(
-        'name'          => __( 'Sidebar', 'aakaari-brand' ),
-        'id'            => 'sidebar-1',
-        'description'   => __( 'Add widgets here.', 'aakaari-brand' ),
-        'before_widget' => '<section id="%1$s" class="widget %2$s">',
-        'after_widget'  => '</section>',
-        'before_title'  => '<h2 class="widget-title">',
-        'after_title'   => '</h2>',
-    ) );
-}
-add_action( 'widgets_init', 'aakaari_widgets_init' );
-
-/**
- * WooCommerce Customizations
- */
-// Remove default WooCommerce styles
-add_filter( 'woocommerce_enqueue_styles', '__return_empty_array' );
-
-// Modify WooCommerce product columns
-function aakaari_woocommerce_columns() {
-    return 4;
-}
-add_filter( 'loop_shop_columns', 'aakaari_woocommerce_columns' );
-
-// Modify products per page
-function aakaari_products_per_page() {
-    return 12;
-}
-add_filter( 'loop_shop_per_page', 'aakaari_products_per_page' );
-
-/**
- * Include Theme Activator
- */
-require_once AAKAARI_THEME_DIR . '/inc/class-theme-activator.php';
-
-/**
- * Run theme activation on theme switch
- */
-function aakaari_theme_activation() {
-    if ( class_exists( 'Aakaari_Theme_Activator' ) ) {
-        $activator = new Aakaari_Theme_Activator();
-        $activator->activate();
-    }
-}
-add_action( 'after_switch_theme', 'aakaari_theme_activation' );
-
-/**
- * Custom template tags
- */
-
-/**
- * Display cart count
- */
-function aakaari_cart_count() {
-    if ( function_exists( 'WC' ) ) {
-        $count = WC()->cart->get_cart_contents_count();
-        echo '<span class="cart-count">' . esc_html( $count ) . '</span>';
-    }
+if ( file_exists( get_stylesheet_directory() . '/inc/homepage.php' ) ) {
+	require_once get_stylesheet_directory() . '/inc/homepage.php';
 }
 
 /**
- * Display wishlist count (placeholder for future implementation)
+ * Activation routine: delete all pages and create required pages
+ *
+ * NOTE: This runs on after_switch_theme. It is destructive. Use with care.
  */
-function aakaari_wishlist_count() {
-    // This can be extended with a wishlist plugin
-    echo '<span class="wishlist-count">0</span>';
+function aakaari_delete_all_pages_and_create_required() {
+	// Ensure we only run in the activation hook context
+	if ( ! did_action( 'after_switch_theme' ) ) {
+		return;
+	}
+
+	// 1) Delete ALL existing pages (force delete)
+	$all_pages = get_posts( array(
+		'post_type'   => 'page',
+		'post_status' => 'any',
+		'numberposts' => -1,
+		'fields'      => 'ids',
+	) );
+
+	if ( ! empty( $all_pages ) ) {
+		foreach ( $all_pages as $page_id ) {
+			wp_delete_post( $page_id, true ); // true = force delete (bypass trash)
+		}
+	}
+
+	// 2) Create required pages and set WooCommerce options where applicable
+	$created_ids = array();
+
+	// Home
+	$home_id = wp_insert_post( array(
+		'post_title'   => 'Home',
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+		'post_content' => '<!-- Homepage content is generated by front-page.php -->',
+	) );
+	if ( ! is_wp_error( $home_id ) ) {
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', (int) $home_id );
+		$created_ids['home'] = (int) $home_id;
+	}
+
+	// Shop
+	$shop_id = wp_insert_post( array(
+		'post_title'   => 'Shop',
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+		'post_content' => '[products limit="12" columns="4"]',
+	) );
+	if ( ! is_wp_error( $shop_id ) ) {
+		update_option( 'woocommerce_shop_page_id', (int) $shop_id );
+		$created_ids['shop'] = (int) $shop_id;
+	}
+
+	// Cart
+	$cart_id = wp_insert_post( array(
+		'post_title'   => 'Cart',
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+		'post_content' => '[woocommerce_cart]',
+	) );
+	if ( ! is_wp_error( $cart_id ) ) {
+		update_option( 'woocommerce_cart_page_id', (int) $cart_id );
+		$created_ids['cart'] = (int) $cart_id;
+	}
+
+	// Checkout
+	$checkout_id = wp_insert_post( array(
+		'post_title'   => 'Checkout',
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+		'post_content' => '[woocommerce_checkout]',
+	) );
+	if ( ! is_wp_error( $checkout_id ) ) {
+		update_option( 'woocommerce_checkout_page_id', (int) $checkout_id );
+		$created_ids['checkout'] = (int) $checkout_id;
+	}
+
+	// My Account
+	$account_id = wp_insert_post( array(
+		'post_title'   => 'My Account',
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+		'post_content' => '[woocommerce_my_account]',
+	) );
+	if ( ! is_wp_error( $account_id ) ) {
+		update_option( 'woocommerce_myaccount_page_id', (int) $account_id );
+		update_option( 'woocommerce_my_account_page_id', (int) $account_id ); // older option name
+		$created_ids['my_account'] = (int) $account_id;
+	}
+
+	// Terms & Conditions
+	$terms_id = wp_insert_post( array(
+		'post_title'   => 'Terms & Conditions',
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+		'post_content' => 'Enter your store terms and conditions here.',
+	) );
+	if ( ! is_wp_error( $terms_id ) ) {
+		update_option( 'woocommerce_terms_page_id', (int) $terms_id );
+		$created_ids['terms'] = (int) $terms_id;
+	}
+
+	// 3) Flush rewrite rules so permalinks work
+	flush_rewrite_rules();
+
+	// Save created IDs for admin debugging
+	update_option( 'aakaari_created_pages', $created_ids );
 }
-
-/**
- * Custom breadcrumbs
- */
-function aakaari_breadcrumbs() {
-    if ( ! is_front_page() ) {
-        echo '<nav class="breadcrumbs">';
-        echo '<a href="' . esc_url( home_url( '/' ) ) . '">' . __( 'Home', 'aakaari-brand' ) . '</a>';
-
-        if ( is_category() || is_single() ) {
-            echo ' &raquo; ';
-            the_category( ', ' );
-            if ( is_single() ) {
-                echo ' &raquo; ';
-                the_title();
-            }
-        } elseif ( is_page() ) {
-            echo ' &raquo; ';
-            the_title();
-        } elseif ( is_search() ) {
-            echo ' &raquo; ' . __( 'Search Results', 'aakaari-brand' );
-        } elseif ( is_404() ) {
-            echo ' &raquo; ' . __( '404', 'aakaari-brand' );
-        }
-
-        echo '</nav>';
-    }
-}
-
-/**
- * AJAX handlers for cart updates
- */
-function aakaari_update_cart_count() {
-    check_ajax_referer( 'aakaari-nonce', 'nonce' );
-
-    if ( function_exists( 'WC' ) ) {
-        $count = WC()->cart->get_cart_contents_count();
-        wp_send_json_success( array( 'count' => $count ) );
-    }
-
-    wp_send_json_error();
-}
-add_action( 'wp_ajax_aakaari_update_cart_count', 'aakaari_update_cart_count' );
-add_action( 'wp_ajax_nopriv_aakaari_update_cart_count', 'aakaari_update_cart_count' );
-
-/**
- * Customize excerpt length
- */
-function aakaari_excerpt_length( $length ) {
-    return 20;
-}
-add_filter( 'excerpt_length', 'aakaari_excerpt_length' );
-
-/**
- * Customize excerpt more
- */
-function aakaari_excerpt_more( $more ) {
-    return '...';
-}
-add_filter( 'excerpt_more', 'aakaari_excerpt_more' );
+add_action( 'after_switch_theme', 'aakaari_delete_all_pages_and_create_required' );

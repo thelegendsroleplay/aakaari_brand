@@ -1,42 +1,45 @@
 <?php
 /**
- * The main template file
+ * The main template file (Fallback)
  *
- * This is the most generic template file in a WordPress theme
- * and one of the two required files for a theme (the other being style.css).
+ * This is the template that is used by default if no more specific template exists.
  *
- * @package Aakaari_Brand
+ * @package Aakaari Brand
+ * @since 1.0.0
  */
 
-get_header();
+get_header(); // Loads header.php
 ?>
 
-<main id="primary" class="site-main">
-    <div class="page-container">
+<div id="primary" class="content-area">
+    <main id="main" class="site-main">
+
         <?php
         if ( have_posts() ) :
-            if ( is_home() && ! is_front_page() ) :
-                ?>
-                <header>
-                    <h1 class="page-title screen-reader-text"><?php single_post_title(); ?></h1>
-                </header>
-                <?php
-            endif;
-
-            /* Start the Loop */
+            // Start the Loop.
             while ( have_posts() ) :
                 the_post();
-                get_template_part( 'template-parts/content', get_post_type() );
+
+                // Simple fallback content display
+                ?>
+                <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+                    <header class="entry-header">
+                        <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+                    </header>
+                    <div class="entry-content">
+                        <?php the_content(); ?>
+                    </div>
+                </article>
+                <?php
+
             endwhile;
 
-            the_posts_navigation();
-
         else :
-            get_template_part( 'template-parts/content', 'none' );
+
+            echo '<p>No content found.</p>';
+
         endif;
         ?>
-    </div>
-</main><!-- #primary -->
 
-<?php
-get_footer();
+    </main></div><?php
+get_footer(); // Loads footer.php
