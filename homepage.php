@@ -1,34 +1,67 @@
 <?php
 /**
  * Template Name: Homepage
- * Description: Custom homepage template with hero, categories, and featured products
  *
- * @package FashionMen
- * @since 1.0.0
+ * Custom homepage template for Aakaari theme
+ * Displays hero section, categories, and featured products
+ *
+ * @package Aakaari
  */
 
-// Include homepage functions
-require_once get_template_directory() . '/inc/homepage.php';
+// Prevent direct access
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
-get_header();
-?>
+get_header(); ?>
 
-<main id="primary" class="site-main homepage">
+<main id="primary" class="site-main homepage-template">
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <?php fashionmen_hero_section(); ?>
-    </section>
+    <?php
+    /**
+     * Hook: aakaari_before_homepage_content
+     *
+     * Allows adding content before the homepage sections
+     */
+    do_action( 'aakaari_before_homepage_content' );
 
-    <!-- Categories Section -->
-    <section class="categories-section">
-        <?php fashionmen_categories_section(); ?>
-    </section>
+    // Load home functions
+    if ( file_exists( get_template_directory() . '/inc/home.php' ) ) {
+        require_once get_template_directory() . '/inc/home.php';
+    }
 
-    <!-- Featured Products Section -->
-    <section class="featured-products-section">
-        <?php fashionmen_featured_products_section(); ?>
-    </section>
+    /**
+     * Hero Section
+     * Displays the main hero banner with customizable content
+     */
+    if ( function_exists( 'aakaari_render_hero_section' ) ) {
+        aakaari_render_hero_section();
+    }
+
+    /**
+     * Categories Section
+     * Displays WooCommerce product categories in a grid layout
+     */
+    if ( function_exists( 'aakaari_render_categories_section' ) ) {
+        aakaari_render_categories_section();
+    }
+
+    /**
+     * Featured Products Section
+     * Displays featured WooCommerce products
+     */
+    if ( function_exists( 'aakaari_render_featured_products_section' ) ) {
+        aakaari_render_featured_products_section();
+    }
+
+    /**
+     * Hook: aakaari_after_homepage_content
+     *
+     * Allows adding additional content after the homepage sections
+     * Examples: Newsletter signup, promotional banners, testimonials, etc.
+     */
+    do_action( 'aakaari_after_homepage_content' );
+    ?>
 
 </main>
 
