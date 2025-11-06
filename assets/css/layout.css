@@ -71,19 +71,40 @@ input[type="submit"]:hover,
    WOOCOMMERCE PRODUCT GRID
    ============================================ */
 
-.products-grid {
+.products-grid,
+.products,
+ul.products {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+@media (max-width: 1024px) {
+  .products-grid,
+  .products,
+  ul.products {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
-  .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  .products-grid,
+  .products,
+  ul.products {
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid,
+  .products,
+  ul.products {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 
@@ -267,6 +288,35 @@ label {
 }
 
 /* ============================================
+   TRUST ICONS SVG SIZING
+   ============================================ */
+
+.trust-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* ============================================
+   LINK STYLES
+   ============================================ */
+
+a {
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* ============================================
+   SITE MAIN
+   ============================================ */
+
+.site-main {
+  margin-top: 0;
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 
@@ -274,4 +324,20 @@ label {
   .page-container {
     padding: 0 12px;
   }
+}
+
+/* ============================================
+   CUSTOM ICONS/UTILITIES
+   ============================================ */
+
+svg {
+  display: inline-block;
+  vertical-align: middle;
+  color: inherit;
+}
+
+/* Ensure images don't overflow */
+img {
+  max-width: 100%;
+  height: auto;
 }

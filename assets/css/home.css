@@ -102,6 +102,7 @@
 }
 
 .hero-cta-button {
+  display: inline-block;
   background: #ffffff;
   color: #000000;
   padding: 14px 40px;
@@ -112,12 +113,15 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  text-align: center;
 }
 
 .hero-cta-button:hover {
   background: #f5f5f5;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
+  color: #000000;
 }
 
 /* ============================================
@@ -150,6 +154,8 @@
   cursor: pointer;
   height: 340px;
   background: #000000;
+  display: block;
+  text-decoration: none;
 }
 
 .category-card-image {
@@ -227,6 +233,7 @@
 }
 
 .section-view-link {
+  display: inline-block;
   background: transparent;
   border: none;
   color: #000000;
@@ -236,10 +243,12 @@
   padding: 8px 16px;
   transition: all 0.2s ease;
   border-radius: 4px;
+  text-decoration: none;
 }
 
 .section-view-link:hover {
   background: #f8f9fa;
+  color: #000000;
 }
 
 .product-carousel-wrapper {
@@ -329,6 +338,7 @@
 }
 
 .promo-button {
+  display: inline-block;
   background: #ffffff;
   color: #000000;
   padding: 12px 32px;
@@ -338,11 +348,14 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none;
+  text-align: center;
 }
 
 .promo-button:hover {
   background: #f5f5f5;
   transform: scale(1.02);
+  color: #000000;
 }
 
 .promo-image-wrapper {

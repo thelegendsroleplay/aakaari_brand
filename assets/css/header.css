@@ -125,10 +125,35 @@
 .header-action-btn {
   height: 36px;
   width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  color: #000000;
+  text-decoration: none;
+  padding: 0;
 }
 
 .header-action-btn:hover {
   background: #f8f9fa;
+}
+
+/* SVG Icon Sizing */
+.header-action-btn svg,
+.w-4,
+.h-4 {
+  width: 16px;
+  height: 16px;
+}
+
+.w-5,
+.h-5 {
+  width: 20px;
+  height: 20px;
 }
 
 .header-wishlist-btn,
@@ -140,15 +165,18 @@
   position: absolute;
   top: -4px;
   right: -4px;
-  width: 16px;
+  min-width: 16px;
   height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 0 4px;
   font-size: 10px;
+  font-weight: 600;
   background: #000000;
   color: #ffffff;
+  border-radius: 8px;
+  line-height: 1;
 }
 
 /* ============================================
