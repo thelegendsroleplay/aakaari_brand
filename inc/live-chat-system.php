@@ -246,10 +246,12 @@ function aakaari_get_chat_messages() {
     }
 
     $status = get_post_meta( $chat_id, '_chat_status', true );
+    $close_reason = get_post_meta( $chat_id, '_chat_close_reason', true );
 
     wp_send_json_success( array(
         'messages' => $messages,
         'status' => $status,
+        'close_reason' => $close_reason,
         'updated' => get_post_meta( $chat_id, '_chat_updated', true ),
     ) );
 }
@@ -793,6 +795,10 @@ function aakaari_admin_close_chat() {
 
     update_post_meta( $chat_id, '_chat_status', 'closed' );
     update_post_meta( $chat_id, '_chat_ended', current_time( 'mysql' ) );
+    update_post_meta( $chat_id, '_chat_close_reason', 'admin_closed' );
+
+    // Send transcript to customer
+    aakaari_send_chat_transcript( $chat_id );
 
     wp_send_json_success( array( 'message' => 'Chat closed' ) );
 }
