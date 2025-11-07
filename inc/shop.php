@@ -185,7 +185,7 @@ function aakaari_render_product_card( $product ) {
         <div class="badge">Featured</div>
       <?php endif; ?>
 
-      <button class="favorite" aria-label="add to wishlist">♥</button>
+      <button class="favorite" data-product-id="<?php echo esc_attr( $id ); ?>" aria-label="add to wishlist">♡</button>
 
       <a href="<?php echo $permalink; ?>">
         <img src="<?php echo $img_src; ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy" />
