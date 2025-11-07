@@ -55,7 +55,9 @@ body.tax-product_cat .entry-title {
 .filter-checkbox input[type=checkbox]{width:16px;height:16px}
 
 /* price slider */
-.price-range .ranges{display:flex;gap:.75rem;align-items:center}
+.price-range{width:100%;overflow:hidden}
+.price-range .ranges{display:flex;flex-direction:column;gap:.5rem;width:100%}
+.price-range input[type="range"]{width:100%;max-width:100%;margin:0;padding:0}
 .price-labels{display:flex;justify-content:space-between;margin-top:.5rem;font-size:.875rem;color:var(--muted)}
 
 /* colors */
