@@ -167,6 +167,9 @@ get_header();
 								<polyline points="9 18 15 12 9 6"></polyline>
 							</svg>
 						</button>
+
+						<!-- Carousel Dots (Mobile) -->
+						<div class="carousel-dots" id="featured-dots"></div>
 					</div>
 				<?php else : ?>
 					<p style="text-align: center; color: #666; padding: 2rem 0;">No featured products available yet.</p>
@@ -268,6 +271,9 @@ get_header();
 								<polyline points="9 18 15 12 9 6"></polyline>
 							</svg>
 						</button>
+
+						<!-- Carousel Dots (Mobile) -->
+						<div class="carousel-dots" id="arrivals-dots"></div>
 					</div>
 				<?php else : ?>
 					<p style="text-align: center; color: #666; padding: 2rem 0;">No new arrivals available yet.</p>
