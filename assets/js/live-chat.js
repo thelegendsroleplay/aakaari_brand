@@ -484,37 +484,34 @@
     }
 
     /**
-     * Format timestamp to readable time in IST (Indian Standard Time)
+     * Format timestamp to readable time
      */
     function formatTime(timestamp) {
-        // Parse the timestamp - WordPress sends "YYYY-MM-DD HH:MM:SS" format
+        // WordPress sends "YYYY-MM-DD HH:MM:SS" format in server timezone
+        // Simply parse as local time and calculate difference
         const date = new Date(timestamp.replace(' ', 'T'));
         const now = new Date();
 
-        // Calculate difference in milliseconds
+        // Calculate difference
         const diff = now - date;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
+        const seconds = Math.floor(diff / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
 
         // Return relative time for recent messages
+        if (seconds < 5) return 'Just now';
         if (minutes < 1) return 'Just now';
         if (minutes < 60) return minutes + ' min ago';
         if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
         if (days < 7) return days + ' day' + (days > 1 ? 's' : '') + ' ago';
 
-        // For older messages, show full date and time in IST
-        // Convert to IST by adding 5:30 hours offset
-        const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
-        const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
-        const istTime = new Date(utcTime + istOffset);
+        // For older messages, show full date and time
+        const hours12 = date.getHours() % 12 || 12;
+        const mins = date.getMinutes().toString().padStart(2, '0');
+        const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
 
-        const istHours = istTime.getHours();
-        const istMinutes = istTime.getMinutes().toString().padStart(2, '0');
-        const ampm = istHours >= 12 ? 'PM' : 'AM';
-        const displayHours = istHours % 12 || 12;
-
-        return istTime.toLocaleDateString('en-IN') + ' ' + displayHours + ':' + istMinutes + ' ' + ampm + ' IST';
+        return date.toLocaleDateString('en-IN') + ' ' + hours12 + ':' + mins + ' ' + ampm;
     }
 
     /**
