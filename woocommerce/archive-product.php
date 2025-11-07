@@ -209,6 +209,7 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
                             <option value="price-desc" <?php selected( $current_orderby, 'price-desc' ); ?>>Price: High to Low</option>
                             <option value="date" <?php selected( $current_orderby, 'date' ); ?>>Newest</option>
                             <option value="rating" <?php selected( $current_orderby, 'rating' ); ?>>Rating</option>
+                            <option value="sale" <?php selected( $current_orderby, 'sale' ); ?>>On Sale</option>
                         </select>
                     </form>
                 </div>

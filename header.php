@@ -32,26 +32,10 @@
                 <!-- Desktop Navigation -->
                 <nav class="header-nav">
                     <?php
-                    // Get product category links
-                    $tshirts_link = home_url('/shop/');
-                    $hoodies_link = home_url('/shop/');
-
-                    if ( function_exists( 'get_term_link' ) ) {
-                        $tshirts_term_link = get_term_link( 't-shirts', 'product_cat' );
-                        if ( ! is_wp_error( $tshirts_term_link ) ) {
-                            $tshirts_link = $tshirts_term_link;
-                        }
-
-                        $hoodies_term_link = get_term_link( 'hoodies', 'product_cat' );
-                        if ( ! is_wp_error( $hoodies_term_link ) ) {
-                            $hoodies_link = $hoodies_term_link;
-                        }
-                    }
-
                     $menu_items = array(
                         array( 'label' => 'Home', 'url' => home_url('/'), 'page' => 'home' ),
-                        array( 'label' => 'T-Shirts', 'url' => $tshirts_link, 'page' => 'products' ),
-                        array( 'label' => 'Hoodies', 'url' => $hoodies_link, 'page' => 'hoodies' ),
+                        array( 'label' => 'T-Shirts', 'url' => home_url('/shop/?product_cat=t-shirts'), 'page' => 'products' ),
+                        array( 'label' => 'Hoodies', 'url' => home_url('/shop/?product_cat=hoodies'), 'page' => 'hoodies' ),
                         array( 'label' => 'New Arrivals', 'url' => home_url('/shop/?orderby=date'), 'page' => 'new-arrivals' ),
                         array( 'label' => 'Sale', 'url' => home_url('/shop/?on_sale=yes'), 'page' => 'sale' ),
                     );
