@@ -1,24 +1,14 @@
 <?php
 /**
  * The Template for displaying product archives (Shop Page)
- * Enhanced version matching Figma Design (fig/src/pages/products/ProductsPage.tsx)
- *
- * Features:
- * - Category filtering
- * - Price range filtering
- * - Size attribute filtering
- * - Color attribute filtering
- * - Rating filtering
- * - Multiple sort options
- * - Responsive design with mobile filter toggle
- * - AJAX filtering (future enhancement)
+ * Matches Figma Design exactly: fig/src/pages/products/ProductsPage.tsx
  */
 
 defined( 'ABSPATH' ) || exit;
 
 get_header();
 
-// Get page title and description
+// Get page title and description based on current view
 $page_title = woocommerce_page_title( false );
 $page_description = '';
 
@@ -26,6 +16,7 @@ if ( is_product_category() ) {
     $category = get_queried_object();
     $page_description = $category->description;
     if ( ! $page_description ) {
+        // Default descriptions based on category slug
         if ( $category->slug === 'hoodies' ) {
             $page_description = 'Cozy hoodies for every season';
         } elseif ( $category->slug === 't-shirts' ) {
@@ -51,41 +42,33 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
 
 <div class="products-page">
     <!-- Page Header -->
-    <div class="page-header" style="background: #fff; border-bottom: 1px solid #e5e7eb;">
-        <div style="max-width: 1280px; margin: 0 auto; padding: 2rem 1rem;">
-            <h1 style="font-size: 2rem; font-weight: 700; margin: 0 0 0.5rem; color: #000;">
-                <?php echo esc_html( $page_title ); ?>
-            </h1>
-            <?php if ( $page_description ) : ?>
-                <p style="font-size: 1rem; color: #6b7280; margin: 0;">
-                    <?php echo esc_html( $page_description ); ?>
-                </p>
-            <?php endif; ?>
-        </div>
+    <div class="page-header">
+        <h1><?php echo esc_html( $page_title ); ?></h1>
+        <?php if ( $page_description ) : ?>
+            <p><?php echo esc_html( $page_description ); ?></p>
+        <?php endif; ?>
     </div>
 
     <div class="products-container">
-        <!-- Sidebar Filters -->
+        <!-- Filters Sidebar -->
         <aside class="filters-sidebar" id="filters-sidebar">
             <div class="filters-header">
                 <h2>Filters</h2>
-                <a href="<?php echo esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) ); ?>"
-                   class="clear-filters-btn">
+                <a href="<?php echo esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) ); ?>" style="font-size: 0.875rem; color: #666; text-decoration: none;">
                     Clear All
                 </a>
             </div>
 
             <?php
-            // Get product categories
+            // Categories Filter
             $product_categories = get_terms( array(
                 'taxonomy'   => 'product_cat',
                 'hide_empty' => true,
-                'exclude'    => get_option( 'default_product_cat' ), // Exclude uncategorized
+                'exclude'    => get_option( 'default_product_cat' ),
             ) );
 
             if ( ! empty( $product_categories ) && ! is_wp_error( $product_categories ) ) :
             ?>
-            <!-- Categories Filter -->
             <div class="filter-section">
                 <h3>Categories</h3>
                 <div class="filter-options">
@@ -94,10 +77,8 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
                         $is_current = $current_category === $category->term_id;
                     ?>
                         <label class="filter-checkbox">
-                            <input type="checkbox"
-                                   <?php checked( $is_current ); ?>
-                                   onchange="window.location.href='<?php echo esc_url( get_term_link( $category ) ); ?>'"
-                                   class="filter-checkbox-input">
+                            <input type="checkbox" <?php checked( $is_current ); ?>
+                                   onchange="window.location.href='<?php echo esc_url( get_term_link( $category ) ); ?>'">
                             <span><?php echo esc_html( $category->name ); ?></span>
                         </label>
                     <?php endforeach; ?>
@@ -109,43 +90,17 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
             <div class="filter-section">
                 <h3>Price Range</h3>
                 <div class="price-range">
-                    <form method="get" id="price-filter-form">
-                        <?php
-                        // Preserve other query parameters
-                        foreach ( $_GET as $key => $value ) {
-                            if ( ! in_array( $key, array( 'min_price', 'max_price' ) ) ) {
-                                echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">';
-                            }
-                        }
-                        ?>
-                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
-                            <input type="number"
-                                   name="min_price"
-                                   value="<?php echo esc_attr( $min_price ); ?>"
-                                   placeholder="Min"
-                                   min="0"
-                                   class="price-input">
-                            <span style="align-self: center; color: #6b7280;">-</span>
-                            <input type="number"
-                                   name="max_price"
-                                   value="<?php echo esc_attr( $max_price ); ?>"
-                                   placeholder="Max"
-                                   min="0"
-                                   class="price-input">
-                        </div>
-                        <div class="price-labels">
-                            <span>$<?php echo esc_html( $min_price ); ?></span>
-                            <span>$<?php echo esc_html( $max_price ); ?></span>
-                        </div>
-                        <button type="submit" class="filter-apply-btn">
-                            Apply Price Filter
-                        </button>
-                    </form>
+                    <!-- Price Slider Component (using WooCommerce widget or custom) -->
+                    <?php the_widget( 'WC_Widget_Price_Filter' ); ?>
+                    <div class="price-labels">
+                        <span>$<?php echo esc_html( $min_price ); ?></span>
+                        <span>$<?php echo esc_html( $max_price ); ?></span>
+                    </div>
                 </div>
             </div>
 
             <?php
-            // Size Attribute Filter
+            // Sizes Filter
             $size_terms = get_terms( array(
                 'taxonomy'   => 'pa_size',
                 'hide_empty' => true,
@@ -153,7 +108,6 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
 
             if ( ! empty( $size_terms ) && ! is_wp_error( $size_terms ) ) :
             ?>
-            <!-- Sizes Filter -->
             <div class="filter-section">
                 <h3>Sizes</h3>
                 <div class="filter-options">
@@ -161,11 +115,9 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
                         $is_selected = in_array( $size->slug, $current_sizes );
                     ?>
                         <label class="filter-checkbox">
-                            <input type="checkbox"
-                                   value="<?php echo esc_attr( $size->slug ); ?>"
+                            <input type="checkbox" value="<?php echo esc_attr( $size->slug ); ?>"
                                    <?php checked( $is_selected ); ?>
-                                   onchange="toggleFilter('size', '<?php echo esc_js( $size->slug ); ?>')"
-                                   class="filter-checkbox-input">
+                                   onchange="toggleFilter('size', '<?php echo esc_js( $size->slug ); ?>')">
                             <span><?php echo esc_html( $size->name ); ?></span>
                         </label>
                     <?php endforeach; ?>
@@ -174,7 +126,7 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
             <?php endif; ?>
 
             <?php
-            // Color Attribute Filter
+            // Colors Filter
             $color_terms = get_terms( array(
                 'taxonomy'   => 'pa_color',
                 'hide_empty' => true,
@@ -182,19 +134,22 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
 
             if ( ! empty( $color_terms ) && ! is_wp_error( $color_terms ) ) :
             ?>
-            <!-- Colors Filter -->
             <div class="filter-section">
                 <h3>Colors</h3>
                 <div class="color-options">
                     <?php foreach ( $color_terms as $color ) :
                         $is_selected = in_array( $color->slug, $current_colors );
-                        $color_hex = get_term_meta( $color->term_id, 'color', true ) ?: $color->slug;
+                        // Get color hex from term meta or use default
+                        $color_hex = get_term_meta( $color->term_id, 'color', true );
+                        if ( ! $color_hex ) {
+                            // Fallback: use color name as CSS color
+                            $color_hex = strtolower( $color->name );
+                        }
                     ?>
                         <button class="color-swatch <?php echo $is_selected ? 'selected' : ''; ?>"
                                 style="background-color: <?php echo esc_attr( $color_hex ); ?>"
                                 onclick="toggleFilter('color', '<?php echo esc_js( $color->slug ); ?>')"
-                                title="<?php echo esc_attr( $color->name ); ?>"
-                                aria-label="<?php echo esc_attr( $color->name ); ?>">
+                                title="<?php echo esc_attr( $color->name ); ?>">
                         </button>
                     <?php endforeach; ?>
                 </div>
@@ -207,11 +162,9 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
                 <div class="rating-options">
                     <?php foreach ( array( 4, 3, 2, 1 ) as $rating ) : ?>
                         <label class="filter-checkbox">
-                            <input type="checkbox"
-                                   value="<?php echo esc_attr( $rating ); ?>"
+                            <input type="checkbox" value="<?php echo esc_attr( $rating ); ?>"
                                    <?php checked( $current_rating === $rating ); ?>
-                                   onchange="setRatingFilter(<?php echo esc_js( $rating ); ?>)"
-                                   class="filter-checkbox-input">
+                                   onchange="setRatingFilter(<?php echo esc_js( $rating ); ?>)">
                             <span><?php echo esc_html( $rating ); ?>+ Stars</span>
                         </label>
                     <?php endforeach; ?>
@@ -223,8 +176,8 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
         <main class="products-main">
             <!-- Toolbar -->
             <div class="products-toolbar">
-                <button class="filter-toggle-btn" onclick="toggleFilters()" aria-label="Toggle filters">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="lg:hidden" onclick="toggleFilters()" style="display: none; padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; background: white; cursor: pointer;" id="filter-toggle-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle;">
                         <line x1="4" y1="21" x2="4" y2="14"></line>
                         <line x1="4" y1="10" x2="4" y2="3"></line>
                         <line x1="12" y1="21" x2="12" y2="12"></line>
@@ -237,21 +190,20 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
 
                 <div class="toolbar-info">
                     <?php $total = $GLOBALS['wp_query']->found_posts; ?>
-                    <p><?php echo esc_html( $total ); ?> Product<?php echo $total !== 1 ? 's' : ''; ?></p>
+                    <p><?php echo esc_html( $total ); ?> Products</p>
                 </div>
 
                 <div class="toolbar-sort">
                     <span class="sort-label">Sort by:</span>
                     <form method="get" onchange="this.submit()">
                         <?php
-                        // Preserve filters in sort form
                         foreach ( $_GET as $key => $value ) {
                             if ( $key !== 'orderby' ) {
                                 echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">';
                             }
                         }
                         ?>
-                        <select name="orderby" class="sort-select">
+                        <select name="orderby" style="padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; min-width: 180px;">
                             <option value="popularity" <?php selected( $current_orderby, 'popularity' ); ?>>Popularity</option>
                             <option value="price" <?php selected( $current_orderby, 'price' ); ?>>Price: Low to High</option>
                             <option value="price-desc" <?php selected( $current_orderby, 'price-desc' ); ?>>Price: High to Low</option>
@@ -287,7 +239,7 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
                     </svg>
                     <h3>No products found</h3>
                     <p>Try adjusting your filters</p>
-                    <a href="<?php echo esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) ); ?>" class="btn-clear-filters">
+                    <a href="<?php echo esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) ); ?>" style="display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; background: #000; color: #fff; text-decoration: none; border-radius: 0.5rem;">
                         Clear Filters
                     </a>
                 </div>
@@ -315,7 +267,7 @@ function toggleFilters() {
     }
 }
 
-// Toggle multi-select filters (size, color)
+// Multi-select filters
 function toggleFilter(type, value) {
     const params = new URLSearchParams(window.location.search);
     const paramName = 'filter_' + type;
@@ -337,7 +289,7 @@ function toggleFilter(type, value) {
     window.location.search = params.toString();
 }
 
-// Set rating filter (single select)
+// Rating filter
 function setRatingFilter(rating) {
     const params = new URLSearchParams(window.location.search);
     const current = params.get('rating_filter');
@@ -351,23 +303,24 @@ function setRatingFilter(rating) {
     window.location.search = params.toString();
 }
 
-// Mobile responsive - hide filters by default on mobile
+// Mobile responsive
 window.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('filters-sidebar');
+    const toggleBtn = document.getElementById('filter-toggle-btn');
 
-    if (window.innerWidth < 1024) {
-        sidebar.classList.add('hide');
-    }
-
-    // Responsive handler
-    window.addEventListener('resize', function() {
-        if (window.innerWidth >= 1024) {
+    function checkMobile() {
+        if (window.innerWidth < 1024) {
+            sidebar.classList.add('hide');
+            toggleBtn.style.display = 'inline-flex';
+        } else {
             sidebar.classList.remove('hide');
             sidebar.classList.remove('show');
-        } else if (!sidebar.classList.contains('show')) {
-            sidebar.classList.add('hide');
+            toggleBtn.style.display = 'none';
         }
-    });
+    }
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
 });
 </script>
 
