@@ -130,11 +130,28 @@ function aakaari_enqueue_assets() {
 			time() // Force cache refresh
 		);
 
+		// Enqueue toast notifications CSS
+		wp_enqueue_style(
+			'aakaari-toast',
+			$assets_base . '/css/toast-notifications.css',
+			array(),
+			time() // Force cache refresh
+		);
+
+		// Enqueue toast notifications JS (load before products.js)
+		wp_enqueue_script(
+			'aakaari-toast',
+			$assets_base . '/js/toast-notifications.js',
+			array(),
+			time(), // Force cache refresh
+			true
+		);
+
 		// Enqueue products JS for AJAX filtering
 		wp_enqueue_script(
 			'aakaari-products',
 			$assets_base . '/js/products.js',
-			array(),
+			array( 'aakaari-toast' ),
 			time(), // Force cache refresh
 			true
 		);

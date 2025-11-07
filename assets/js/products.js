@@ -103,15 +103,83 @@
       e.preventDefault();
       e.stopPropagation();
       const btn = e.target.closest('.favorite');
-      btn.textContent = btn.textContent === '♥' ? '♡' : '♥';
-      // TODO: integrate with YITH wishlist or custom wishlist
+      const card = btn.closest('.product-card');
+      const productId = btn.dataset.productId || card.querySelector('.add-btn')?.dataset.id;
+
+      // Get product details for toast
+      const productName = card.querySelector('.product-title')?.textContent || 'Product';
+      const productPrice = card.querySelector('.price')?.textContent || '';
+      const productImage = card.querySelector('.product-media img')?.src || '';
+
+      // Toggle wishlist state
+      const isInWishlist = btn.classList.contains('active');
+
+      if (!isInWishlist) {
+        // Add to wishlist
+        btn.classList.add('active');
+        btn.textContent = '♥';
+
+        // If YITH Wishlist is available, use it
+        if (typeof yith_wcwl_l10n !== 'undefined' && productId) {
+          const formData = new FormData();
+          formData.append('action', 'add_to_wishlist');
+          formData.append('add_to_wishlist', productId);
+          formData.append('product_type', 'simple');
+          formData.append('context', 'frontend');
+
+          fetch(yith_wcwl_l10n.ajax_url, {
+            method: 'POST',
+            body: formData
+          })
+          .then(r => r.json())
+          .then(data => {
+            if (data.result === 'true' || data.result === true) {
+              if (typeof window.showWishlistToast === 'function') {
+                window.showWishlistToast({
+                  name: productName,
+                  price: productPrice,
+                  image: productImage
+                });
+              }
+            }
+          })
+          .catch(err => console.error('Wishlist error:', err));
+        } else {
+          // Fallback toast notification
+          if (typeof window.showWishlistToast === 'function') {
+            window.showWishlistToast({
+              name: productName,
+              price: productPrice,
+              image: productImage
+            });
+          }
+        }
+      } else {
+        // Remove from wishlist
+        btn.classList.remove('active');
+        btn.textContent = '♡';
+        if (typeof window.showMessageToast === 'function') {
+          window.showMessageToast('Removed from Wishlist', 'Item removed', 'info');
+        }
+      }
     }
 
     // add to cart (in overlay)
     if(e.target.closest('.add-btn')){
       e.preventDefault();
       e.stopPropagation();
-      const id = e.target.closest('.add-btn').dataset.id;
+      const btn = e.target.closest('.add-btn');
+      const id = btn.dataset.id;
+      const card = btn.closest('.product-card');
+
+      // Get product details for toast
+      const productName = card.querySelector('.product-title')?.textContent || 'Product';
+      const productPrice = card.querySelector('.price')?.textContent || '';
+      const productImage = card.querySelector('.product-media img')?.src || '';
+
+      // Disable button while adding
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
 
       // Use WooCommerce AJAX add to cart
       const data = {
@@ -128,17 +196,36 @@
       })
       .then(r => r.json())
       .then(response => {
+        // Re-enable button
+        btn.disabled = false;
+        btn.textContent = 'Add to Cart';
+
         if (response.error) {
-          alert('Error adding to cart');
+          if (typeof window.showMessageToast === 'function') {
+            window.showMessageToast('Error', 'Could not add to cart', 'info');
+          }
         } else {
           // Trigger WooCommerce cart update event
           document.body.dispatchEvent(new Event('wc_fragment_refresh'));
-          alert('Added to cart!');
+
+          // Show beautiful toast notification
+          if (typeof window.showCartToast === 'function') {
+            window.showCartToast({
+              name: productName,
+              price: productPrice,
+              image: productImage
+            });
+          }
         }
       })
       .catch(err => {
         console.error(err);
-        alert('Added to cart!');
+        btn.disabled = false;
+        btn.textContent = 'Add to Cart';
+
+        if (typeof window.showMessageToast === 'function') {
+          window.showMessageToast('Added to Cart', 'Item added successfully', 'success');
+        }
       });
     }
   });

@@ -86,8 +86,9 @@ body.tax-product_cat .entry-title {
 .product-media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.3s}
 .product-card:hover .product-media img{transform:scale(1.05)}
 .badge{position:absolute;left:10px;top:10px;background:var(--pill);color:#fff;padding:6px 8px;border-radius:8px;font-size:.8rem;font-weight:700;z-index:10}
-.favorite{position:absolute;right:10px;top:10px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);cursor:pointer;z-index:10}
+.favorite{position:absolute;right:10px;top:10px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);cursor:pointer;z-index:10;transition:all 0.2s;font-size:1.125rem}
 .favorite:hover{background:#fff;transform:scale(1.1)}
+.favorite.active{background:#ef4444;color:#fff;border-color:#ef4444}
 .overlay{position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(180deg,rgba(0,0,0,0)0%,rgba(0,0,0,.45)100%);display:flex;align-items:flex-end;justify-content:center;padding:8px;opacity:0;transform:translateY(6px);transition:all .18s}
 .product-card:hover .overlay{opacity:1;transform:translateY(0)}
 .overlay .add-btn{background:rgba(0,0,0,.9);color:#fff;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-weight:600;transition:background 0.2s}
