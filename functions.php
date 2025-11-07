@@ -130,7 +130,7 @@ function aakaari_enqueue_assets() {
 			'aakaari-products',
 			$assets_base . '/css/products.css',
 			array( 'aakaari-reset' ),
-			$theme_version
+			time() // Force cache refresh
 		);
 	}
 
