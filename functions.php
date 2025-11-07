@@ -75,7 +75,14 @@ function aakaari_enqueue_assets() {
 		wp_enqueue_style(
 			'aakaari-homepage',
 			$assets_base . '/css/homepage.css',
-			array(),
+			array( 'aakaari-reset' ),
+			$theme_version
+		);
+
+		wp_enqueue_style(
+			'aakaari-product-card',
+			$assets_base . '/css/product-card.css',
+			array( 'aakaari-reset' ),
 			$theme_version
 		);
 
