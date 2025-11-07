@@ -36,6 +36,11 @@ require_once get_template_directory() . '/inc/wc-color-attributes.php';
 require_once get_template_directory() . '/inc/shop.php';
 
 /**
+ * Include Custom Wishlist System
+ */
+require_once get_template_directory() . '/inc/wishlist.php';
+
+/**
  * Theme setup (support, menus, image sizes)
  */
 function aakaari_theme_setup() {
@@ -160,6 +165,7 @@ function aakaari_enqueue_assets() {
 		wp_localize_script( 'aakaari-products', 'aakaari_ajax', array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'aakaari_ajax_nonce' ),
+			'home_url' => home_url(),
 		) );
 
 		// Optional page type for filtering logic

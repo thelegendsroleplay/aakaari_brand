@@ -127,13 +127,18 @@
    * Show wishlist toast
    */
   window.showWishlistToast = function(productData) {
+    // Get the correct wishlist URL (use home URL + path)
+    const wishlistUrl = (typeof aakaari_ajax !== 'undefined' && aakaari_ajax.home_url)
+      ? aakaari_ajax.home_url + '/my-account/?tab=wishlist'
+      : '/my-account/?tab=wishlist';
+
     return showToast({
       type: 'wishlist',
       title: 'Added to Wishlist',
       message: 'Item saved for later',
       product: productData,
       actions: [
-        { text: 'View Wishlist', href: '/my-account/?tab=wishlist', primary: true }
+        { text: 'View Wishlist', href: wishlistUrl, primary: true }
       ]
     });
   };

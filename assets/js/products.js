@@ -78,6 +78,7 @@
         if(data.success){
           renderProductsHtml(data.data.html);
           updateCount(data.data.count);
+          initializeWishlistStates();
         } else {
           renderProductsHtml('<div style="grid-column:1/-1;padding:2rem;text-align:center;color:#666">No products found</div>');
           updateCount(0);
@@ -87,6 +88,20 @@
         renderProductsHtml('<div style="grid-column:1/-1;padding:2rem;text-align:center;color:#666">Error loading products</div>');
         updateCount(0);
       });
+  }
+
+  // Initialize wishlist button states based on saved wishlist data
+  function initializeWishlistStates() {
+    if (typeof aakaari_wishlist !== 'undefined' && aakaari_wishlist.product_ids) {
+      const wishlistIds = aakaari_wishlist.product_ids;
+      $all('.favorite').forEach(btn => {
+        const productId = btn.dataset.productId;
+        if (productId && wishlistIds.includes(parseInt(productId))) {
+          btn.classList.add('active');
+          btn.textContent = '♥';
+        }
+      });
+    }
   }
 
   /* UI wiring */
@@ -106,6 +121,8 @@
       const card = btn.closest('.product-card');
       const productId = btn.dataset.productId || card.querySelector('.add-btn')?.dataset.id;
 
+      if (!productId) return;
+
       // Get product details for toast
       const productName = card.querySelector('.product-title')?.textContent || 'Product';
       const productPrice = card.querySelector('.price')?.textContent || '';
@@ -116,51 +133,63 @@
 
       if (!isInWishlist) {
         // Add to wishlist
-        btn.classList.add('active');
-        btn.textContent = '♥';
+        const formData = new FormData();
+        formData.append('action', 'aakaari_add_to_wishlist');
+        formData.append('nonce', aakaari_ajax.nonce);
+        formData.append('product_id', productId);
 
-        // If YITH Wishlist is available, use it
-        if (typeof yith_wcwl_l10n !== 'undefined' && productId) {
-          const formData = new FormData();
-          formData.append('action', 'add_to_wishlist');
-          formData.append('add_to_wishlist', productId);
-          formData.append('product_type', 'simple');
-          formData.append('context', 'frontend');
+        fetch(aakaari_ajax.ajax_url, {
+          method: 'POST',
+          body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            btn.classList.add('active');
+            btn.textContent = '♥';
 
-          fetch(yith_wcwl_l10n.ajax_url, {
-            method: 'POST',
-            body: formData
-          })
-          .then(r => r.json())
-          .then(data => {
-            if (data.result === 'true' || data.result === true) {
-              if (typeof window.showWishlistToast === 'function') {
-                window.showWishlistToast({
-                  name: productName,
-                  price: productPrice,
-                  image: productImage
-                });
-              }
+            if (typeof window.showWishlistToast === 'function') {
+              window.showWishlistToast({
+                name: productName,
+                price: productPrice,
+                image: productImage
+              });
             }
-          })
-          .catch(err => console.error('Wishlist error:', err));
-        } else {
-          // Fallback toast notification
-          if (typeof window.showWishlistToast === 'function') {
-            window.showWishlistToast({
-              name: productName,
-              price: productPrice,
-              image: productImage
-            });
+          } else {
+            if (typeof window.showMessageToast === 'function') {
+              window.showMessageToast('Login Required', data.data.message || 'Please login to add to wishlist', 'info');
+            }
           }
-        }
+        })
+        .catch(err => {
+          console.error('Wishlist error:', err);
+          if (typeof window.showMessageToast === 'function') {
+            window.showMessageToast('Error', 'Could not add to wishlist', 'info');
+          }
+        });
       } else {
         // Remove from wishlist
-        btn.classList.remove('active');
-        btn.textContent = '♡';
-        if (typeof window.showMessageToast === 'function') {
-          window.showMessageToast('Removed from Wishlist', 'Item removed', 'info');
-        }
+        const formData = new FormData();
+        formData.append('action', 'aakaari_remove_from_wishlist');
+        formData.append('nonce', aakaari_ajax.nonce);
+        formData.append('product_id', productId);
+
+        fetch(aakaari_ajax.ajax_url, {
+          method: 'POST',
+          body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            btn.classList.remove('active');
+            btn.textContent = '♡';
+
+            if (typeof window.showMessageToast === 'function') {
+              window.showMessageToast('Removed from Wishlist', 'Item removed', 'info');
+            }
+          }
+        })
+        .catch(err => console.error('Wishlist error:', err));
       }
     }
 
@@ -257,23 +286,7 @@
         let minValue = parseInt(minEl.value);
         let maxValue = parseInt(maxEl.value);
 
-        // Ensure min is never greater than max
-        if (e.target.matches(selectors.priceMin)) {
-          if (minValue > maxValue) {
-            minValue = maxValue;
-            minEl.value = minValue;
-          }
-        }
-
-        // Ensure max is never less than min
-        if (e.target.matches(selectors.priceMax)) {
-          if (maxValue < minValue) {
-            maxValue = minValue;
-            maxEl.value = maxValue;
-          }
-        }
-
-        // Update labels with validated values
+        // Update labels only - no validation during drag
         if (minLabel) minLabel.textContent = '$' + minValue;
         if (maxLabel) maxLabel.textContent = '$' + maxValue;
       }
@@ -291,32 +304,15 @@
     if(e.target.matches(selectors.priceMin) || e.target.matches(selectors.priceMax)){
       const minEl = $(selectors.priceMin);
       const maxEl = $(selectors.priceMax);
-      const minLabel = $(selectors.priceMinLabel);
-      const maxLabel = $(selectors.priceMaxLabel);
 
       if (minEl && maxEl) {
         let minValue = parseInt(minEl.value);
         let maxValue = parseInt(maxEl.value);
 
-        // Ensure min is never greater than max
-        if (e.target.matches(selectors.priceMin)) {
-          if (minValue > maxValue) {
-            minValue = maxValue;
-            minEl.value = minValue;
-          }
+        // Show toast if range is invalid but still allow filtering
+        if (minValue > maxValue && typeof window.showMessageToast === 'function') {
+          window.showMessageToast('Invalid Range', 'Min price is higher than max price', 'info');
         }
-
-        // Ensure max is never less than min
-        if (e.target.matches(selectors.priceMax)) {
-          if (maxValue < minValue) {
-            maxValue = minValue;
-            maxEl.value = maxValue;
-          }
-        }
-
-        // Update labels with validated values
-        if (minLabel) minLabel.textContent = '$' + minValue;
-        if (maxLabel) maxLabel.textContent = '$' + maxValue;
 
         fetchProducts();
       }
