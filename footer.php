@@ -10,13 +10,10 @@
                         <div class="footer-logo-icon">
                             <span class="footer-logo-text">ST</span>
                         </div>
-                        <span class="footer-brand-name"><?php bloginfo( 'name' ); ?></span>
+                        <span class="footer-brand-name">StreetStyle</span>
                     </div>
                     <p class="footer-brand-description">
-                        <?php
-                        $description = get_bloginfo( 'description' );
-                        echo $description ? esc_html( $description ) : 'Premium streetwear essentials for the modern lifestyle. Quality you can feel.';
-                        ?>
+                        Premium streetwear essentials for the modern lifestyle. Quality you can feel.
                     </p>
                     <div class="footer-social">
                         <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="footer-social-btn" aria-label="Instagram">
@@ -46,22 +43,40 @@
                         <h4 class="footer-links-title">Shop</h4>
                         <ul class="footer-links-list">
                             <li>
-                                <a href="<?php echo esc_url( get_permalink( wc_get_page_id( 'shop' ) ) ); ?>" class="footer-link">
+                                <a href="<?php
+                                    $tshirts_link = home_url('/shop/');
+                                    if ( function_exists( 'get_term_link' ) ) {
+                                        $tshirts_term_link = get_term_link( 't-shirts', 'product_cat' );
+                                        if ( ! is_wp_error( $tshirts_term_link ) ) {
+                                            $tshirts_link = $tshirts_term_link;
+                                        }
+                                    }
+                                    echo esc_url( $tshirts_link );
+                                ?>" class="footer-link">
                                     T-Shirts
                                 </a>
                             </li>
                             <li>
-                                <a href="<?php echo esc_url( get_term_link( 'hoodies', 'product_cat' ) ); ?>" class="footer-link">
+                                <a href="<?php
+                                    $hoodies_link = home_url('/shop/');
+                                    if ( function_exists( 'get_term_link' ) ) {
+                                        $hoodies_term_link = get_term_link( 'hoodies', 'product_cat' );
+                                        if ( ! is_wp_error( $hoodies_term_link ) ) {
+                                            $hoodies_link = $hoodies_term_link;
+                                        }
+                                    }
+                                    echo esc_url( $hoodies_link );
+                                ?>" class="footer-link">
                                     Hoodies
                                 </a>
                             </li>
                             <li>
-                                <a href="<?php echo esc_url( home_url('/new-arrivals/') ); ?>" class="footer-link">
+                                <a href="<?php echo esc_url( home_url('/shop/?orderby=date') ); ?>" class="footer-link">
                                     New Arrivals
                                 </a>
                             </li>
                             <li>
-                                <a href="<?php echo esc_url( home_url('/sale/') ); ?>" class="footer-link">
+                                <a href="<?php echo esc_url( home_url('/shop/?on_sale=yes') ); ?>" class="footer-link">
                                     Sale
                                 </a>
                             </li>
@@ -130,7 +145,7 @@
             <div class="footer-bottom-container">
                 <div class="footer-bottom-content">
                     <p class="footer-copyright">
-                        &copy; <?php echo date('Y'); ?> <?php bloginfo( 'name' ); ?>. All rights reserved.
+                        &copy; <?php echo date('Y'); ?> StreetStyle. All rights reserved.
                     </p>
                     <div class="footer-payments">
                         <span class="footer-payments-label">Secure payments via</span>
