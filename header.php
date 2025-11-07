@@ -98,13 +98,10 @@
 
                     <!-- Wishlist -->
                     <?php
-                    $wishlist_count = 0;
-                    $wishlist_url = home_url('/wishlist/');
-
-                    if ( function_exists( 'YITH_WCWL' ) ) {
-                        $wishlist_count = YITH_WCWL()->count_products();
-                        $wishlist_url = YITH_WCWL()->get_wishlist_url();
-                    }
+                    $wishlist_count = function_exists( 'aakaari_get_wishlist_count' )
+                        ? aakaari_get_wishlist_count()
+                        : 0;
+                    $wishlist_url = home_url('/my-account/?tab=wishlist');
                     ?>
                     <a href="<?php echo esc_url( $wishlist_url ); ?>"
                        class="header-action-btn header-wishlist-btn">

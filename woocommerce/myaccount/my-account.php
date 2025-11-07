@@ -22,16 +22,11 @@ $customer_orders = wc_get_orders( array(
     'order'    => 'DESC',
 ) );
 
-// Get wishlist
-$wishlist_items = array();
-$wishlist_count = 0;
-if ( function_exists( 'YITH_WCWL' ) ) {
-    $wishlist_count = YITH_WCWL()->count_products();
-    $wishlist = YITH_WCWL()->get_products( array( 'user_id' => $customer_id ) );
-    if ( ! empty( $wishlist ) ) {
-        $wishlist_items = $wishlist;
-    }
-}
+// Get wishlist - using custom wishlist system
+$wishlist_product_ids = function_exists( 'aakaari_get_wishlist_product_ids' )
+    ? aakaari_get_wishlist_product_ids( $customer_id )
+    : array();
+$wishlist_count = count( $wishlist_product_ids );
 
 // Get addresses count
 $billing_address = get_user_meta( $customer_id, 'billing_address_1', true );
@@ -68,9 +63,7 @@ $status_filter = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status']
             <div class="tabs-list" style="display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; overflow-x: auto;">
                 <a href="?tab=overview" class="tab-trigger <?php echo $active_tab === 'overview' ? 'active' : ''; ?>">Overview</a>
                 <a href="?tab=orders" class="tab-trigger <?php echo $active_tab === 'orders' ? 'active' : ''; ?>">Orders</a>
-                <?php if ( function_exists( 'YITH_WCWL' ) ) : ?>
                 <a href="?tab=wishlist" class="tab-trigger <?php echo $active_tab === 'wishlist' ? 'active' : ''; ?>">Wishlist</a>
-                <?php endif; ?>
                 <a href="?tab=profile" class="tab-trigger <?php echo $active_tab === 'profile' ? 'active' : ''; ?>">Profile</a>
                 <a href="?tab=addresses" class="tab-trigger <?php echo $active_tab === 'addresses' ? 'active' : ''; ?>">Addresses</a>
             </div>
@@ -255,17 +248,17 @@ $status_filter = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status']
                 </div>
 
             <!-- Wishlist Tab -->
-            <?php elseif ( $active_tab === 'wishlist' && function_exists( 'YITH_WCWL' ) ) : ?>
+            <?php elseif ( $active_tab === 'wishlist' ) : ?>
                 <div style="background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                     <div class="card-header">
                         <h2>My Wishlist</h2>
                         <p class="text-sm text-gray-600" style="font-size: 0.875rem; color: #666;"><?php echo $wishlist_count; ?> items</p>
                     </div>
 
-                    <?php if ( ! empty( $wishlist_items ) ) : ?>
+                    <?php if ( ! empty( $wishlist_product_ids ) ) : ?>
                         <div class="wishlist-grid">
-                            <?php foreach ( $wishlist_items as $item ) :
-                                $product = wc_get_product( $item['prod_id'] );
+                            <?php foreach ( $wishlist_product_ids as $product_id ) :
+                                $product = wc_get_product( $product_id );
                                 if ( ! $product ) continue;
                             ?>
                                 <div class="wishlist-item">
@@ -277,7 +270,7 @@ $status_filter = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status']
                                             <a href="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>" style="display: inline-block; padding: 0.5rem 1rem; font-size: 0.875rem; background: #000; color: #fff; border-radius: 6px; text-decoration: none;">
                                                 View Product
                                             </a>
-                                            <button onclick="removeFromWishlist(<?php echo esc_js( $product->get_id() ); ?>)" style="padding: 0.5rem 1rem; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 6px; background: white; cursor: pointer;">Remove</button>
+                                            <button onclick="removeFromWishlist(<?php echo esc_js( $product->get_id() ); ?>)" class="wishlist-remove-btn" style="padding: 0.5rem 1rem; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 6px; background: white; cursor: pointer;">Remove</button>
                                         </div>
                                     </div>
                                 </div>
@@ -421,9 +414,40 @@ $status_filter = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status']
 
 <script>
 function removeFromWishlist(productId) {
-    // YITH Wishlist removal
-    if (confirm('Remove this item from wishlist?')) {
-        window.location.reload();
+    if (!confirm('Remove this item from wishlist?')) {
+        return;
     }
+
+    // Use custom wishlist AJAX
+    const button = event.target;
+    button.disabled = true;
+    button.textContent = 'Removing...';
+
+    fetch('<?php echo admin_url( 'admin-ajax.php' ); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            action: 'aakaari_remove_from_wishlist',
+            product_id: productId,
+            nonce: '<?php echo wp_create_nonce( 'aakaari_ajax_nonce' ); ?>'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.data.message || 'Could not remove item');
+            button.disabled = false;
+            button.textContent = 'Remove';
+        }
+    })
+    .catch(error => {
+        alert('An error occurred');
+        button.disabled = false;
+        button.textContent = 'Remove';
+    });
 }
 </script>
