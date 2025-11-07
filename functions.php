@@ -31,6 +31,11 @@ require_once get_template_directory() . '/inc/wc-product-filters.php';
 require_once get_template_directory() . '/inc/wc-color-attributes.php';
 
 /**
+ * Include Shop Page Functionality (AJAX handlers, markup)
+ */
+require_once get_template_directory() . '/inc/shop.php';
+
+/**
  * Theme setup (support, menus, image sizes)
  */
 function aakaari_theme_setup() {
@@ -137,6 +142,29 @@ function aakaari_enqueue_assets() {
 			array( 'aakaari-reset' ),
 			time() // Force cache refresh
 		);
+
+		// Enqueue products JS for AJAX filtering
+		wp_enqueue_script(
+			'aakaari-products',
+			$assets_base . '/js/products.js',
+			array(),
+			time(), // Force cache refresh
+			true
+		);
+
+		// Localize AJAX data for products page
+		wp_localize_script( 'aakaari-products', 'aakaari_ajax', array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'nonce'    => wp_create_nonce( 'aakaari_ajax_nonce' ),
+		) );
+
+		// Optional page type for filtering logic
+		$page_type = 'products';
+		if ( is_product_category() ) {
+			$category = get_queried_object();
+			$page_type = $category->slug;
+		}
+		wp_add_inline_script( 'aakaari-products', 'window.aakaari_page_type = "' . esc_js( $page_type ) . '";', 'before' );
 	}
 
 	// Single product page
