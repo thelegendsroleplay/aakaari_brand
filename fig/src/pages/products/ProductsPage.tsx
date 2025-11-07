@@ -1,12 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { Filter, X, SlidersHorizontal } from 'lucide-react';
-import { ProductCard } from '../../components/ProductCard';
-import { Button } from '../../components/ui/button';
-import { Checkbox } from '../../components/ui/checkbox';
-import { Slider } from '../../components/ui/slider';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { useProducts } from '../../contexts/ProductsContext';
 import { Product, FilterOptions } from '../../types';
+import { ProductsHeader } from './ProductsHeader';
+import { FiltersSidebar } from './FiltersSidebar';
+import { ProductsToolbar } from './ProductsToolbar';
+import { ProductsGrid } from './ProductsGrid';
 import './products.css';
 
 interface ProductsPageProps {
@@ -27,27 +25,6 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, onViewPr
     rating: 0,
     sortBy: 'popularity'
   });
-
-  // Available filters
-  const categories = ['T-Shirts', 'Hoodies'];
-  const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
-  const colors = ['Black', 'White', 'Gray', 'Navy', 'Olive', 'Beige'];
-
-  // Get page title based on pageType
-  const getPageTitle = () => {
-    switch (pageType) {
-      case 'hoodies':
-        return 'Hoodies';
-      case 'new-arrivals':
-        return 'New Arrivals';
-      case 'sale':
-        return 'Sale';
-      case 'bestsellers':
-        return 'Bestsellers';
-      default:
-        return 'T-Shirts';
-    }
-  };
 
   const filteredProducts = useMemo(() => {
     let result = [...allProducts];
@@ -110,7 +87,7 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, onViewPr
     }
 
     return result;
-  }, [filters, pageType]);
+  }, [filters, pageType, allProducts]);
 
   const toggleCategory = (category: string) => {
     setFilters(prev => ({
@@ -151,173 +128,48 @@ export const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, onViewPr
     });
   };
 
+  const handlePriceRangeChange = (range: [number, number]) => {
+    setFilters(prev => ({ ...prev, priceRange: range }));
+  };
+
+  const handleRatingChange = (rating: number) => {
+    setFilters(prev => ({ ...prev, rating }));
+  };
+
+  const handleSortChange = (value: string) => {
+    setFilters(prev => ({ ...prev, sortBy: value }));
+  };
+
   return (
     <div className="products-page">
-      {/* Page Header */}
-      <div className="page-header">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-          <h1 className="text-3xl">{getPageTitle()}</h1>
-          <p className="text-gray-600 mt-2">
-            {pageType === 'sale' ? 'Exclusive deals on premium streetwear' : 
-             pageType === 'new-arrivals' ? 'The latest drops in streetwear fashion' :
-             pageType === 'hoodies' ? 'Cozy hoodies for every season' :
-             'Essential tees for your wardrobe'}
-          </p>
-        </div>
-      </div>
+      <ProductsHeader pageType={pageType} />
 
       <div className="products-container">
-        {/* Sidebar Filters */}
-        <aside className={`filters-sidebar ${showFilters ? 'show' : 'hide'}`}>
-          <div className="filters-header">
-            <h2>Filters</h2>
-            <Button variant="ghost" size="sm" onClick={clearFilters}>
-              Clear All
-            </Button>
-          </div>
+        <FiltersSidebar
+          filters={filters}
+          showFilters={showFilters}
+          onClearFilters={clearFilters}
+          onToggleCategory={toggleCategory}
+          onToggleSize={toggleSize}
+          onToggleColor={toggleColor}
+          onPriceRangeChange={handlePriceRangeChange}
+          onRatingChange={handleRatingChange}
+        />
 
-          {/* Categories */}
-          <div className="filter-section">
-            <h3>Categories</h3>
-            <div className="filter-options">
-              {categories.map(category => (
-                <label key={category} className="filter-checkbox">
-                  <Checkbox
-                    checked={filters.categories.includes(category)}
-                    onCheckedChange={() => toggleCategory(category)}
-                  />
-                  <span>{category}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Price Range */}
-          <div className="filter-section">
-            <h3>Price Range</h3>
-            <div className="price-range">
-              <Slider
-                value={filters.priceRange}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, priceRange: value as [number, number] }))}
-                min={0}
-                max={1000}
-                step={10}
-              />
-              <div className="price-labels">
-                <span>${filters.priceRange[0]}</span>
-                <span>${filters.priceRange[1]}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Sizes */}
-          <div className="filter-section">
-            <h3>Sizes</h3>
-            <div className="filter-options">
-              {sizes.map(size => (
-                <label key={size} className="filter-checkbox">
-                  <Checkbox
-                    checked={filters.sizes.includes(size)}
-                    onCheckedChange={() => toggleSize(size)}
-                  />
-                  <span>{size}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Colors */}
-          <div className="filter-section">
-            <h3>Colors</h3>
-            <div className="color-options">
-              {colors.map(color => (
-                <button
-                  key={color}
-                  className={`color-swatch ${filters.colors.includes(color) ? 'selected' : ''}`}
-                  style={{ backgroundColor: color.toLowerCase() }}
-                  onClick={() => toggleColor(color)}
-                  title={color}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Rating */}
-          <div className="filter-section">
-            <h3>Minimum Rating</h3>
-            <div className="rating-options">
-              {[4, 3, 2, 1].map(rating => (
-                <label key={rating} className="filter-checkbox">
-                  <Checkbox
-                    checked={filters.rating === rating}
-                    onCheckedChange={() => setFilters(prev => ({ ...prev, rating }))}
-                  />
-                  <span>{rating}+ Stars</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content */}
         <main className="products-main">
-          {/* Toolbar */}
-          <div className="products-toolbar">
-            <Button
-              variant="outline"
-              size="sm"
-              className="lg:hidden"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <SlidersHorizontal className="w-4 h-4 mr-2" />
-              {showFilters ? 'Hide' : 'Show'} Filters
-            </Button>
+          <ProductsToolbar
+            productsCount={filteredProducts.length}
+            showFilters={showFilters}
+            sortBy={filters.sortBy}
+            onToggleFilters={() => setShowFilters(!showFilters)}
+            onSortChange={handleSortChange}
+          />
 
-            <div className="toolbar-info">
-              <p>{filteredProducts.length} Products</p>
-            </div>
-
-            <div className="toolbar-sort">
-              <span className="sort-label">Sort by:</span>
-              <Select
-                value={filters.sortBy}
-                onValueChange={(value: any) => setFilters(prev => ({ ...prev, sortBy: value }))}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="popularity">Popularity</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="rating">Rating</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Products Grid */}
-          {filteredProducts.length > 0 ? (
-            <div className="products-grid">
-              {filteredProducts.map(product => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onViewDetails={onViewProduct}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="no-products">
-              <Filter className="w-16 h-16 text-gray-300 mb-4" />
-              <h3>No products found</h3>
-              <p>Try adjusting your filters</p>
-              <Button onClick={clearFilters} className="mt-4">
-                Clear Filters
-              </Button>
-            </div>
-          )}
+          <ProductsGrid
+            products={filteredProducts}
+            onViewProduct={onViewProduct}
+            onClearFilters={clearFilters}
+          />
         </main>
       </div>
     </div>
