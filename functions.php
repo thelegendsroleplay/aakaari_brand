@@ -85,8 +85,8 @@ function aakaari_enqueue_assets() {
 		) );
 	}
 
-	// Products/Shop pages
-	if ( is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy() ) {
+	// Products/Shop pages - Check if WooCommerce is active
+	if ( function_exists( 'is_shop' ) && ( is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy() ) ) {
 		wp_enqueue_style(
 			'aakaari-products',
 			$assets_base . '/css/products.css',
@@ -96,7 +96,7 @@ function aakaari_enqueue_assets() {
 	}
 
 	// Single product page
-	if ( is_product() ) {
+	if ( function_exists( 'is_product' ) && is_product() ) {
 		wp_enqueue_style(
 			'aakaari-product-detail',
 			$assets_base . '/css/product-detail.css',
@@ -106,7 +106,7 @@ function aakaari_enqueue_assets() {
 	}
 
 	// Cart page
-	if ( is_cart() ) {
+	if ( function_exists( 'is_cart' ) && is_cart() ) {
 		wp_enqueue_style(
 			'aakaari-cart',
 			$assets_base . '/css/cart.css',
@@ -116,7 +116,7 @@ function aakaari_enqueue_assets() {
 	}
 
 	// Checkout page
-	if ( is_checkout() ) {
+	if ( function_exists( 'is_checkout' ) && is_checkout() ) {
 		wp_enqueue_style(
 			'aakaari-checkout',
 			$assets_base . '/css/checkout.css',
@@ -126,7 +126,7 @@ function aakaari_enqueue_assets() {
 	}
 
 	// Account pages
-	if ( is_account_page() ) {
+	if ( function_exists( 'is_account_page' ) && is_account_page() ) {
 		wp_enqueue_style(
 			'aakaari-account',
 			$assets_base . '/css/account.css',
