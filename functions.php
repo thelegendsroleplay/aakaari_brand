@@ -21,6 +21,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once get_template_directory() . '/inc/live-chat-system.php';
 
 /**
+ * Include WooCommerce Product Filters
+ */
+require_once get_template_directory() . '/inc/wc-product-filters.php';
+
+/**
  * Theme setup (support, menus, image sizes)
  */
 function aakaari_theme_setup() {
