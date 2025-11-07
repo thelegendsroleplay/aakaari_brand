@@ -41,7 +41,7 @@ $is_new = $days_since_published < 30;
 $is_featured = $product->is_featured();
 ?>
 
-<div <?php wc_product_class( 'product-card group', $product ); ?> onclick="window.location='<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>'">
+<div <?php wc_product_class( 'product-card', $product ); ?> onclick="window.location.href='<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>'"  style="cursor: pointer;">
     <!-- Image -->
     <div class="product-card-image">
         <?php echo wp_get_attachment_image( $image_id, 'woocommerce_thumbnail', false, array(

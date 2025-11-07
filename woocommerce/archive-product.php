@@ -43,10 +43,12 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
 <div class="products-page">
     <!-- Page Header -->
     <div class="page-header">
-        <h1><?php echo esc_html( $page_title ); ?></h1>
-        <?php if ( $page_description ) : ?>
-            <p><?php echo esc_html( $page_description ); ?></p>
-        <?php endif; ?>
+        <div style="max-width: 1280px; margin: 0 auto; padding: 2rem 1rem;">
+            <h1><?php echo esc_html( $page_title ); ?></h1>
+            <?php if ( $page_description ) : ?>
+                <p><?php echo esc_html( $page_description ); ?></p>
+            <?php endif; ?>
+        </div>
     </div>
 
     <div class="products-container">
