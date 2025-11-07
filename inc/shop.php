@@ -9,6 +9,27 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /* ------------------------
+   Helper: Get attribute taxonomy
+   ------------------------ */
+function aakaari_get_attribute_taxonomy( $type ) {
+  $taxonomies = array();
+
+  if ( $type === 'size' ) {
+    $taxonomies = array( 'pa_size', 'pa_sizes' );
+  } elseif ( $type === 'color' ) {
+    $taxonomies = array( 'pa_color', 'pa_colors', 'pa_colour' );
+  }
+
+  foreach ( $taxonomies as $taxonomy ) {
+    if ( taxonomy_exists( $taxonomy ) ) {
+      return $taxonomy;
+    }
+  }
+
+  return false;
+}
+
+/* ------------------------
    AJAX: filter products
    ------------------------ */
 add_action( 'wp_ajax_nopriv_aakaari_filter_products', 'aakaari_filter_products_ajax' );
@@ -42,20 +63,26 @@ function aakaari_filter_products_ajax() {
   // sizes and colors are attribute filters
   $tax_query = array();
   if ( ! empty( $filters['sizes'] ) ) {
-    $sizes = array_map( 'sanitize_text_field', $filters['sizes'] );
-    $tax_query[] = array(
-      'taxonomy' => 'pa_size',
-      'field'    => 'slug',
-      'terms'    => $sizes,
-    );
+    $size_taxonomy = aakaari_get_attribute_taxonomy( 'size' );
+    if ( $size_taxonomy ) {
+      $sizes = array_map( 'sanitize_text_field', $filters['sizes'] );
+      $tax_query[] = array(
+        'taxonomy' => $size_taxonomy,
+        'field'    => 'slug',
+        'terms'    => $sizes,
+      );
+    }
   }
   if ( ! empty( $filters['colors'] ) ) {
-    $colors = array_map( 'sanitize_text_field', $filters['colors'] );
-    $tax_query[] = array(
-      'taxonomy' => 'pa_color',
-      'field'    => 'slug',
-      'terms'    => $colors,
-    );
+    $color_taxonomy = aakaari_get_attribute_taxonomy( 'color' );
+    if ( $color_taxonomy ) {
+      $colors = array_map( 'sanitize_text_field', $filters['colors'] );
+      $tax_query[] = array(
+        'taxonomy' => $color_taxonomy,
+        'field'    => 'slug',
+        'terms'    => $colors,
+      );
+    }
   }
   if ( ! empty( $tax_query ) ) {
     $args['tax_query'] = $tax_query;
@@ -257,20 +284,18 @@ function aakaari_shop_markup(){
           <h3>Sizes</h3>
           <div class="filter-options" id="sizes-list">
             <?php
-            // sizes attribute terms (pa_size)
-            $has_size = taxonomy_exists( 'pa_size' );
-            if ( $has_size ) {
-              $terms = get_terms( array( 'taxonomy' => 'pa_size', 'hide_empty' => true ) );
+            $size_taxonomy = aakaari_get_attribute_taxonomy( 'size' );
+            if ( $size_taxonomy ) {
+              $terms = get_terms( array( 'taxonomy' => $size_taxonomy, 'hide_empty' => false ) );
               if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
                 foreach ( $terms as $t ) {
                   echo "<label class=\"filter-checkbox\"><input data-size=\"" . esc_attr( $t->slug ) . "\" type=\"checkbox\"> <span>" . esc_html( $t->name ) . "</span></label>";
                 }
+              } else {
+                echo '<p style="font-size:0.75rem;color:var(--muted);">No sizes found. Add sizes in Products → Attributes → Size</p>';
               }
             } else {
-              // fallback sample sizes
-              foreach ( array( 'S','M','L','XL','XXL' ) as $s ) {
-                echo "<label class=\"filter-checkbox\"><input data-size=\"".esc_attr(strtolower($s))."\" type=\"checkbox\"> <span>{$s}</span></label>";
-              }
+              echo '<p style="font-size:0.75rem;color:var(--muted);">Size attribute not found. Create "Size" attribute in Products → Attributes</p>';
             }
             ?>
           </div>
@@ -280,15 +305,14 @@ function aakaari_shop_markup(){
           <h3>Colors</h3>
           <div class="color-options" id="colors-list">
             <?php
-            // color terms (pa_color) with actual color swatches
-            $has_color = taxonomy_exists( 'pa_color' );
-            if ( $has_color ) {
-              $color_terms = get_terms( array( 'taxonomy' => 'pa_color', 'hide_empty' => true ) );
+            $color_taxonomy = aakaari_get_attribute_taxonomy( 'color' );
+            if ( $color_taxonomy ) {
+              $color_terms = get_terms( array( 'taxonomy' => $color_taxonomy, 'hide_empty' => false ) );
               if ( ! empty( $color_terms ) && ! is_wp_error( $color_terms ) ) {
                 foreach ( $color_terms as $color ) {
                   $slug = esc_attr( $color->slug );
                   $name = esc_html( $color->name );
-                  // Get actual color from meta
+                  // Get actual color from meta (set via color picker)
                   $color_hex = get_term_meta( $color->term_id, 'attribute_color', true );
                   if ( ! $color_hex ) {
                     // Fallback: use color name as CSS color
@@ -296,14 +320,11 @@ function aakaari_shop_markup(){
                   }
                   echo '<button type="button" class="color-swatch" data-color="'.$slug.'" title="'.$name.'" style="background:'.esc_attr($color_hex).'"></button>';
                 }
+              } else {
+                echo '<p style="font-size:0.75rem;color:var(--muted);">No colors found. Add colors in Products → Attributes → Color</p>';
               }
             } else {
-              // fallback sample swatches
-              $colors = array( 'Black' => '#000000', 'White' => '#ffffff', 'Gray' => '#808080', 'Navy' => '#001f3f', 'Olive' => '#808000', 'Beige' => '#f5f5dc' );
-              foreach ( $colors as $c => $hex ) {
-                $slug = sanitize_title( $c );
-                echo '<button type="button" class="color-swatch" data-color="'.esc_attr($slug).'" title="'.esc_attr($c).'" style="background:'.esc_attr($hex).'"></button>';
-              }
+              echo '<p style="font-size:0.75rem;color:var(--muted);">Color attribute not found. Create "Color" attribute in Products → Attributes</p>';
             }
             ?>
           </div>
