@@ -119,23 +119,21 @@ $is_featured = $product->is_featured();
         </h3>
 
         <!-- Rating -->
-        <?php if ( $product->get_average_rating() ) : ?>
-            <div class="product-rating">
-                <div class="product-stars">
-                    <?php
-                    $rating = $product->get_average_rating();
-                    for ( $i = 1; $i <= 5; $i++ ) {
-                        if ( $i <= floor( $rating ) ) {
-                            echo '<svg class="star-filled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-                        } else {
-                            echo '<svg class="star-empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-                        }
+        <div class="product-rating">
+            <div class="product-stars">
+                <?php
+                $rating = $product->get_average_rating();
+                for ( $i = 1; $i <= 5; $i++ ) {
+                    if ( $i <= floor( $rating ) ) {
+                        echo '<svg class="star-filled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+                    } else {
+                        echo '<svg class="star-empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
                     }
-                    ?>
-                </div>
-                <span class="product-review-count">(<?php echo esc_html( $product->get_review_count() ); ?>)</span>
+                }
+                ?>
             </div>
-        <?php endif; ?>
+            <span class="product-review-count">(<?php echo esc_html( $product->get_review_count() ); ?>)</span>
+        </div>
 
         <!-- Price -->
         <div class="product-price">
