@@ -6,6 +6,28 @@ body.woocommerce-cart .entry-title,
   display: none !important;
 }
 
+/* Override WooCommerce default button */
+.wc-proceed-to-checkout .checkout-button {
+  display: block;
+  width: 100%;
+  background: #000;
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+
+.wc-proceed-to-checkout .checkout-button:hover {
+  background: #333;
+  color: white;
+}
+
 /* Cart Page Styles */
 .cart-page {
   min-height: 100vh;

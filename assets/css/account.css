@@ -1,3 +1,13 @@
+/* Hide WordPress default headers */
+body.woocommerce-account .entry-header,
+body.woocommerce-account .entry-title,
+.woocommerce-account .entry-header,
+.woocommerce-account .entry-title,
+body.logged-in.page .entry-header,
+body.logged-in.page .entry-title {
+  display: none !important;
+}
+
 /* Account Page Styles */
 .account-page {
   min-height: 100vh;
