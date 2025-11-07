@@ -38,9 +38,14 @@
                         <h3>Live Support</h3>
                         <p class="header-status">Online</p>
                     </div>
-                    <button class="chat-close-btn" aria-label="Close chat">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
+                    <div class="header-actions">
+                        <button class="chat-end-btn" id="chat-end-btn" aria-label="End chat" title="End chat and receive transcript">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"></path><path d="M6 6l12 12"></path></svg>
+                        </button>
+                        <button class="chat-minimize-btn" aria-label="Minimize chat">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="chat-messages" id="chat-messages"></div>
                 <div class="chat-input-area">
@@ -56,15 +61,24 @@
                 <div id="chat-image-preview" class="chat-image-preview hidden"></div>
                 <div class="chat-welcome hidden">
                     <div class="welcome-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     </div>
                     <h3>Welcome to Live Support</h3>
                     <p>How can we help you today?</p>
+                    <div id="chat-disclaimer" class="chat-disclaimer"></div>
                     <input type="text" id="chat-guest-name" placeholder="Your name..." />
                     <input type="email" id="chat-guest-email" placeholder="Your email (optional)..." />
                     <input type="text" id="chat-subject-input" placeholder="Brief subject of your query..." />
                     <textarea id="chat-initial-message" placeholder="Describe your issue..." rows="4"></textarea>
                     <button id="chat-start-btn" class="btn-primary">Start Chat</button>
+                </div>
+                <div class="chat-closed hidden">
+                    <div class="closed-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <h3>Chat Closed</h3>
+                    <p>This chat has been closed. A transcript has been sent to your email.</p>
+                    <button id="chat-new-btn" class="btn-primary">Start New Chat</button>
                 </div>
             `
         });
@@ -81,9 +95,18 @@
 
         // Bind events
         chatBubble.on('click', toggleChatWindow);
-        $('.chat-close-btn').on('click', toggleChatWindow);
+        $('.chat-minimize-btn').on('click', toggleChatWindow);
+        $('#chat-end-btn').on('click', endChat);
         $('#chat-send-btn').on('click', sendMessage);
         $('#chat-start-btn').on('click', startNewChat);
+        $('#chat-new-btn').on('click', function() {
+            // Reset and show welcome screen
+            activeChatId = null;
+            sessionKey = null;
+            localStorage.removeItem('aakaari_chat_session');
+            localStorage.removeItem('aakaari_active_chat_id');
+            showWelcomeScreen();
+        });
         $('#chat-attach-btn').on('click', function() {
             imageInput.click();
         });
@@ -96,6 +119,9 @@
                 sendMessage();
             }
         });
+
+        // Load chat settings (disclaimer)
+        loadChatSettings();
 
         // Check for active chat
         checkActiveChat();
@@ -118,6 +144,25 @@
     }
 
     /**
+     * Load chat settings (disclaimer)
+     */
+    function loadChatSettings() {
+        $.ajax({
+            url: aakaari_chat.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'aakaari_get_chat_settings',
+                nonce: aakaari_chat.nonce
+            },
+            success: function(response) {
+                if (response.success && response.data.disclaimer) {
+                    $('#chat-disclaimer').html('<div class="disclaimer-box"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>' + response.data.disclaimer + '</span></div>');
+                }
+            }
+        });
+    }
+
+    /**
      * Check if user has an active chat
      */
     function checkActiveChat() {
@@ -131,6 +176,7 @@
             success: function(response) {
                 if (response.success && response.data.chat_id) {
                     activeChatId = response.data.chat_id;
+                    sessionKey = localStorage.getItem('aakaari_chat_session');
                     showChatInterface();
                     loadMessages();
                     startPolling();
@@ -357,8 +403,10 @@
      */
     function showChatInterface() {
         $('.chat-welcome').addClass('hidden');
+        $('.chat-closed').addClass('hidden');
         messagesContainer.removeClass('hidden');
         $('.chat-input-area').removeClass('hidden');
+        $('#chat-end-btn').removeClass('hidden');
     }
 
     /**
@@ -366,8 +414,60 @@
      */
     function showWelcomeScreen() {
         $('.chat-welcome').removeClass('hidden');
+        $('.chat-closed').addClass('hidden');
         messagesContainer.addClass('hidden');
         $('.chat-input-area').addClass('hidden');
+        $('#chat-end-btn').addClass('hidden');
+    }
+
+    /**
+     * Show closed screen
+     */
+    function showClosedScreen() {
+        $('.chat-closed').removeClass('hidden');
+        $('.chat-welcome').addClass('hidden');
+        messagesContainer.addClass('hidden');
+        $('.chat-input-area').addClass('hidden');
+        $('#chat-end-btn').addClass('hidden');
+    }
+
+    /**
+     * End chat (customer closes)
+     */
+    function endChat() {
+        if (!activeChatId) return;
+
+        if (!confirm('Are you sure you want to end this chat? A transcript will be sent to your email.')) {
+            return;
+        }
+
+        $.ajax({
+            url: aakaari_chat.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'aakaari_customer_close_chat',
+                nonce: aakaari_chat.nonce,
+                chat_id: activeChatId,
+                session_key: sessionKey
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Stop polling
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                    }
+
+                    // Show closed screen
+                    showClosedScreen();
+
+                    // Clear session
+                    localStorage.removeItem('aakaari_chat_session');
+                    localStorage.removeItem('aakaari_active_chat_id');
+                } else {
+                    alert(response.data || 'Failed to close chat.');
+                }
+            }
+        });
     }
 
     /**
