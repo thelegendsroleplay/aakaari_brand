@@ -33,6 +33,34 @@ function aakaari_create_wishlist_table() {
 add_action( 'after_switch_theme', 'aakaari_create_wishlist_table' );
 
 /**
+ * Ensure wishlist table exists on init
+ * This checks if the table exists and creates it if needed
+ * Uses an option to avoid checking on every page load
+ */
+function aakaari_ensure_wishlist_table_exists() {
+  // Check if we've already verified the table exists
+  $table_verified = get_option( 'aakaari_wishlist_table_verified', false );
+
+  if ( $table_verified ) {
+    return;
+  }
+
+  global $wpdb;
+  $table_name = $wpdb->prefix . 'aakaari_wishlist';
+
+  // Check if table exists
+  $table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" );
+
+  if ( $table_exists !== $table_name ) {
+    aakaari_create_wishlist_table();
+  }
+
+  // Mark as verified so we don't check again
+  update_option( 'aakaari_wishlist_table_verified', true, false );
+}
+add_action( 'init', 'aakaari_ensure_wishlist_table_exists' );
+
+/**
  * Add product to wishlist - AJAX handler
  */
 function aakaari_add_to_wishlist_ajax() {
