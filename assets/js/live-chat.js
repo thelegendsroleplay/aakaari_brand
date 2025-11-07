@@ -174,13 +174,17 @@
                 nonce: aakaari_chat.nonce
             },
             success: function(response) {
-                if (response.success && response.data.chat_id) {
+                if (response.success && response.data.has_chat && response.data.chat_id) {
                     activeChatId = response.data.chat_id;
-                    sessionKey = localStorage.getItem('aakaari_chat_session');
+                    sessionKey = response.data.session_key;
+                    // Store in localStorage for persistence
+                    localStorage.setItem('aakaari_chat_session', sessionKey);
+                    localStorage.setItem('aakaari_active_chat_id', activeChatId);
                     showChatInterface();
                     loadMessages();
                     startPolling();
                 } else {
+                    // No active chat found
                     showWelcomeScreen();
                 }
             }
@@ -406,7 +410,7 @@
         $('.chat-closed').addClass('hidden');
         messagesContainer.removeClass('hidden');
         $('.chat-input-area').removeClass('hidden');
-        $('#chat-end-btn').removeClass('hidden');
+        $('#chat-end-btn').show().removeClass('hidden');
     }
 
     /**
@@ -417,7 +421,7 @@
         $('.chat-closed').addClass('hidden');
         messagesContainer.addClass('hidden');
         $('.chat-input-area').addClass('hidden');
-        $('#chat-end-btn').addClass('hidden');
+        $('#chat-end-btn').hide().addClass('hidden');
     }
 
     /**
@@ -428,7 +432,7 @@
         $('.chat-welcome').addClass('hidden');
         messagesContainer.addClass('hidden');
         $('.chat-input-area').addClass('hidden');
-        $('#chat-end-btn').addClass('hidden');
+        $('#chat-end-btn').hide().addClass('hidden');
     }
 
     /**

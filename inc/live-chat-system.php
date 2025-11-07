@@ -260,16 +260,27 @@ add_action( 'wp_ajax_nopriv_aakaari_get_chat_messages', 'aakaari_get_chat_messag
 function aakaari_get_active_chat() {
     check_ajax_referer( 'aakaari_chat_nonce', 'nonce' );
 
-    if ( ! is_user_logged_in() ) {
-        wp_send_json_success( array( 'has_chat' => false ) );
+    // Get session key for both logged-in and guest users
+    if ( is_user_logged_in() ) {
+        $user_id = get_current_user_id();
+        $session_key = 'user_' . $user_id;
+    } else {
+        // Guest user - check session
+        if ( ! session_id() ) {
+            session_start();
+        }
+        $session_key = 'guest_' . session_id();
+        $user_id = 0;
     }
 
-    $user_id = get_current_user_id();
-
+    // Look for active chat by session key
     $chat = get_posts( array(
         'post_type' => 'live_chat',
-        'author' => $user_id,
         'meta_query' => array(
+            array(
+                'key' => '_chat_session_key',
+                'value' => $session_key,
+            ),
             array(
                 'key' => '_chat_status',
                 'value' => 'active',
@@ -288,6 +299,7 @@ function aakaari_get_active_chat() {
     wp_send_json_success( array(
         'has_chat' => true,
         'chat_id' => $chat_id,
+        'session_key' => $session_key,
         'subject' => $chat[0]->post_title,
         'messages' => is_array( $messages ) ? $messages : array(),
     ) );

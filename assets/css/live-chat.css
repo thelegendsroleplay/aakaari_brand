@@ -37,7 +37,8 @@
   bottom: 2rem;
   right: 2rem;
   width: 400px;
-  height: 600px;
+  max-height: 650px;
+  height: auto;
   background: white;
   border-radius: 0.75rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
@@ -45,6 +46,7 @@
   flex-direction: column;
   z-index: 1001;
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .chat-window.hidden {
@@ -101,7 +103,7 @@
   color: white;
   cursor: pointer;
   padding: 0.5rem;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
@@ -116,8 +118,9 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-.chat-end-btn.hidden {
-  display: none;
+.chat-end-btn.hidden,
+.chat-end-btn.hide {
+  display: none !important;
 }
 
 /* Messages Container */
@@ -331,13 +334,14 @@
 
 /* Welcome Screen */
 .chat-welcome {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem 1.5rem;
+  justify-content: flex-start;
+  padding: 1.5rem;
   text-align: center;
+  overflow-y: auto;
+  max-height: 550px;
 }
 
 .chat-welcome.hidden {
@@ -372,13 +376,14 @@
 
 /* Closed Screen */
 .chat-closed {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 2rem 1.5rem;
   text-align: center;
+  overflow-y: auto;
+  max-height: 550px;
 }
 
 .chat-closed.hidden {
@@ -386,70 +391,73 @@
 }
 
 .closed-icon {
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   background: #f3f4f6;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .closed-icon svg {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   color: #6b7280;
 }
 
 .chat-closed h3 {
   margin: 0 0 0.5rem;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   color: #1f2937;
 }
 
 .chat-closed p {
   margin: 0 0 1.5rem;
   color: #6b7280;
+  font-size: 0.9375rem;
 }
 
 .welcome-icon {
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   background: #f3f4f6;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
 }
 
 .welcome-icon svg {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   color: #000;
 }
 
 .chat-welcome h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
   color: #1f2937;
 }
 
 .chat-welcome p {
-  margin: 0 0 1.5rem;
+  margin: 0 0 1rem;
   color: #6b7280;
+  font-size: 0.9375rem;
 }
 
 .chat-welcome input,
 .chat-welcome textarea {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.625rem 0.75rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   font-family: inherit;
-  font-size: 0.9375rem;
-  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
 }
 
 .chat-welcome input:focus,
@@ -460,23 +468,25 @@
 
 .chat-welcome textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 80px;
 }
 
-.chat-welcome .btn-primary {
+.chat-welcome .btn-primary,
+.chat-closed .btn-primary {
   width: 100%;
   background: #000;
   color: white;
   border: none;
-  padding: 0.875rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   border-radius: 0.5rem;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.chat-welcome .btn-primary:hover {
+.chat-welcome .btn-primary:hover,
+.chat-closed .btn-primary:hover {
   background: #1f2937;
 }
 
