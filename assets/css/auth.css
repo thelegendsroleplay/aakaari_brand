@@ -301,12 +301,18 @@ label {
   color: #363;
 }
 
-/* Hide default header/footer on auth pages */
+/* Hide default WordPress/WooCommerce headers on auth pages */
 body.auth-body header,
 body.auth-body footer,
 body.auth-body .site-header,
-body.auth-body .site-footer {
-  display: none;
+body.auth-body .site-footer,
+body.auth-body .entry-header,
+body.auth-body .entry-title,
+body.woocommerce-account .entry-header,
+body.woocommerce-account .entry-title,
+.woocommerce-account .entry-header,
+.woocommerce-account .entry-title {
+  display: none !important;
 }
 
 /* Responsive */

@@ -16,6 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Include Support Ticket System
+ */
+require_once get_template_directory() . '/inc/ticket-system.php';
+
+/**
  * Theme setup (support, menus, image sizes)
  */
 function aakaari_theme_setup() {

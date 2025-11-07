@@ -1,3 +1,11 @@
+/* Hide WordPress default headers */
+body.woocommerce-checkout .entry-header,
+body.woocommerce-checkout .entry-title,
+.woocommerce-checkout .entry-header,
+.woocommerce-checkout .entry-title {
+  display: none !important;
+}
+
 /* Checkout Page Styles */
 .checkout-page {
   min-height: 100vh;
