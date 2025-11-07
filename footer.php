@@ -162,19 +162,15 @@
 
 </div><!-- #page -->
 
-<!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/690db028fab74e1958c08028/1j9eng85i';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of Tawk.to Script-->
+<?php
+/**
+ * Custom Live Chat Widget
+ * The live chat widget is automatically loaded via enqueued scripts in functions.php
+ * - CSS: assets/css/live-chat.css
+ * - JS: assets/js/live-chat.js
+ * - Backend: inc/live-chat-system.php
+ */
+?>
 
 <?php wp_footer(); ?>
 
