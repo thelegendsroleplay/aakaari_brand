@@ -132,23 +132,15 @@ do_action( 'woocommerce_before_cart' ); ?>
                                         </span>
                                     </div>
 
-                                    <?php
-                                    echo apply_filters(
-                                        'woocommerce_cart_item_remove_link',
-                                        sprintf(
-                                            '<button type="button" class="item-remove" onclick="removeCartItem(\'%s\')">
-                                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
-                                            </button>',
-                                            esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
-                                            esc_attr( $cart_item_key ),
-                                            esc_attr( $product_id )
-                                        ),
-                                        $cart_item_key
-                                    );
-                                    ?>
+                                    <a href="<?php echo esc_url( wc_get_cart_remove_url( $cart_item_key ) ); ?>"
+                                       class="item-remove"
+                                       onclick="return confirm('Remove this item from cart?');"
+                                       aria-label="<?php echo esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $_product->get_name() ) ) ); ?>">
+                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </a>
                                 </div>
                                 <?php
                             }
@@ -261,11 +253,3 @@ do_action( 'woocommerce_before_cart' ); ?>
 </div>
 
 <?php do_action( 'woocommerce_after_cart' ); ?>
-
-<script>
-function removeCartItem(removeUrl) {
-    if (confirm('Remove this item from cart?')) {
-        window.location.href = removeUrl;
-    }
-}
-</script>
