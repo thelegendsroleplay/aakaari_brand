@@ -5,6 +5,18 @@
   padding: 2rem 0;
 }
 
+/* Hide WordPress default headers on shop/category pages */
+body.woocommerce .entry-header,
+body.woocommerce .entry-title,
+body.woocommerce-page .entry-header,
+body.woocommerce-page .entry-title,
+body.post-type-archive-product .entry-header,
+body.post-type-archive-product .entry-title,
+body.tax-product_cat .entry-header,
+body.tax-product_cat .entry-title {
+  display: none !important;
+}
+
 .products-container {
   max-width: 1280px;
   margin: 0 auto;
