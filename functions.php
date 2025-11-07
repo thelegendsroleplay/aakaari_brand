@@ -26,6 +26,11 @@ require_once get_template_directory() . '/inc/live-chat-system.php';
 require_once get_template_directory() . '/inc/wc-product-filters.php';
 
 /**
+ * Include WooCommerce Color Attributes
+ */
+require_once get_template_directory() . '/inc/wc-color-attributes.php';
+
+/**
  * Theme setup (support, menus, image sizes)
  */
 function aakaari_theme_setup() {

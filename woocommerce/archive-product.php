@@ -142,7 +142,7 @@ $current_orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['order
                     <?php foreach ( $color_terms as $color ) :
                         $is_selected = in_array( $color->slug, $current_colors );
                         // Get color hex from term meta or use default
-                        $color_hex = get_term_meta( $color->term_id, 'color', true );
+                        $color_hex = get_term_meta( $color->term_id, 'attribute_color', true );
                         if ( ! $color_hex ) {
                             // Fallback: use color name as CSS color
                             $color_hex = strtolower( $color->name );
