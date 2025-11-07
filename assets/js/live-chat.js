@@ -484,34 +484,44 @@
     }
 
     /**
-     * Format timestamp to readable time
+     * Format timestamp to actual time (WhatsApp style)
      */
     function formatTime(timestamp) {
-        // WordPress sends "YYYY-MM-DD HH:MM:SS" format in server timezone
-        // Simply parse as local time and calculate difference
+        // WordPress sends "YYYY-MM-DD HH:MM:SS" format
         const date = new Date(timestamp.replace(' ', 'T'));
         const now = new Date();
 
-        // Calculate difference
-        const diff = now - date;
-        const seconds = Math.floor(diff / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
+        // Format time in 12-hour format
+        const hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const hours12 = hours % 12 || 12;
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const timeStr = hours12 + ':' + minutes + ' ' + ampm;
 
-        // Return relative time for recent messages
-        if (seconds < 5) return 'Just now';
-        if (minutes < 1) return 'Just now';
-        if (minutes < 60) return minutes + ' min ago';
-        if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
-        if (days < 7) return days + ' day' + (days > 1 ? 's' : '') + ' ago';
+        // Check if message is from today
+        const isToday = date.getDate() === now.getDate() &&
+                       date.getMonth() === now.getMonth() &&
+                       date.getFullYear() === now.getFullYear();
 
-        // For older messages, show full date and time
-        const hours12 = date.getHours() % 12 || 12;
-        const mins = date.getMinutes().toString().padStart(2, '0');
-        const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+        // Check if message is from yesterday
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const isYesterday = date.getDate() === yesterday.getDate() &&
+                           date.getMonth() === yesterday.getMonth() &&
+                           date.getFullYear() === yesterday.getFullYear();
 
-        return date.toLocaleDateString('en-IN') + ' ' + hours12 + ':' + mins + ' ' + ampm;
+        // Return formatted time
+        if (isToday) {
+            return timeStr; // Just time: "3:51 PM"
+        } else if (isYesterday) {
+            return 'Yesterday ' + timeStr; // "Yesterday 3:51 PM"
+        } else {
+            // Full date and time for older messages
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return day + '/' + month + '/' + year + ' ' + timeStr; // "07/11/2025 3:51 PM"
+        }
     }
 
     /**
