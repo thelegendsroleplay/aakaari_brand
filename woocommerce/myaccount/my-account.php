@@ -137,7 +137,7 @@ $status_filter = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status']
                                             <p class="order-date"><?php echo esc_html( $order->get_date_created()->format( 'F j, Y' ) ); ?></p>
                                         </div>
                                         <span class="status-badge <?php echo esc_attr( $order->get_status() ); ?>">
-                                            <?php echo esc_html( wc_get_order_status_name( $order->get_status() ); ?>
+                                            <?php echo esc_html( wc_get_order_status_name( $order->get_status() ) ); ?>
                                         </span>
                                     </div>
 

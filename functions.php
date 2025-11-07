@@ -156,12 +156,23 @@ function aakaari_enqueue_assets() {
 
 	// Account pages
 	if ( function_exists( 'is_account_page' ) && is_account_page() ) {
-		wp_enqueue_style(
-			'aakaari-account',
-			$assets_base . '/css/account.css',
-			array( 'aakaari-reset' ),
-			$theme_version
-		);
+		// Auth styles for login/register pages
+		if ( ! is_user_logged_in() ) {
+			wp_enqueue_style(
+				'aakaari-auth',
+				$assets_base . '/css/auth.css',
+				array( 'aakaari-reset' ),
+				$theme_version
+			);
+		} else {
+			// Account dashboard styles
+			wp_enqueue_style(
+				'aakaari-account',
+				$assets_base . '/css/account.css',
+				array( 'aakaari-reset' ),
+				$theme_version
+			);
+		}
 	}
 
 	// Page-specific styles
