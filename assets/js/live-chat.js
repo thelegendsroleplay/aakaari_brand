@@ -9,7 +9,11 @@
     let chatWindow = null;
     let messagesContainer = null;
     let messageInput = null;
+    let imageInput = null;
+    let imagePreview = null;
     let activeChatId = null;
+    let sessionKey = null;
+    let selectedImage = null;
     let pollingInterval = null;
     let lastMessageCount = 0;
 
@@ -40,17 +44,24 @@
                 </div>
                 <div class="chat-messages" id="chat-messages"></div>
                 <div class="chat-input-area">
+                    <input type="file" id="chat-image-input" accept="image/*" style="display:none;" />
+                    <button id="chat-attach-btn" class="chat-attach-btn" title="Attach image">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                    </button>
                     <textarea id="chat-message-input" placeholder="Type your message..." rows="2"></textarea>
                     <button id="chat-send-btn" class="chat-send-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                     </button>
                 </div>
+                <div id="chat-image-preview" class="chat-image-preview hidden"></div>
                 <div class="chat-welcome hidden">
                     <div class="welcome-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     </div>
                     <h3>Welcome to Live Support</h3>
                     <p>How can we help you today?</p>
+                    <input type="text" id="chat-guest-name" placeholder="Your name..." />
+                    <input type="email" id="chat-guest-email" placeholder="Your email (optional)..." />
                     <input type="text" id="chat-subject-input" placeholder="Brief subject of your query..." />
                     <textarea id="chat-initial-message" placeholder="Describe your issue..." rows="4"></textarea>
                     <button id="chat-start-btn" class="btn-primary">Start Chat</button>
@@ -65,12 +76,19 @@
         // Cache elements
         messagesContainer = $('#chat-messages');
         messageInput = $('#chat-message-input');
+        imageInput = $('#chat-image-input');
+        imagePreview = $('#chat-image-preview');
 
         // Bind events
         chatBubble.on('click', toggleChatWindow);
         $('.chat-close-btn').on('click', toggleChatWindow);
         $('#chat-send-btn').on('click', sendMessage);
         $('#chat-start-btn').on('click', startNewChat);
+        $('#chat-attach-btn').on('click', function() {
+            imageInput.click();
+        });
+
+        imageInput.on('change', handleImageSelect);
 
         messageInput.on('keypress', function(e) {
             if (e.which === 13 && !e.shiftKey) {
@@ -127,11 +145,13 @@
      * Start new chat conversation
      */
     function startNewChat() {
+        const guestName = $('#chat-guest-name').val().trim();
+        const guestEmail = $('#chat-guest-email').val().trim();
         const subject = $('#chat-subject-input').val().trim();
         const message = $('#chat-initial-message').val().trim();
 
-        if (!subject || !message) {
-            alert('Please provide both a subject and message to start the chat.');
+        if (!guestName || !subject || !message) {
+            alert('Please provide your name, subject, and message to start the chat.');
             return;
         }
 
@@ -141,12 +161,18 @@
             data: {
                 action: 'aakaari_start_chat',
                 nonce: aakaari_chat.nonce,
+                guest_name: guestName,
+                guest_email: guestEmail,
                 subject: subject,
                 message: message
             },
             success: function(response) {
                 if (response.success) {
                     activeChatId = response.data.chat_id;
+                    sessionKey = response.data.session_key;
+                    // Store session in localStorage for persistence
+                    localStorage.setItem('aakaari_chat_session', sessionKey);
+                    localStorage.setItem('aakaari_active_chat_id', activeChatId);
                     showChatInterface();
                     loadMessages();
                     startPolling();
@@ -167,20 +193,29 @@
         if (!activeChatId) return;
 
         const message = messageInput.val().trim();
-        if (!message) return;
+        if (!message && !selectedImage) return;
+
+        const formData = new FormData();
+        formData.append('action', 'aakaari_send_chat_message');
+        formData.append('nonce', aakaari_chat.nonce);
+        formData.append('chat_id', activeChatId);
+        formData.append('session_key', sessionKey);
+        formData.append('message', message);
+
+        if (selectedImage) {
+            formData.append('image', selectedImage);
+        }
 
         $.ajax({
             url: aakaari_chat.ajax_url,
             type: 'POST',
-            data: {
-                action: 'aakaari_send_chat_message',
-                nonce: aakaari_chat.nonce,
-                chat_id: activeChatId,
-                message: message
-            },
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
                 if (response.success) {
                     messageInput.val('');
+                    clearImagePreview();
                     loadMessages();
                 } else {
                     alert(response.data || 'Failed to send message.');
@@ -188,6 +223,54 @@
             }
         });
     }
+
+    /**
+     * Handle image selection
+     */
+    function handleImageSelect(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file.');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Image size must be less than 5MB.');
+            return;
+        }
+
+        selectedImage = file;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.html(`
+                <div class="image-preview-container">
+                    <img src="${e.target.result}" alt="Preview" />
+                    <button class="remove-image-btn" onclick="clearImagePreview()">×</button>
+                </div>
+            `);
+            imagePreview.removeClass('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    /**
+     * Clear image preview
+     */
+    function clearImagePreview() {
+        selectedImage = null;
+        imageInput.val('');
+        imagePreview.html('');
+        imagePreview.addClass('hidden');
+    }
+
+    // Make clearImagePreview globally accessible
+    window.clearImagePreview = clearImagePreview;
 
     /**
      * Load chat messages
@@ -225,13 +308,25 @@
 
         messages.forEach(function(msg) {
             const messageClass = msg.is_admin ? 'support-message' : 'user-message';
+            let contentHtml = '';
+
+            // Add text message if present
+            if (msg.message) {
+                contentHtml += `<div class="message-text">${escapeHtml(msg.message)}</div>`;
+            }
+
+            // Add image if present
+            if (msg.image) {
+                contentHtml += `<div class="message-image"><img src="${msg.image}" alt="Attached image" /></div>`;
+            }
+
             const messageHtml = `
                 <div class="message ${messageClass}">
                     <div class="message-header">
                         <span class="message-author">${msg.user_name}</span>
                         <span class="message-time">${formatTime(msg.timestamp)}</span>
                     </div>
-                    <div class="message-content">${escapeHtml(msg.message)}</div>
+                    <div class="message-content">${contentHtml}</div>
                 </div>
             `;
             messagesContainer.append(messageHtml);
