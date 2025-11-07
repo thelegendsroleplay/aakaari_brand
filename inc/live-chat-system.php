@@ -398,3 +398,390 @@ function aakaari_send_chat_notification_email( $chat_id, $user_name, $user_email
 
     wp_mail( $admin_email, $email_subject, $email_body, $headers );
 }
+
+/**
+ * Customize the admin columns for Live Chat post type
+ */
+function aakaari_chat_admin_columns( $columns ) {
+    $columns = array(
+        'cb' => '<input type="checkbox" />',
+        'title' => 'Subject',
+        'customer' => 'Customer',
+        'status' => 'Status',
+        'messages' => 'Messages',
+        'started' => 'Started',
+        'updated' => 'Last Update',
+    );
+    return $columns;
+}
+add_filter( 'manage_live_chat_posts_columns', 'aakaari_chat_admin_columns' );
+
+/**
+ * Populate custom columns
+ */
+function aakaari_chat_admin_column_content( $column, $post_id ) {
+    switch ( $column ) {
+        case 'customer':
+            $customer_name = get_post_meta( $post_id, '_chat_user_name', true );
+            $customer_email = get_post_meta( $post_id, '_chat_user_email', true );
+            $is_guest = get_post_meta( $post_id, '_chat_is_guest', true );
+
+            echo '<strong>' . esc_html( $customer_name ) . '</strong>';
+            if ( $customer_email ) {
+                echo '<br><a href="mailto:' . esc_attr( $customer_email ) . '">' . esc_html( $customer_email ) . '</a>';
+            }
+            if ( $is_guest === 'yes' ) {
+                echo '<br><span style="color: #999; font-size: 11px;">Guest User</span>';
+            }
+            break;
+
+        case 'status':
+            $status = get_post_meta( $post_id, '_chat_status', true );
+            $color = ( $status === 'active' ) ? '#10b981' : '#6b7280';
+            echo '<span style="display: inline-block; padding: 4px 8px; background: ' . $color . '; color: white; border-radius: 4px; font-size: 11px; font-weight: 600;">' . esc_html( ucfirst( $status ) ) . '</span>';
+            break;
+
+        case 'messages':
+            $messages = get_post_meta( $post_id, '_chat_messages', true );
+            $count = is_array( $messages ) ? count( $messages ) : 0;
+            echo '<strong>' . $count . '</strong> message' . ( $count !== 1 ? 's' : '' );
+            break;
+
+        case 'started':
+            $started = get_post_meta( $post_id, '_chat_started', true );
+            if ( $started ) {
+                echo esc_html( date( 'M j, Y g:i a', strtotime( $started ) ) );
+            }
+            break;
+
+        case 'updated':
+            $updated = get_post_meta( $post_id, '_chat_updated', true );
+            if ( $updated ) {
+                $time_diff = human_time_diff( strtotime( $updated ), current_time( 'timestamp' ) );
+                echo esc_html( $time_diff . ' ago' );
+            }
+            break;
+    }
+}
+add_action( 'manage_live_chat_posts_custom_column', 'aakaari_chat_admin_column_content', 10, 2 );
+
+/**
+ * Make columns sortable
+ */
+function aakaari_chat_sortable_columns( $columns ) {
+    $columns['started'] = 'started';
+    $columns['updated'] = 'updated';
+    return $columns;
+}
+add_filter( 'manage_edit-live_chat_sortable_columns', 'aakaari_chat_sortable_columns' );
+
+/**
+ * Add meta box for chat conversation
+ */
+function aakaari_chat_meta_boxes() {
+    add_meta_box(
+        'chat_conversation',
+        'Chat Conversation',
+        'aakaari_chat_conversation_metabox',
+        'live_chat',
+        'normal',
+        'high'
+    );
+
+    add_meta_box(
+        'chat_info',
+        'Chat Information',
+        'aakaari_chat_info_metabox',
+        'live_chat',
+        'side',
+        'default'
+    );
+}
+add_action( 'add_meta_boxes', 'aakaari_chat_meta_boxes' );
+
+/**
+ * Chat conversation meta box
+ */
+function aakaari_chat_conversation_metabox( $post ) {
+    $messages = get_post_meta( $post->ID, '_chat_messages', true );
+    $status = get_post_meta( $post->ID, '_chat_status', true );
+
+    if ( ! is_array( $messages ) ) {
+        $messages = array();
+    }
+
+    wp_nonce_field( 'aakaari_chat_reply_nonce', 'aakaari_chat_reply_nonce_field' );
+    ?>
+    <div id="chat-conversation-container" style="background: #f9fafb; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; max-height: 600px; overflow-y: auto;">
+        <?php if ( empty( $messages ) ) : ?>
+            <p style="text-align: center; color: #666;">No messages yet.</p>
+        <?php else : ?>
+            <?php foreach ( $messages as $msg ) : ?>
+                <div style="margin-bottom: 1.5rem; <?php echo $msg['is_admin'] ? 'margin-left: auto; text-align: right;' : 'margin-right: auto;'; ?> max-width: 80%;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <strong style="font-size: 14px;"><?php echo esc_html( $msg['user_name'] ); ?></strong>
+                        <span style="color: #999; font-size: 12px; margin-left: 8px;">
+                            <?php echo esc_html( date( 'M j, Y g:i a', strtotime( $msg['timestamp'] ) ) ); ?>
+                        </span>
+                        <?php if ( $msg['is_admin'] ) : ?>
+                            <span style="background: #000; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 8px;">ADMIN</span>
+                        <?php endif; ?>
+                    </div>
+                    <div style="background: <?php echo $msg['is_admin'] ? '#000' : '#fff'; ?>; color: <?php echo $msg['is_admin'] ? '#fff' : '#000'; ?>; padding: 1rem; border-radius: 8px; <?php echo $msg['is_admin'] ? '' : 'border: 1px solid #e5e7eb;'; ?> display: inline-block; text-align: left;">
+                        <?php if ( ! empty( $msg['message'] ) ) : ?>
+                            <p style="margin: 0; line-height: 1.6;"><?php echo nl2br( esc_html( $msg['message'] ) ); ?></p>
+                        <?php endif; ?>
+                        <?php if ( ! empty( $msg['image'] ) ) : ?>
+                            <img src="<?php echo esc_url( $msg['image'] ); ?>" alt="Attached image" style="max-width: 300px; margin-top: <?php echo ! empty( $msg['message'] ) ? '0.5rem' : '0'; ?>; border-radius: 4px;">
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+
+    <?php if ( $status === 'active' ) : ?>
+        <div style="background: white; padding: 1.5rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+            <h4 style="margin-top: 0;">Send Reply</h4>
+            <textarea id="admin_reply_message" name="admin_reply_message" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; font-family: inherit; font-size: 14px;" placeholder="Type your response..."></textarea>
+
+            <div style="margin-top: 1rem;">
+                <label style="display: inline-block; padding: 0.5rem 1rem; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer;">
+                    📎 Attach Image
+                    <input type="file" id="admin_reply_image" name="admin_reply_image" accept="image/*" style="display: none;" onchange="previewAdminImage(this)">
+                </label>
+                <div id="admin_image_preview" style="margin-top: 1rem; display: none;">
+                    <img id="admin_preview_img" src="" alt="Preview" style="max-width: 200px; border-radius: 4px; border: 1px solid #e5e7eb;">
+                    <button type="button" onclick="clearAdminImage()" style="display: block; margin-top: 0.5rem; padding: 0.25rem 0.5rem; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Remove</button>
+                </div>
+            </div>
+
+            <button type="button" onclick="sendAdminReply(<?php echo $post->ID; ?>)" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: #000; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                Send Reply
+            </button>
+            <span id="reply_status" style="margin-left: 1rem; color: #10b981; display: none;">✓ Reply sent!</span>
+        </div>
+
+        <script>
+        function previewAdminImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('admin_preview_img').src = e.target.result;
+                    document.getElementById('admin_image_preview').style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearAdminImage() {
+            document.getElementById('admin_reply_image').value = '';
+            document.getElementById('admin_image_preview').style.display = 'none';
+        }
+
+        function sendAdminReply(chatId) {
+            var message = document.getElementById('admin_reply_message').value;
+            var imageInput = document.getElementById('admin_reply_image');
+            var formData = new FormData();
+
+            formData.append('action', 'aakaari_admin_send_reply');
+            formData.append('nonce', document.getElementById('aakaari_chat_reply_nonce_field').value);
+            formData.append('chat_id', chatId);
+            formData.append('message', message);
+
+            if (imageInput.files && imageInput.files[0]) {
+                formData.append('image', imageInput.files[0]);
+            }
+
+            // Disable button
+            var btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            fetch('<?php echo admin_url( 'admin-ajax.php' ); ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear inputs
+                    document.getElementById('admin_reply_message').value = '';
+                    clearAdminImage();
+
+                    // Show success
+                    document.getElementById('reply_status').style.display = 'inline';
+                    setTimeout(() => {
+                        document.getElementById('reply_status').style.display = 'none';
+                    }, 3000);
+
+                    // Reload messages
+                    location.reload();
+                } else {
+                    alert('Failed to send reply: ' + (data.data || 'Unknown error'));
+                }
+
+                // Re-enable button
+                btn.disabled = false;
+                btn.textContent = 'Send Reply';
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+                btn.disabled = false;
+                btn.textContent = 'Send Reply';
+            });
+        }
+        </script>
+    <?php else : ?>
+        <p style="text-align: center; color: #999; padding: 2rem; background: #f9fafb; border-radius: 8px;">
+            This chat has been closed. Reopen it to send a reply.
+        </p>
+    <?php endif; ?>
+    <?php
+}
+
+/**
+ * Chat info meta box
+ */
+function aakaari_chat_info_metabox( $post ) {
+    $customer_name = get_post_meta( $post->ID, '_chat_user_name', true );
+    $customer_email = get_post_meta( $post->ID, '_chat_user_email', true );
+    $is_guest = get_post_meta( $post->ID, '_chat_is_guest', true );
+    $status = get_post_meta( $post->ID, '_chat_status', true );
+    $started = get_post_meta( $post->ID, '_chat_started', true );
+    $updated = get_post_meta( $post->ID, '_chat_updated', true );
+    ?>
+    <div style="font-size: 13px;">
+        <p><strong>Customer Name:</strong><br><?php echo esc_html( $customer_name ); ?></p>
+
+        <?php if ( $customer_email ) : ?>
+            <p><strong>Email:</strong><br>
+                <a href="mailto:<?php echo esc_attr( $customer_email ); ?>"><?php echo esc_html( $customer_email ); ?></a>
+            </p>
+        <?php endif; ?>
+
+        <p><strong>User Type:</strong><br><?php echo $is_guest === 'yes' ? 'Guest' : 'Registered User'; ?></p>
+
+        <p><strong>Status:</strong><br>
+            <span style="display: inline-block; padding: 4px 8px; background: <?php echo $status === 'active' ? '#10b981' : '#6b7280'; ?>; color: white; border-radius: 4px; font-size: 11px;"><?php echo esc_html( ucfirst( $status ) ); ?></span>
+        </p>
+
+        <?php if ( $started ) : ?>
+            <p><strong>Started:</strong><br><?php echo esc_html( date( 'M j, Y g:i a', strtotime( $started ) ) ); ?></p>
+        <?php endif; ?>
+
+        <?php if ( $updated ) : ?>
+            <p><strong>Last Update:</strong><br><?php echo esc_html( human_time_diff( strtotime( $updated ), current_time( 'timestamp' ) ) . ' ago' ); ?></p>
+        <?php endif; ?>
+
+        <?php if ( $status === 'active' ) : ?>
+            <p>
+                <button type="button" onclick="closeChat(<?php echo $post->ID; ?>)" style="width: 100%; padding: 0.5rem; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Close Chat
+                </button>
+            </p>
+        <?php endif; ?>
+    </div>
+
+    <script>
+    function closeChat(chatId) {
+        if (!confirm('Are you sure you want to close this chat?')) {
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('action', 'aakaari_admin_close_chat');
+        formData.append('nonce', '<?php echo wp_create_nonce( 'aakaari_admin_chat_nonce' ); ?>');
+        formData.append('chat_id', chatId);
+
+        fetch('<?php echo admin_url( 'admin-ajax.php' ); ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to close chat: ' + (data.data || 'Unknown error'));
+            }
+        });
+    }
+    </script>
+    <?php
+}
+
+/**
+ * AJAX: Admin sends reply
+ */
+function aakaari_admin_send_reply() {
+    check_ajax_referer( 'aakaari_chat_reply_nonce', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Unauthorized' );
+    }
+
+    $chat_id = intval( $_POST['chat_id'] );
+    $message = sanitize_textarea_field( $_POST['message'] ?? '' );
+    $user = wp_get_current_user();
+
+    // Handle image upload
+    $image_url = '';
+    if ( ! empty( $_FILES['image'] ) ) {
+        require_once( ABSPATH . 'wp-admin/includes/file.php' );
+        require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+        $uploaded = wp_handle_upload( $_FILES['image'], array( 'test_form' => false ) );
+        if ( ! empty( $uploaded['url'] ) ) {
+            $image_url = $uploaded['url'];
+        }
+    }
+
+    if ( empty( $message ) && empty( $image_url ) ) {
+        wp_send_json_error( 'Message or image is required' );
+    }
+
+    $messages = get_post_meta( $chat_id, '_chat_messages', true );
+    if ( ! is_array( $messages ) ) {
+        $messages = array();
+    }
+
+    $new_message = array(
+        'user_id' => $user->ID,
+        'user_name' => $user->display_name,
+        'message' => $message,
+        'timestamp' => current_time( 'mysql' ),
+        'is_admin' => true,
+    );
+
+    if ( ! empty( $image_url ) ) {
+        $new_message['image'] = $image_url;
+    }
+
+    $messages[] = $new_message;
+
+    update_post_meta( $chat_id, '_chat_messages', $messages );
+    update_post_meta( $chat_id, '_chat_updated', current_time( 'mysql' ) );
+
+    wp_send_json_success( array( 'message' => 'Reply sent!' ) );
+}
+add_action( 'wp_ajax_aakaari_admin_send_reply', 'aakaari_admin_send_reply' );
+
+/**
+ * AJAX: Admin closes chat
+ */
+function aakaari_admin_close_chat() {
+    check_ajax_referer( 'aakaari_admin_chat_nonce', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Unauthorized' );
+    }
+
+    $chat_id = intval( $_POST['chat_id'] );
+
+    update_post_meta( $chat_id, '_chat_status', 'closed' );
+    update_post_meta( $chat_id, '_chat_ended', current_time( 'mysql' ) );
+
+    wp_send_json_success( array( 'message' => 'Chat closed' ) );
+}
+add_action( 'wp_ajax_aakaari_admin_close_chat', 'aakaari_admin_close_chat' );
