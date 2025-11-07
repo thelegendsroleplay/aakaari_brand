@@ -159,7 +159,7 @@ function aakaari_enqueue_assets() {
 		wp_enqueue_style(
 			'aakaari-account',
 			$assets_base . '/css/account.css',
-			array(),
+			array( 'aakaari-reset' ),
 			$theme_version
 		);
 	}
