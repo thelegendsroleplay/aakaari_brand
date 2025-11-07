@@ -785,3 +785,369 @@ function aakaari_admin_close_chat() {
     wp_send_json_success( array( 'message' => 'Chat closed' ) );
 }
 add_action( 'wp_ajax_aakaari_admin_close_chat', 'aakaari_admin_close_chat' );
+
+/**
+ * Register settings page for Live Chat
+ */
+function aakaari_chat_settings_page() {
+    add_submenu_page(
+        'edit.php?post_type=live_chat',
+        'Chat Settings',
+        'Settings',
+        'manage_options',
+        'live-chat-settings',
+        'aakaari_chat_settings_page_html'
+    );
+}
+add_action( 'admin_menu', 'aakaari_chat_settings_page' );
+
+/**
+ * Settings page HTML
+ */
+function aakaari_chat_settings_page_html() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    // Save settings
+    if ( isset( $_POST['aakaari_chat_settings_nonce'] ) && wp_verify_nonce( $_POST['aakaari_chat_settings_nonce'], 'aakaari_chat_settings' ) ) {
+        update_option( 'aakaari_chat_inactivity_timeout', absint( $_POST['inactivity_timeout'] ) );
+        update_option( 'aakaari_chat_auto_delete_days', absint( $_POST['auto_delete_days'] ) );
+        update_option( 'aakaari_chat_disclaimer_text', wp_kses_post( $_POST['disclaimer_text'] ) );
+        echo '<div class="notice notice-success"><p>Settings saved successfully!</p></div>';
+    }
+
+    $inactivity_timeout = get_option( 'aakaari_chat_inactivity_timeout', 30 );
+    $auto_delete_days = get_option( 'aakaari_chat_auto_delete_days', 7 );
+    $disclaimer_text = get_option( 'aakaari_chat_disclaimer_text', 'For your security: We will never ask for passwords, OTPs, credit card CVV, or other sensitive information via chat. Please do not share such details.' );
+    ?>
+    <div class="wrap">
+        <h1>Live Chat Settings</h1>
+        <form method="post" action="">
+            <?php wp_nonce_field( 'aakaari_chat_settings', 'aakaari_chat_settings_nonce' ); ?>
+
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><label for="inactivity_timeout">Auto-Close Inactive Chats</label></th>
+                    <td>
+                        <input type="number" id="inactivity_timeout" name="inactivity_timeout" value="<?php echo esc_attr( $inactivity_timeout ); ?>" min="5" max="1440" class="regular-text">
+                        <p class="description">Close chats automatically after this many minutes of inactivity (default: 30 minutes)</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="auto_delete_days">Auto-Delete Closed Chats</label></th>
+                    <td>
+                        <input type="number" id="auto_delete_days" name="auto_delete_days" value="<?php echo esc_attr( $auto_delete_days ); ?>" min="1" max="90" class="regular-text">
+                        <p class="description">Permanently delete chats after this many days of being closed (default: 7 days). For GDPR compliance.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="disclaimer_text">Security Disclaimer</label></th>
+                    <td>
+                        <textarea id="disclaimer_text" name="disclaimer_text" rows="4" class="large-text"><?php echo esc_textarea( $disclaimer_text ); ?></textarea>
+                        <p class="description">This message will be shown to customers before they start a chat</p>
+                    </td>
+                </tr>
+            </table>
+
+            <p class="submit">
+                <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Settings">
+            </p>
+        </form>
+
+        <hr>
+
+        <h2>Privacy & Data Management</h2>
+        <p><strong>Current Policy:</strong></p>
+        <ul style="list-style: disc; margin-left: 2rem;">
+            <li>Chats are automatically closed after <?php echo esc_html( $inactivity_timeout ); ?> minutes of inactivity</li>
+            <li>Chat transcripts are emailed to both parties when a chat is closed</li>
+            <li>Closed chats are permanently deleted after <?php echo esc_html( $auto_delete_days ); ?> days</li>
+            <li>Customer data is stored securely in your WordPress database</li>
+            <li>Customers can close their chat anytime from the chat widget</li>
+        </ul>
+
+        <h3>Manual Cleanup</h3>
+        <p>
+            <button type="button" class="button" onclick="if(confirm('This will delete all closed chats older than <?php echo esc_attr( $auto_delete_days ); ?> days. Continue?')) { cleanupOldChats(); }">
+                Delete Old Chats Now
+            </button>
+        </p>
+
+        <script>
+        function cleanupOldChats() {
+            fetch('<?php echo admin_url( 'admin-ajax.php' ); ?>', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'action=aakaari_cleanup_old_chats&nonce=<?php echo wp_create_nonce( 'aakaari_cleanup_nonce' ); ?>'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Deleted ' + data.data.deleted_count + ' old chat(s)');
+                    location.reload();
+                } else {
+                    alert('Cleanup failed: ' + (data.data || 'Unknown error'));
+                }
+            });
+        }
+        </script>
+    </div>
+    <?php
+}
+
+/**
+ * Auto-close inactive chats (run via cron)
+ */
+function aakaari_auto_close_inactive_chats() {
+    $timeout = get_option( 'aakaari_chat_inactivity_timeout', 30 );
+    $timeout_date = date( 'Y-m-d H:i:s', strtotime( "-{$timeout} minutes" ) );
+
+    $args = array(
+        'post_type' => 'live_chat',
+        'posts_per_page' => -1,
+        'meta_query' => array(
+            array(
+                'key' => '_chat_status',
+                'value' => 'active',
+            ),
+            array(
+                'key' => '_chat_updated',
+                'value' => $timeout_date,
+                'compare' => '<',
+                'type' => 'DATETIME',
+            ),
+        ),
+    );
+
+    $inactive_chats = get_posts( $args );
+
+    foreach ( $inactive_chats as $chat ) {
+        // Close the chat
+        update_post_meta( $chat->ID, '_chat_status', 'closed' );
+        update_post_meta( $chat->ID, '_chat_ended', current_time( 'mysql' ) );
+        update_post_meta( $chat->ID, '_chat_close_reason', 'auto_inactivity' );
+
+        // Send transcripts
+        aakaari_send_chat_transcript( $chat->ID );
+    }
+}
+
+// Schedule cron job for auto-closing
+if ( ! wp_next_scheduled( 'aakaari_auto_close_chats_hook' ) ) {
+    wp_schedule_event( time(), 'hourly', 'aakaari_auto_close_chats_hook' );
+}
+add_action( 'aakaari_auto_close_chats_hook', 'aakaari_auto_close_inactive_chats' );
+
+/**
+ * Auto-delete old closed chats (run via cron)
+ */
+function aakaari_auto_delete_old_chats() {
+    $delete_after_days = get_option( 'aakaari_chat_auto_delete_days', 7 );
+    $delete_before_date = date( 'Y-m-d H:i:s', strtotime( "-{$delete_after_days} days" ) );
+
+    $args = array(
+        'post_type' => 'live_chat',
+        'posts_per_page' => -1,
+        'meta_query' => array(
+            array(
+                'key' => '_chat_status',
+                'value' => 'closed',
+            ),
+            array(
+                'key' => '_chat_ended',
+                'value' => $delete_before_date,
+                'compare' => '<',
+                'type' => 'DATETIME',
+            ),
+        ),
+    );
+
+    $old_chats = get_posts( $args );
+
+    foreach ( $old_chats as $chat ) {
+        // Permanently delete the chat and all its meta data
+        wp_delete_post( $chat->ID, true );
+    }
+}
+
+// Schedule cron job for auto-deletion
+if ( ! wp_next_scheduled( 'aakaari_auto_delete_chats_hook' ) ) {
+    wp_schedule_event( time(), 'daily', 'aakaari_auto_delete_chats_hook' );
+}
+add_action( 'aakaari_auto_delete_chats_hook', 'aakaari_auto_delete_old_chats' );
+
+/**
+ * Manual cleanup via AJAX
+ */
+function aakaari_cleanup_old_chats_ajax() {
+    check_ajax_referer( 'aakaari_cleanup_nonce', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Unauthorized' );
+    }
+
+    $delete_after_days = get_option( 'aakaari_chat_auto_delete_days', 7 );
+    $delete_before_date = date( 'Y-m-d H:i:s', strtotime( "-{$delete_after_days} days" ) );
+
+    $args = array(
+        'post_type' => 'live_chat',
+        'posts_per_page' => -1,
+        'meta_query' => array(
+            array(
+                'key' => '_chat_status',
+                'value' => 'closed',
+            ),
+            array(
+                'key' => '_chat_ended',
+                'value' => $delete_before_date,
+                'compare' => '<',
+                'type' => 'DATETIME',
+            ),
+        ),
+    );
+
+    $old_chats = get_posts( $args );
+    $deleted_count = 0;
+
+    foreach ( $old_chats as $chat ) {
+        wp_delete_post( $chat->ID, true );
+        $deleted_count++;
+    }
+
+    wp_send_json_success( array( 'deleted_count' => $deleted_count ) );
+}
+add_action( 'wp_ajax_aakaari_cleanup_old_chats', 'aakaari_cleanup_old_chats_ajax' );
+
+/**
+ * Send chat transcript via email when chat closes
+ */
+function aakaari_send_chat_transcript( $chat_id ) {
+    $chat = get_post( $chat_id );
+    if ( ! $chat ) {
+        return;
+    }
+
+    $messages = get_post_meta( $chat_id, '_chat_messages', true );
+    $customer_name = get_post_meta( $chat_id, '_chat_user_name', true );
+    $customer_email = get_post_meta( $chat_id, '_chat_user_email', true );
+    $started = get_post_meta( $chat_id, '_chat_started', true );
+    $ended = get_post_meta( $chat_id, '_chat_ended', true );
+    $close_reason = get_post_meta( $chat_id, '_chat_close_reason', true );
+
+    if ( ! is_array( $messages ) || empty( $messages ) ) {
+        return;
+    }
+
+    $site_name = get_bloginfo( 'name' );
+
+    // Build transcript
+    $transcript = "CHAT TRANSCRIPT\n";
+    $transcript .= "================\n\n";
+    $transcript .= "Website: " . get_bloginfo( 'url' ) . "\n";
+    $transcript .= "Chat Subject: " . $chat->post_title . "\n";
+    $transcript .= "Customer: " . $customer_name . "\n";
+    if ( $customer_email ) {
+        $transcript .= "Email: " . $customer_email . "\n";
+    }
+    $transcript .= "Started: " . date( 'F j, Y g:i a', strtotime( $started ) ) . "\n";
+    $transcript .= "Ended: " . date( 'F j, Y g:i a', strtotime( $ended ) ) . "\n";
+
+    if ( $close_reason === 'auto_inactivity' ) {
+        $transcript .= "Closed Reason: Automatic (Inactivity)\n";
+    }
+
+    $transcript .= "\n" . str_repeat( '-', 60 ) . "\n\n";
+
+    foreach ( $messages as $msg ) {
+        $sender = $msg['is_admin'] ? 'SUPPORT' : strtoupper( $customer_name );
+        $time = date( 'g:i a', strtotime( $msg['timestamp'] ) );
+
+        $transcript .= "[{$time}] {$sender}:\n";
+        if ( ! empty( $msg['message'] ) ) {
+            $transcript .= $msg['message'] . "\n";
+        }
+        if ( ! empty( $msg['image'] ) ) {
+            $transcript .= "[Image: " . $msg['image'] . "]\n";
+        }
+        $transcript .= "\n";
+    }
+
+    $transcript .= str_repeat( '-', 60 ) . "\n\n";
+    $transcript .= "This chat has been closed and will be permanently deleted after " . get_option( 'aakaari_chat_auto_delete_days', 7 ) . " days.\n";
+    $transcript .= "If you have any further questions, please start a new chat or contact us directly.\n\n";
+    $transcript .= "Thank you,\n";
+    $transcript .= $site_name;
+
+    $headers = array( 'Content-Type: text/plain; charset=UTF-8' );
+
+    // Send to customer (if email provided)
+    if ( $customer_email ) {
+        $customer_subject = "[{$site_name}] Chat Transcript - " . $chat->post_title;
+        wp_mail( $customer_email, $customer_subject, $transcript, $headers );
+    }
+
+    // Send to admin
+    $admin_email = get_option( 'admin_email' );
+    $admin_subject = "[{$site_name}] Chat Closed - Transcript for " . $customer_name;
+    wp_mail( $admin_email, $admin_subject, $transcript, $headers );
+}
+
+/**
+ * Get chat settings for frontend
+ */
+function aakaari_get_chat_settings() {
+    check_ajax_referer( 'aakaari_chat_nonce', 'nonce' );
+
+    $disclaimer_text = get_option( 'aakaari_chat_disclaimer_text', 'For your security: We will never ask for passwords, OTPs, credit card CVV, or other sensitive information via chat. Please do not share such details.' );
+
+    wp_send_json_success( array(
+        'disclaimer' => $disclaimer_text,
+    ) );
+}
+add_action( 'wp_ajax_aakaari_get_chat_settings', 'aakaari_get_chat_settings' );
+add_action( 'wp_ajax_nopriv_aakaari_get_chat_settings', 'aakaari_get_chat_settings' );
+
+/**
+ * Customer closes their own chat
+ */
+function aakaari_customer_close_chat() {
+    check_ajax_referer( 'aakaari_chat_nonce', 'nonce' );
+
+    $chat_id = intval( $_POST['chat_id'] );
+    $session_key = sanitize_text_field( $_POST['session_key'] ?? '' );
+
+    $chat = get_post( $chat_id );
+    if ( ! $chat || $chat->post_type !== 'live_chat' ) {
+        wp_send_json_error( 'Invalid chat' );
+    }
+
+    // Verify permission
+    $chat_session_key = get_post_meta( $chat_id, '_chat_session_key', true );
+
+    if ( is_user_logged_in() ) {
+        $user_id = get_current_user_id();
+        $current_session = 'user_' . $user_id;
+    } else {
+        if ( ! session_id() ) {
+            session_start();
+        }
+        $current_session = 'guest_' . session_id();
+    }
+
+    if ( $chat_session_key !== $current_session ) {
+        wp_send_json_error( 'Unauthorized' );
+    }
+
+    // Close the chat
+    update_post_meta( $chat_id, '_chat_status', 'closed' );
+    update_post_meta( $chat_id, '_chat_ended', current_time( 'mysql' ) );
+    update_post_meta( $chat_id, '_chat_close_reason', 'customer' );
+
+    // Send transcripts
+    aakaari_send_chat_transcript( $chat_id );
+
+    wp_send_json_success( array( 'message' => 'Chat closed successfully. Transcript has been sent to your email.' ) );
+}
+add_action( 'wp_ajax_aakaari_customer_close_chat', 'aakaari_customer_close_chat' );
+add_action( 'wp_ajax_nopriv_aakaari_customer_close_chat', 'aakaari_customer_close_chat' );
