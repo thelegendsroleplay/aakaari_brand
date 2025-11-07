@@ -16,6 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Include Custom Live Chat Support System
+ */
+require_once get_template_directory() . '/inc/live-chat-system.php';
+
+/**
  * Theme setup (support, menus, image sizes)
  */
 function aakaari_theme_setup() {
@@ -190,6 +195,28 @@ function aakaari_enqueue_assets() {
 			);
 		}
 	}
+
+	// Live Chat Widget - Load on all pages
+	wp_enqueue_style(
+		'aakaari-live-chat',
+		$assets_base . '/css/live-chat.css',
+		array(),
+		$theme_version
+	);
+
+	wp_enqueue_script(
+		'aakaari-live-chat-js',
+		$assets_base . '/js/live-chat.js',
+		array( 'jquery' ),
+		$theme_version,
+		true
+	);
+
+	// Localize script for AJAX
+	wp_localize_script( 'aakaari-live-chat-js', 'aakaari_chat', array(
+		'ajax_url' => admin_url( 'admin-ajax.php' ),
+		'nonce' => wp_create_nonce( 'aakaari_chat_nonce' ),
+	) );
 }
 add_action( 'wp_enqueue_scripts', 'aakaari_enqueue_assets' );
 
