@@ -36,10 +36,12 @@
   border: none;
   cursor: pointer;
   transition: opacity 0.2s ease;
+  text-decoration: none !important;
 }
 
 .header-logo:hover {
   opacity: 0.7;
+  text-decoration: none !important;
 }
 
 .header-logo-icon {
@@ -50,6 +52,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .header-logo-text {
@@ -62,6 +65,7 @@
   font-size: 16px;
   font-weight: 600;
   color: #000000;
+  white-space: nowrap;
 }
 
 @media (max-width: 640px) {
@@ -95,14 +99,17 @@
   cursor: pointer;
   transition: color 0.2s ease;
   padding: 8px 4px;
+  text-decoration: none !important;
+  white-space: nowrap;
 }
 
 .header-nav-link:hover {
   color: #000000;
+  text-decoration: none !important;
 }
 
 .header-nav-link-active {
-  color: #000000;
+  color: #000000 !important;
   font-weight: 600;
 }
 
@@ -125,10 +132,33 @@
 .header-action-btn {
   height: 36px;
   width: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  padding: 0;
+  position: relative;
+  text-decoration: none !important;
+}
+
+.header-action-btn svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  flex-shrink: 0;
 }
 
 .header-action-btn:hover {
   background: #f8f9fa;
+  text-decoration: none !important;
 }
 
 .header-wishlist-btn,
@@ -142,13 +172,19 @@
   right: -4px;
   width: 16px;
   height: 16px;
+  min-width: 16px;
+  min-height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   font-size: 10px;
+  font-weight: 600;
   background: #000000;
   color: #ffffff;
+  border-radius: 50%;
+  line-height: 1;
+  pointer-events: none;
 }
 
 /* ============================================
@@ -172,6 +208,7 @@
   opacity: 0;
   visibility: hidden;
   transition: all 0.2s ease;
+  overflow: hidden;
 }
 
 .header-user-menu:hover .header-dropdown {
@@ -191,10 +228,12 @@
   border: none;
   cursor: pointer;
   transition: background 0.2s ease;
+  text-decoration: none !important;
 }
 
 .header-dropdown-item:hover {
   background: #f8f9fa;
+  text-decoration: none !important;
 }
 
 .header-dropdown-admin {
@@ -216,8 +255,26 @@
 
 .header-mobile-toggle {
   display: flex;
+  align-items: center;
+  justify-content: center;
   height: 36px;
   width: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  padding: 0;
+}
+
+.header-mobile-toggle svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  stroke: currentColor;
+  fill: none;
 }
 
 .header-mobile-toggle:hover {
@@ -242,7 +299,7 @@
 
 @media (min-width: 768px) {
   .header-mobile-menu {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -266,15 +323,17 @@
   cursor: pointer;
   transition: all 0.2s ease;
   color: #000000;
+  text-decoration: none !important;
 }
 
 .header-mobile-menu-item:hover {
   background: #f8f9fa;
+  text-decoration: none !important;
 }
 
 .header-mobile-menu-item-active {
   background: #000000;
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .header-mobile-divider {
