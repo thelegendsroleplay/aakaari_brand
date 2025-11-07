@@ -64,13 +64,9 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     </div>
                     <h3>Welcome to Live Support</h3>
-                    <p>How can we help you today?</p>
+                    <p>Start chatting with us!</p>
                     <div id="chat-disclaimer" class="chat-disclaimer"></div>
-                    <input type="text" id="chat-guest-name" placeholder="Your name..." />
-                    <input type="email" id="chat-guest-email" placeholder="Your email (optional)..." />
-                    <input type="text" id="chat-subject-input" placeholder="Brief subject of your query..." />
-                    <textarea id="chat-initial-message" placeholder="Describe your issue..." rows="4"></textarea>
-                    <button id="chat-start-btn" class="btn-primary">Start Chat</button>
+                    <button id="chat-start-btn" class="btn-primary">Start Chatting</button>
                 </div>
                 <div class="chat-closed hidden">
                     <div class="closed-icon">
@@ -138,7 +134,7 @@
             if (activeChatId) {
                 messageInput.focus();
             } else {
-                $('#chat-subject-input').focus();
+                $('#chat-start-btn').focus();
             }
         }
     }
@@ -195,26 +191,16 @@
      * Start new chat conversation
      */
     function startNewChat() {
-        const guestName = $('#chat-guest-name').val().trim();
-        const guestEmail = $('#chat-guest-email').val().trim();
-        const subject = $('#chat-subject-input').val().trim();
-        const message = $('#chat-initial-message').val().trim();
-
-        if (!guestName || !subject || !message) {
-            alert('Please provide your name, subject, and message to start the chat.');
-            return;
-        }
-
         $.ajax({
             url: aakaari_chat.ajax_url,
             type: 'POST',
             data: {
                 action: 'aakaari_start_chat',
                 nonce: aakaari_chat.nonce,
-                guest_name: guestName,
-                guest_email: guestEmail,
-                subject: subject,
-                message: message
+                guest_name: 'Guest',
+                guest_email: '',
+                subject: 'Live Chat Support',
+                message: 'Customer has started a live chat'
             },
             success: function(response) {
                 if (response.success) {
@@ -339,6 +325,29 @@
             success: function(response) {
                 if (response.success) {
                     const messages = response.data.messages || [];
+                    const status = response.data.status;
+                    const closeReason = response.data.close_reason;
+
+                    // Check if admin closed the chat
+                    if (status === 'closed' && closeReason === 'admin_closed') {
+                        // Stop polling
+                        if (pollingInterval) {
+                            clearInterval(pollingInterval);
+                        }
+
+                        // Show notification popup
+                        alert('The support team has closed this chat. A transcript has been sent to your email. Thank you for contacting us!');
+
+                        // Show closed screen
+                        showClosedScreen();
+
+                        // Clear session
+                        localStorage.removeItem('aakaari_chat_session');
+                        localStorage.removeItem('aakaari_active_chat_id');
+
+                        activeChatId = null;
+                        return;
+                    }
 
                     // Only update if message count changed
                     if (messages.length !== lastMessageCount) {
@@ -394,12 +403,12 @@
             clearInterval(pollingInterval);
         }
 
-        // Poll every 3 seconds
+        // Poll every 1 second for real-time updates (like WhatsApp)
         pollingInterval = setInterval(function() {
             if (!chatWindow.hasClass('hidden') && activeChatId) {
                 loadMessages();
             }
-        }, 3000);
+        }, 1000);
     }
 
     /**
@@ -475,12 +484,20 @@
     }
 
     /**
-     * Format timestamp to readable time
+     * Format timestamp to readable time in IST (Indian Standard Time)
      */
     function formatTime(timestamp) {
         const date = new Date(timestamp);
+
+        // Convert to IST (UTC+5:30)
+        const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+        const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
+        const istTime = new Date(utcTime + istOffset);
+
         const now = new Date();
-        const diff = now - date;
+        const nowIst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + istOffset);
+
+        const diff = nowIst - istTime;
         const minutes = Math.floor(diff / 60000);
         const hours = Math.floor(diff / 3600000);
         const days = Math.floor(diff / 86400000);
@@ -490,7 +507,13 @@
         if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
         if (days < 7) return days + ' day' + (days > 1 ? 's' : '') + ' ago';
 
-        return date.toLocaleDateString();
+        // For older messages, show full date and time in IST
+        const istHours = istTime.getHours();
+        const istMinutes = istTime.getMinutes().toString().padStart(2, '0');
+        const ampm = istHours >= 12 ? 'PM' : 'AM';
+        const displayHours = istHours % 12 || 12;
+
+        return istTime.toLocaleDateString('en-IN') + ' ' + displayHours + ':' + istMinutes + ' ' + ampm + ' IST';
     }
 
     /**
