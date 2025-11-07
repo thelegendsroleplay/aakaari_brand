@@ -484,42 +484,50 @@
     }
 
     /**
-     * Format timestamp to actual time (WhatsApp style)
+     * Format timestamp to actual time in IST (WhatsApp style)
      */
     function formatTime(timestamp) {
-        // WordPress sends "YYYY-MM-DD HH:MM:SS" format
-        const date = new Date(timestamp.replace(' ', 'T'));
-        const now = new Date();
+        // WordPress sends "YYYY-MM-DD HH:MM:SS" format in IST
+        // Parse as UTC, then convert to IST
+        const parts = timestamp.split(/[- :]/);
+        const utcDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]));
 
-        // Format time in 12-hour format
-        const hours = date.getHours();
-        const minutes = date.getMinutes().toString().padStart(2, '0');
+        // Convert to IST (UTC+5:30)
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const istDate = new Date(utcDate.getTime() + istOffset);
+
+        // Get current time in IST
+        const now = new Date();
+        const nowIst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + istOffset);
+
+        // Format time in 12-hour format (IST)
+        const hours = istDate.getUTCHours();
+        const minutes = istDate.getUTCMinutes().toString().padStart(2, '0');
         const hours12 = hours % 12 || 12;
         const ampm = hours >= 12 ? 'PM' : 'AM';
         const timeStr = hours12 + ':' + minutes + ' ' + ampm;
 
-        // Check if message is from today
-        const isToday = date.getDate() === now.getDate() &&
-                       date.getMonth() === now.getMonth() &&
-                       date.getFullYear() === now.getFullYear();
+        // Check if message is from today (in IST)
+        const isToday = istDate.getUTCDate() === nowIst.getUTCDate() &&
+                       istDate.getUTCMonth() === nowIst.getUTCMonth() &&
+                       istDate.getUTCFullYear() === nowIst.getUTCFullYear();
 
-        // Check if message is from yesterday
-        const yesterday = new Date(now);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const isYesterday = date.getDate() === yesterday.getDate() &&
-                           date.getMonth() === yesterday.getMonth() &&
-                           date.getFullYear() === yesterday.getFullYear();
+        // Check if message is from yesterday (in IST)
+        const yesterdayIst = new Date(nowIst.getTime() - 24 * 60 * 60 * 1000);
+        const isYesterday = istDate.getUTCDate() === yesterdayIst.getUTCDate() &&
+                           istDate.getUTCMonth() === yesterdayIst.getUTCMonth() &&
+                           istDate.getUTCFullYear() === yesterdayIst.getUTCFullYear();
 
-        // Return formatted time
+        // Return formatted time in IST
         if (isToday) {
             return timeStr; // Just time: "3:51 PM"
         } else if (isYesterday) {
             return 'Yesterday ' + timeStr; // "Yesterday 3:51 PM"
         } else {
             // Full date and time for older messages
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
+            const day = istDate.getUTCDate().toString().padStart(2, '0');
+            const month = (istDate.getUTCMonth() + 1).toString().padStart(2, '0');
+            const year = istDate.getUTCFullYear();
             return day + '/' + month + '/' + year + ' ' + timeStr; // "07/11/2025 3:51 PM"
         }
     }
