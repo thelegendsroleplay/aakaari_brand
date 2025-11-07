@@ -487,27 +487,28 @@
      * Format timestamp to readable time in IST (Indian Standard Time)
      */
     function formatTime(timestamp) {
-        const date = new Date(timestamp);
-
-        // Convert to IST (UTC+5:30)
-        const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
-        const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
-        const istTime = new Date(utcTime + istOffset);
-
+        // Parse the timestamp - WordPress sends "YYYY-MM-DD HH:MM:SS" format
+        const date = new Date(timestamp.replace(' ', 'T'));
         const now = new Date();
-        const nowIst = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + istOffset);
 
-        const diff = nowIst - istTime;
+        // Calculate difference in milliseconds
+        const diff = now - date;
         const minutes = Math.floor(diff / 60000);
         const hours = Math.floor(diff / 3600000);
         const days = Math.floor(diff / 86400000);
 
+        // Return relative time for recent messages
         if (minutes < 1) return 'Just now';
         if (minutes < 60) return minutes + ' min ago';
         if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
         if (days < 7) return days + ' day' + (days > 1 ? 's' : '') + ' ago';
 
         // For older messages, show full date and time in IST
+        // Convert to IST by adding 5:30 hours offset
+        const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+        const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
+        const istTime = new Date(utcTime + istOffset);
+
         const istHours = istTime.getHours();
         const istMinutes = istTime.getMinutes().toString().padStart(2, '0');
         const ampm = istHours >= 12 ? 'PM' : 'AM';
