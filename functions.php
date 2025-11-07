@@ -384,3 +384,40 @@ function aakaari_delete_all_pages_and_create_required() {
 	update_option( 'aakaari_created_pages', $created_ids );
 }
 add_action( 'after_switch_theme', 'aakaari_delete_all_pages_and_create_required' );
+
+/**
+ * WooCommerce Cart Page Customizations
+ * Remove default WooCommerce features that conflict with custom design
+ */
+
+// Disable WooCommerce default cart styles
+add_filter( 'woocommerce_enqueue_styles', 'aakaari_disable_woocommerce_cart_styles' );
+function aakaari_disable_woocommerce_cart_styles( $enqueue_styles ) {
+	if ( is_cart() ) {
+		// Disable default WooCommerce styles on cart page
+		unset( $enqueue_styles['woocommerce-general'] );
+		unset( $enqueue_styles['woocommerce-layout'] );
+		unset( $enqueue_styles['woocommerce-smallscreen'] );
+	}
+	return $enqueue_styles;
+}
+
+// Remove WooCommerce cart page wrapper
+remove_action( 'woocommerce_before_main_content', 'woocommerce_output_content_wrapper', 10 );
+remove_action( 'woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10 );
+
+// Disable WooCommerce cart fragments (optional, improves performance)
+add_action( 'wp_enqueue_scripts', 'aakaari_disable_cart_fragments', 20 );
+function aakaari_disable_cart_fragments() {
+	if ( is_cart() ) {
+		wp_dequeue_script( 'wc-cart-fragments' );
+	}
+}
+
+// Remove WooCommerce breadcrumbs on cart page
+add_action( 'template_redirect', 'aakaari_remove_cart_breadcrumbs' );
+function aakaari_remove_cart_breadcrumbs() {
+	if ( is_cart() ) {
+		remove_action( 'woocommerce_before_main_content', 'woocommerce_breadcrumb', 20 );
+	}
+}

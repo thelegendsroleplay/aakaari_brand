@@ -1,8 +1,24 @@
-/* Hide WordPress default headers */
+/* Hide WordPress default headers and WooCommerce wrappers */
 body.woocommerce-cart .entry-header,
 body.woocommerce-cart .entry-title,
 .woocommerce-cart .entry-header,
 .woocommerce-cart .entry-title {
+  display: none !important;
+}
+
+/* Override WooCommerce default cart form styles */
+.woocommerce-cart-form {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Hide default WooCommerce notices container if empty */
+.woocommerce-notices-wrapper:empty {
+  display: none;
+}
+
+/* Override any lingering WooCommerce table styles */
+.woocommerce table.shop_table {
   display: none !important;
 }
 
