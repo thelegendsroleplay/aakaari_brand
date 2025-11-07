@@ -96,9 +96,16 @@ function aakaari_enqueue_assets() {
 	// Products/Shop pages - Check if WooCommerce is active
 	if ( function_exists( 'is_shop' ) && ( is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy() ) ) {
 		wp_enqueue_style(
+			'aakaari-shop',
+			$assets_base . '/css/shop.css',
+			array( 'aakaari-reset' ),
+			$theme_version
+		);
+
+		wp_enqueue_style(
 			'aakaari-products',
 			$assets_base . '/css/products.css',
-			array(),
+			array( 'aakaari-reset' ),
 			$theme_version
 		);
 	}
