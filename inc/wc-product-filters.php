@@ -144,6 +144,13 @@ function aakaari_custom_woocommerce_sorting( $query ) {
                     $query->set( 'orderby', 'meta_value_num' );
                     $query->set( 'order', 'DESC' );
                     break;
+
+                case 'sale':
+                    // Show only products on sale
+                    $query->set( 'post__in', array_merge( array( 0 ), wc_get_product_ids_on_sale() ) );
+                    $query->set( 'orderby', 'date' );
+                    $query->set( 'order', 'DESC' );
+                    break;
             }
         }
     }

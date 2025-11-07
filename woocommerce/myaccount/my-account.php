@@ -71,7 +71,6 @@ $status_filter = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status']
                 <?php if ( function_exists( 'YITH_WCWL' ) ) : ?>
                 <a href="?tab=wishlist" class="tab-trigger <?php echo $active_tab === 'wishlist' ? 'active' : ''; ?>">Wishlist</a>
                 <?php endif; ?>
-                <a href="?tab=support" class="tab-trigger <?php echo $active_tab === 'support' ? 'active' : ''; ?>">Support</a>
                 <a href="?tab=profile" class="tab-trigger <?php echo $active_tab === 'profile' ? 'active' : ''; ?>">Profile</a>
                 <a href="?tab=addresses" class="tab-trigger <?php echo $active_tab === 'addresses' ? 'active' : ''; ?>">Addresses</a>
             </div>
@@ -295,65 +294,6 @@ $status_filter = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status']
                             </a>
                         </div>
                     <?php endif; ?>
-                </div>
-
-            <!-- Support Tab -->
-            <?php elseif ( $active_tab === 'support' ) : ?>
-                <div class="support-section">
-                    <div class="section-header">
-                        <h2>Customer Support</h2>
-                    </div>
-
-                    <div style="background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
-                        <div class="card-header">
-                            <h3>Need Help?</h3>
-                        </div>
-                        <div style="padding: 1.5rem;">
-                            <p style="color: #666; margin-bottom: 1rem;">
-                                Have a question or issue? Our support team is here to help! Create a support ticket and we'll get back to you as soon as possible.
-                            </p>
-                            <a href="<?php echo esc_url( home_url('/support/') ); ?>" style="display: inline-block; padding: 0.5rem 1.5rem; background: #000; color: #fff; border-radius: 6px; text-decoration: none;">
-                                Create New Ticket
-                            </a>
-                        </div>
-                    </div>
-
-                    <div style="background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <div class="card-header">
-                            <h3>Quick Links</h3>
-                        </div>
-                        <div style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-                            <a href="<?php echo esc_url( wc_get_account_endpoint_url( 'orders' ) ); ?>" style="border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; text-decoration: none; transition: background 0.2s;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" style="margin-bottom: 0.5rem;">
-                                    <rect x="1" y="3" width="15" height="13"></rect>
-                                </svg>
-                                <h4 style="font-weight: 600; margin-bottom: 0.25rem; color: #000;">Track Order</h4>
-                                <p style="font-size: 0.875rem; color: #666; margin: 0;">Check your order status and delivery</p>
-                            </a>
-                            <a href="<?php echo esc_url( home_url('/returns/') ); ?>" style="border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; text-decoration: none; transition: background 0.2s;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom: 0.5rem;">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                                <h4 style="font-weight: 600; margin-bottom: 0.25rem; color: #000;">Returns & Refunds</h4>
-                                <p style="font-size: 0.875rem; color: #666; margin: 0;">Learn about our return policy</p>
-                            </a>
-                            <a href="<?php echo esc_url( home_url('/shipping/') ); ?>" style="border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; text-decoration: none; transition: background 0.2s;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="margin-bottom: 0.5rem;">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                </svg>
-                                <h4 style="font-weight: 600; margin-bottom: 0.25rem; color: #000;">Shipping Info</h4>
-                                <p style="font-size: 0.875rem; color: #666; margin: 0;">View shipping rates and times</p>
-                            </a>
-                            <a href="?tab=profile" style="border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; text-decoration: none; transition: background 0.2s;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" style="margin-bottom: 0.5rem;">
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                                </svg>
-                                <h4 style="font-weight: 600; margin-bottom: 0.25rem; color: #000;">Account Help</h4>
-                                <p style="font-size: 0.875rem; color: #666; margin: 0;">Manage your account settings</p>
-                            </a>
-                        </div>
-                    </div>
                 </div>
 
             <!-- Profile Tab -->
