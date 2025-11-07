@@ -31,16 +31,43 @@
                 <!-- Desktop Navigation -->
                 <nav class="header-nav">
                     <?php
+                    // Safely get hoodies category link
+                    $hoodies_link = home_url('/shop/');
+                    if ( function_exists( 'get_term_link' ) ) {
+                        $hoodies_term_link = get_term_link( 'hoodies', 'product_cat' );
+                        if ( ! is_wp_error( $hoodies_term_link ) ) {
+                            $hoodies_link = $hoodies_term_link;
+                        }
+                    }
+
+                    // Safely get shop link
+                    $shop_link = home_url('/shop/');
+                    if ( function_exists( 'wc_get_page_id' ) && function_exists( 'get_permalink' ) ) {
+                        $shop_page_id = wc_get_page_id( 'shop' );
+                        if ( $shop_page_id ) {
+                            $shop_permalink = get_permalink( $shop_page_id );
+                            if ( $shop_permalink ) {
+                                $shop_link = $shop_permalink;
+                            }
+                        }
+                    }
+
                     $menu_items = array(
                         array( 'label' => 'Home', 'url' => home_url('/') ),
-                        array( 'label' => 'T-Shirts', 'url' => get_permalink( wc_get_page_id( 'shop' ) ) ),
-                        array( 'label' => 'Hoodies', 'url' => get_term_link( 'hoodies', 'product_cat' ) ),
+                        array( 'label' => 'T-Shirts', 'url' => $shop_link ),
+                        array( 'label' => 'Hoodies', 'url' => $hoodies_link ),
                         array( 'label' => 'New Arrivals', 'url' => home_url('/new-arrivals/') ),
                         array( 'label' => 'Sale', 'url' => home_url('/sale/') ),
                     );
 
                     foreach ( $menu_items as $item ) :
-                        $is_current = ( $_SERVER['REQUEST_URI'] === parse_url( $item['url'], PHP_URL_PATH ) );
+                        // Safely check if current page
+                        $is_current = false;
+                        if ( ! empty( $item['url'] ) && is_string( $item['url'] ) ) {
+                            $item_path = parse_url( $item['url'], PHP_URL_PATH );
+                            $current_path = $_SERVER['REQUEST_URI'];
+                            $is_current = ( $current_path === $item_path );
+                        }
                         $active_class = $is_current ? 'header-nav-link-active' : '';
                     ?>
                         <a href="<?php echo esc_url( $item['url'] ); ?>"
@@ -145,7 +172,13 @@
         <nav class="header-mobile-menu" id="mobile-menu" style="display: none;">
             <div class="header-mobile-menu-content">
                 <?php foreach ( $menu_items as $item ) :
-                    $is_current = ( $_SERVER['REQUEST_URI'] === parse_url( $item['url'], PHP_URL_PATH ) );
+                    // Safely check if current page
+                    $is_current = false;
+                    if ( ! empty( $item['url'] ) && is_string( $item['url'] ) ) {
+                        $item_path = parse_url( $item['url'], PHP_URL_PATH );
+                        $current_path = $_SERVER['REQUEST_URI'];
+                        $is_current = ( $current_path === $item_path );
+                    }
                     $active_class = $is_current ? 'header-mobile-menu-item-active' : '';
                 ?>
                     <a href="<?php echo esc_url( $item['url'] ); ?>"
