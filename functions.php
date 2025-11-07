@@ -38,18 +38,26 @@ function aakaari_enqueue_assets() {
 	$theme_version = $theme ? $theme->get( 'Version' ) : time();
 	$assets_base = get_stylesheet_directory_uri() . '/assets';
 
+	// CSS Reset - load first to override WordPress defaults
+	wp_enqueue_style(
+		'aakaari-reset',
+		$assets_base . '/css/reset.css',
+		array(),
+		$theme_version
+	);
+
 	// Global styles (header, footer) - load on all pages
 	wp_enqueue_style(
 		'aakaari-header',
 		$assets_base . '/css/header.css',
-		array(),
+		array( 'aakaari-reset' ),
 		$theme_version
 	);
 
 	wp_enqueue_style(
 		'aakaari-footer',
 		$assets_base . '/css/footer.css',
-		array(),
+		array( 'aakaari-reset' ),
 		$theme_version
 	);
 
@@ -88,9 +96,16 @@ function aakaari_enqueue_assets() {
 	// Products/Shop pages - Check if WooCommerce is active
 	if ( function_exists( 'is_shop' ) && ( is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy() ) ) {
 		wp_enqueue_style(
+			'aakaari-shop',
+			$assets_base . '/css/shop.css',
+			array( 'aakaari-reset' ),
+			$theme_version
+		);
+
+		wp_enqueue_style(
 			'aakaari-products',
 			$assets_base . '/css/products.css',
-			array(),
+			array( 'aakaari-reset' ),
 			$theme_version
 		);
 	}
