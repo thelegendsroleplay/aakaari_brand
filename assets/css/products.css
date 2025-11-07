@@ -93,6 +93,7 @@ body.tax-product_cat .entry-title {
 
 .price-range {
   padding: 0.5rem 0;
+  overflow: hidden;
 }
 
 .price-labels {
@@ -101,6 +102,72 @@ body.tax-product_cat .entry-title {
   margin-top: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+/* WooCommerce Price Filter Styles */
+.widget_price_filter .price_slider_wrapper {
+  padding: 0.5rem 0;
+  overflow: hidden;
+}
+
+.widget_price_filter .ui-slider {
+  position: relative;
+  height: 0.5rem;
+  background: #e5e7eb;
+  border-radius: 0.25rem;
+  border: none;
+}
+
+.widget_price_filter .ui-slider .ui-slider-range {
+  background: #000;
+  border-radius: 0.25rem;
+  position: absolute;
+  height: 100%;
+}
+
+.widget_price_filter .ui-slider .ui-slider-handle {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  background: #000;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  top: 50%;
+  transform: translateY(-50%);
+  outline: none;
+}
+
+.widget_price_filter .ui-slider .ui-slider-handle:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.widget_price_filter .price_slider_amount {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.widget_price_filter .price_label {
+  font-weight: 500;
+}
+
+.widget_price_filter button {
+  padding: 0.375rem 0.75rem;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.widget_price_filter button:hover {
+  background: #333;
 }
 
 .color-options {
@@ -194,6 +261,30 @@ body.tax-product_cat .entry-title {
   margin: 0;
 }
 
+/* WooCommerce Widgets General Styles */
+.woocommerce-widget,
+.widget {
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.woocommerce-widget * ,
+.widget * {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Ensure sidebar widgets don't overflow */
+.filters-sidebar .widget,
+.filters-sidebar .woocommerce-widget {
+  margin-bottom: 1.5rem;
+}
+
+.filters-sidebar .widget:last-child,
+.filters-sidebar .woocommerce-widget:last-child {
+  margin-bottom: 0;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .products-container {
@@ -202,6 +293,7 @@ body.tax-product_cat .entry-title {
 
   .filters-sidebar {
     position: static;
+    max-width: 100%;
   }
 
   .filters-sidebar.show {
@@ -219,9 +311,21 @@ body.tax-product_cat .entry-title {
     gap: 1rem;
   }
 
+  .filters-sidebar {
+    padding: 1rem;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .filter-section {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+
   .products-toolbar {
     flex-direction: column;
     align-items: stretch;
+    padding: 0.75rem 1rem;
   }
 
   .toolbar-sort {
@@ -237,5 +341,40 @@ body.tax-product_cat .entry-title {
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 1rem;
+  }
+
+  /* Mobile-specific widget adjustments */
+  .widget_price_filter .ui-slider .ui-slider-handle {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .widget_price_filter .price_slider_amount {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .widget_price_filter button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .filters-sidebar {
+    padding: 0.75rem;
+  }
+
+  .filter-section h3 {
+    font-size: 0.9rem;
+  }
+
+  .filters-header h2 {
+    font-size: 1.1rem;
   }
 }
