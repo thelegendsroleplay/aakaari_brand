@@ -1,3 +1,11 @@
+/* Hide WordPress default headers */
+body.woocommerce-cart .entry-header,
+body.woocommerce-cart .entry-title,
+.woocommerce-cart .entry-header,
+.woocommerce-cart .entry-title {
+  display: none !important;
+}
+
 /* Cart Page Styles */
 .cart-page {
   min-height: 100vh;
@@ -289,6 +297,25 @@
 .payment-icons img {
   height: 1.5rem;
   opacity: 0.7;
+}
+
+.payment-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: #666;
+  color: white;
+  font-size: 0.625rem;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.summary-separator {
+  border-top: 1px solid #e5e7eb;
+  margin: 1rem 0;
+}
+
+.discount-row {
+  color: #10b981;
 }
 
 /* Button Styles */
