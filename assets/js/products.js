@@ -245,6 +245,41 @@
     }
   });
 
+  // Real-time price slider updates (while dragging)
+  document.addEventListener('input', function(e){
+    if(e.target.matches(selectors.priceMin) || e.target.matches(selectors.priceMax)){
+      const minEl = $(selectors.priceMin);
+      const maxEl = $(selectors.priceMax);
+      const minLabel = $(selectors.priceMinLabel);
+      const maxLabel = $(selectors.priceMaxLabel);
+
+      if (minEl && maxEl) {
+        let minValue = parseInt(minEl.value);
+        let maxValue = parseInt(maxEl.value);
+
+        // Ensure min is never greater than max
+        if (e.target.matches(selectors.priceMin)) {
+          if (minValue > maxValue) {
+            minValue = maxValue;
+            minEl.value = minValue;
+          }
+        }
+
+        // Ensure max is never less than min
+        if (e.target.matches(selectors.priceMax)) {
+          if (maxValue < minValue) {
+            maxValue = minValue;
+            maxEl.value = maxValue;
+          }
+        }
+
+        // Update labels with validated values
+        if (minLabel) minLabel.textContent = '$' + minValue;
+        if (maxLabel) maxLabel.textContent = '$' + maxValue;
+      }
+    }
+  });
+
   // checkboxes / ranges
   document.addEventListener('change', function(e){
     if(e.target.matches(selectors.categories + ' input[type=checkbox]') ||
@@ -259,9 +294,32 @@
       const minLabel = $(selectors.priceMinLabel);
       const maxLabel = $(selectors.priceMaxLabel);
 
-      if (minLabel) minLabel.textContent = '$' + (e.target.matches(selectors.priceMin) ? e.target.value : minEl.value);
-      if (maxLabel) maxLabel.textContent = '$' + (e.target.matches(selectors.priceMax) ? e.target.value : maxEl.value);
-      fetchProducts();
+      if (minEl && maxEl) {
+        let minValue = parseInt(minEl.value);
+        let maxValue = parseInt(maxEl.value);
+
+        // Ensure min is never greater than max
+        if (e.target.matches(selectors.priceMin)) {
+          if (minValue > maxValue) {
+            minValue = maxValue;
+            minEl.value = minValue;
+          }
+        }
+
+        // Ensure max is never less than min
+        if (e.target.matches(selectors.priceMax)) {
+          if (maxValue < minValue) {
+            maxValue = minValue;
+            maxEl.value = maxValue;
+          }
+        }
+
+        // Update labels with validated values
+        if (minLabel) minLabel.textContent = '$' + minValue;
+        if (maxLabel) maxLabel.textContent = '$' + maxValue;
+
+        fetchProducts();
+      }
     }
   });
 
