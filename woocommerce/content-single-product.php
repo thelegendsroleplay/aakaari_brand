@@ -427,4 +427,37 @@ $js_product = array(
       home_url: "<?php echo esc_js( home_url() ); ?>",
       theme_url: "<?php echo esc_js( get_stylesheet_directory_uri() ); ?>"
     };
+
+    // DIAGNOSTIC: Verify template loads and product data is defined
+    try {
+      console.log('🔍 TEMPLATE DIAGNOSTIC:');
+      console.log('  Custom template loaded: ✅ YES');
+      console.log('  window.aakaari_product defined:', window.aakaari_product ? '✅ YES' : '❌ NO');
+      if (window.aakaari_product) {
+        console.log('  Product name:', window.aakaari_product.name || 'N/A');
+        console.log('  Product type:', window.aakaari_product.productType || 'N/A');
+        console.log('  Variations count:', window.aakaari_product.variations ? window.aakaari_product.variations.length : 0);
+      }
+      console.log('  Waiting for product-detail.js to load...');
+
+      // Check if product-detail.js script is in the page
+      setTimeout(function() {
+        try {
+          var scripts = document.querySelectorAll('script[src*="product-detail.js"]');
+          console.log('🔍 SCRIPT TAG CHECK:');
+          console.log('  product-detail.js script tags found:', scripts.length);
+          if (scripts.length > 0) {
+            Array.from(scripts).forEach(function(script, i) {
+              console.log('  Script ' + (i+1) + ' src:', script.src);
+            });
+          } else {
+            console.error('  ❌ product-detail.js NOT FOUND in page! Check functions.php enqueue.');
+          }
+        } catch (e) {
+          console.error('  ❌ Error checking for script tag:', e.message);
+        }
+      }, 500);
+    } catch (e) {
+      console.error('❌ DIAGNOSTIC ERROR:', e.message);
+    }
 </script>
