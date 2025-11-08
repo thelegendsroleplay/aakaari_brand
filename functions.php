@@ -222,6 +222,29 @@ function aakaari_enqueue_assets() {
 		);
 	}
 
+	// Single Product page
+	if ( function_exists( 'is_product' ) && is_product() ) {
+		wp_enqueue_style(
+			'aakaari-single-product',
+			$assets_base . '/css/single-product.css',
+			array(),
+			$theme_version
+		);
+
+		wp_enqueue_script(
+			'aakaari-single-product-js',
+			$assets_base . '/js/single-product.js',
+			array( 'jquery' ),
+			$theme_version,
+			true
+		);
+
+		wp_localize_script( 'aakaari-single-product-js', 'wc_single_product_params', array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'checkout_url' => wc_get_checkout_url(),
+		) );
+	}
+
 	// Checkout page
 	if ( function_exists( 'is_checkout' ) && is_checkout() ) {
 		wp_enqueue_style(
