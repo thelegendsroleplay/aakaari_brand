@@ -194,9 +194,6 @@ function aakaari_enqueue_assets() {
         wp_add_inline_script( 'aakaari-products', 'window.aakaari_page_type = "' . esc_js( $page_type ) . '";', 'before' );
     }
 
-    // <-- FIX 3: DELETED the duplicate `is_product()` block that was here.
-    // All single product assets are now loaded in the *next* block.
-
     // Cart page
     if ( function_exists( 'is_cart' ) && is_cart() ) {
         wp_enqueue_style(
@@ -215,34 +212,34 @@ function aakaari_enqueue_assets() {
         );
     }
 
-    // Single Product page
+    // ========================================================================
+    // ** START: SINGLE PRODUCT PAGE FIX **
+    // ========================================================================
+    // All single product assets are now loaded here, inside the main function.
     if ( function_exists( 'is_product' ) && is_product() ) {
         
-        // <-- FIX 3: Changed 'aakaari-single-product' to 'aakaari-product-detail'
-        // <-- FIX 3: Changed 'single-product.css' to 'product-detail.css'
-        // This now correctly loads the CSS file that matches your custom template.
-        wp_enqueue_style(
-            'aakaari-product-detail',
-            $assets_base . '/css/product-detail.css',
-            array(),
-            $theme_version
-        );
-
-        // This JS file is CRITICAL for your quantity buttons and "Buy Now"
+        // Enqueue your new JavaScript file
+        // Make sure this file is at: your-theme/assets/js/product-detail.js
         wp_enqueue_script(
-            'aakaari-single-product-js',
-            $assets_base . '/js/single-product.js',
-            array( 'jquery' ),
-            $theme_version,
-            true
+            'aakaari-product-detail',
+            $assets_base . '/js/product-detail.js',
+            array( 'jquery' ), // Depends on jQuery
+            '1.0.0',
+            true // Load in footer
         );
-
-        // This gives your JS file the URLs it needs for "Buy Now"
-        wp_localize_script( 'aakaari-single-product-js', 'wc_single_product_params', array(
-            'ajax_url' => admin_url( 'admin-ajax.php' ),
-            'checkout_url' => wc_get_checkout_url(),
-        ) );
+        
+        // Enqueue your CSS file
+        // Make sure this file is at: your-theme/assets/css/product-detail.css
+        wp_enqueue_style(
+            'aakaari-product-detail-css',
+            $assets_base . '/css/product-detail.css', // CORRECTED PATH
+             array(),
+             '1.0.0'
+        );
     }
+    // ========================================================================
+    // ** END: SINGLE PRODUCT PAGE FIX **
+    // ========================================================================
 
     // Checkout page
     if ( function_exists( 'is_checkout' ) && is_checkout() ) {
@@ -316,6 +313,25 @@ function aakaari_enqueue_assets() {
 add_action( 'wp_enqueue_scripts', 'aakaari_enqueue_assets' );
 
 /**
+ * Handle "Buy Now" button redirect.
+ * This checks if our hidden field was submitted and redirects to checkout.
+ */
+function aakaari_buy_now_redirect( $url ) {
+    if ( ! isset( $_REQUEST['aakaari_buy_now'] ) ) {
+        return $url; // Not a buy now request
+    }
+
+    // It was a buy now request
+    // Remove the query arg
+    $url = remove_query_arg( 'add-to-cart', $url );
+    
+    // Redirect to checkout
+    return wc_get_checkout_url();
+}
+add_filter( 'woocommerce_add_to_cart_success_redirect', 'aakaari_buy_now_redirect', 99 );
+
+
+/**
  * Include homepage helper functions if present
  */
 if ( file_exists( get_stylesheet_directory() . '/inc/homepage.php' ) ) {
@@ -323,9 +339,13 @@ if ( file_exists( get_stylesheet_directory() . '/inc/homepage.php' ) ) {
 }
 
 
-// <-- FIX 2: THIS DANGEROUS FUNCTION IS NOW COMMENTED OUT.
-// This function deletes all your pages *every time* you switch themes.
-// You should only run it ONCE manually, then leave it commented out.
+// ========================================================================
+// ** !! DANGER !! **
+// The function below is DESTRUCTIVE. It deletes ALL pages from your
+// database every time the theme is activated.
+// It is correctly commented out. DO NOT UN-COMMENT IT unless you
+// are 100% sure you want to wipe your pages and start over.
+// ========================================================================
 /*
 /**
  * Activation routine: delete all pages and create required pages
@@ -468,7 +488,6 @@ function aakaari_remove_cart_breadcrumbs() {
     }
 }
 
-// <-- FIX 1: ADDED THIS NEW FUNCTION
 // This removes the default wrappers on the Single Product page
 // so that your custom `.product-page` wrappers in `content-single-product.php`
 // can take over the full page layout.
