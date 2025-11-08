@@ -351,6 +351,21 @@
         selectedVariationId = match.variation_id || '';
         if (variationInput) variationInput.value = selectedVariationId;
 
+        // CRITICAL: Sync stock from matched variation (not parent product)
+        if (typeof match.is_in_stock !== 'undefined') {
+          if (match.is_in_stock) {
+            // Variation is in stock - use its stock quantity
+            product.stock = match.stock_qty !== null && match.stock_qty !== undefined ? match.stock_qty : 9999;
+          } else {
+            // Variation is out of stock
+            product.stock = 0;
+          }
+          // Reset quantity to 1 when variation changes
+          quantity = 1;
+          // Update UI to reflect new stock status
+          updateStockDisplay();
+        }
+
         // Update price if available
         if (updatePrice) {
           if (match.price_html) {
@@ -363,10 +378,19 @@
         }
 
         // Debug log (showing slugs)
-        console.log('✓ Variation matched:', match.variation_id, 'Selected slugs:', selectedValues, 'Variation attrs:', match.attributes);
+        console.log('✓ Variation matched:', match.variation_id, 'Stock:', product.stock, 'Selected slugs:', selectedValues, 'Variation attrs:', match.attributes);
       } else {
         selectedVariationId = '';
         if (variationInput) variationInput.value = '';
+
+        // No variation matched - reset to parent product stock
+        // (Only for variable products - we should show parent stock as fallback)
+        if (product.productType === 'variable') {
+          // Don't show parent stock for variable products - require selection
+          product.stock = 0; // Force user to select variation
+          quantity = 1;
+          updateStockDisplay();
+        }
 
         // Fallback to base product price_html
         if (updatePrice && product.price_html) {
