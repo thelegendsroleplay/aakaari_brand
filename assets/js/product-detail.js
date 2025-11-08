@@ -1,6 +1,10 @@
 // assets/js/product-detail.js (ATTRIBUTE + VARIATION PRICE FIX)
+console.log('📦 product-detail.js file is loading...');
+
 (function () {
   'use strict';
+
+  console.log('📦 IIFE started (file loaded successfully)');
 
   function ready(fn) {
     if (document.readyState !== 'loading') {
@@ -11,8 +15,17 @@
   }
 
   ready(function () {
+    console.log('🚀 Product detail script loaded!');
+    console.log('🔍 Checking window.aakaari_product...', window.aakaari_product ? '✅ EXISTS' : '❌ MISSING');
+
     const product = window.aakaari_product || null;
-    if (!product) return;
+    if (!product) {
+      console.error('❌ CRITICAL ERROR: window.aakaari_product is not defined!');
+      console.log('Available window properties:', Object.keys(window).filter(k => k.includes('aakaari')));
+      return;
+    }
+
+    console.log('✅ Product data loaded:', product.name);
 
     // Elements
     const mainImage = document.getElementById('mainImage');

@@ -221,7 +221,7 @@ function aakaari_enqueue_assets() {
             'aakaari-product-detail',
             $assets_base . '/js/product-detail.js',
             array( 'jquery' ),
-            '2.0.0', // Updated: Major attribute/variation fixes
+            '3.0.0', // Updated: Debug logging + variation matching fixes
             true
         );
 
@@ -229,7 +229,7 @@ function aakaari_enqueue_assets() {
             'aakaari-product-detail-css',
             $assets_base . '/css/product-detail.css',
             array('aakaari-header', 'aakaari-footer'),
-            '2.0.0' // Updated: Tabs, reviews, related products styles
+            '3.0.0' // Updated: Debug logging + variation matching fixes
         );
     }
     // ========================================================================
