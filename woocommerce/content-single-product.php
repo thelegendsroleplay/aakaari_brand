@@ -88,10 +88,10 @@ foreach ( $attributes as $attr ) {
 
         if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
             foreach ( $terms as $term ) {
-                // Attempt to read color hex from term meta (common keys used by color plugins)
+                // Attempt to read color hex from term meta (priority: custom theme key first)
                 $color_hex = '';
                 if ( $is_color ) {
-                    $maybe_keys = array( 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color', 'term_color' );
+                    $maybe_keys = array( 'attribute_color', 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color', 'term_color' );
                     foreach ( $maybe_keys as $k ) {
                         $meta = get_term_meta( $term->term_id, $k, true );
                         if ( ! empty( $meta ) ) {
@@ -123,7 +123,7 @@ foreach ( $attributes as $attr ) {
                 // Try to get color hex from term meta if color attribute
                 $color_hex = '';
                 if ( $is_color && $term ) {
-                    $maybe_keys = array( 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color', 'term_color' );
+                    $maybe_keys = array( 'attribute_color', 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color', 'term_color' );
                     foreach ( $maybe_keys as $k ) {
                         $meta = get_term_meta( $term->term_id, $k, true );
                         if ( ! empty( $meta ) ) {
