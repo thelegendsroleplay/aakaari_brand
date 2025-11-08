@@ -194,16 +194,6 @@ function aakaari_enqueue_assets() {
 		wp_add_inline_script( 'aakaari-products', 'window.aakaari_page_type = "' . esc_js( $page_type ) . '";', 'before' );
 	}
 
-	// Single product page
-	if ( function_exists( 'is_product' ) && is_product() ) {
-		wp_enqueue_style(
-			'aakaari-product-detail',
-			$assets_base . '/css/product-detail.css',
-			array(),
-			$theme_version
-		);
-	}
-
 	// Cart page
 	if ( function_exists( 'is_cart' ) && is_cart() ) {
 		wp_enqueue_style(
@@ -228,14 +218,14 @@ function aakaari_enqueue_assets() {
 			'aakaari-single-product',
 			$assets_base . '/css/single-product.css',
 			array(),
-			$theme_version
+			time() // Force cache refresh
 		);
 
 		wp_enqueue_script(
 			'aakaari-single-product-js',
 			$assets_base . '/js/single-product.js',
 			array( 'jquery' ),
-			$theme_version,
+			time(), // Force cache refresh
 			true
 		);
 
