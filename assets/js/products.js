@@ -206,6 +206,18 @@
       const productPrice = card.querySelector('.price')?.textContent || '';
       const productImage = card.querySelector('.product-media img')?.src || '';
 
+      // Check if product is variable (has variations)
+      const isVariable = btn.dataset.productType === 'variable' || btn.classList.contains('product_type_variable');
+
+      // If variable product, redirect to product page instead
+      if (isVariable) {
+        const productLink = card.querySelector('.product-title a, a.product-title');
+        if (productLink) {
+          window.location.href = productLink.href;
+          return;
+        }
+      }
+
       // Disable button while adding
       btn.disabled = true;
       btn.textContent = 'Adding...';
@@ -237,21 +249,27 @@
         console.log('Add to cart response:', response);
 
         // Check for various error conditions
-        if (response.error || response.error_message || !response.fragments) {
-          const errorMsg = response.error_message || 'Could not add to cart';
+        if (response.error || response.error_message) {
+          const errorMsg = response.error_message || 'This product has options. Please select them on the product page.';
           console.error('Add to cart failed:', errorMsg);
 
-          if (typeof window.showMessageToast === 'function') {
+          // If product has variations, redirect to product page
+          if (response.product_url) {
+            if (typeof window.showMessageToast === 'function') {
+              window.showMessageToast('Product Options Required', 'Redirecting to product page...', 'info');
+            }
+            setTimeout(() => {
+              window.location.href = response.product_url;
+            }, 1000);
+          } else if (typeof window.showMessageToast === 'function') {
             window.showMessageToast('Error', errorMsg, 'error');
           }
-        } else {
+        } else if (response.fragments) {
           // Success! Update cart fragments
-          if (response.fragments) {
-            // Update cart count in header
-            jQuery.each(response.fragments, function(key, value) {
-              jQuery(key).replaceWith(value);
-            });
-          }
+          // Update cart count in header
+          jQuery.each(response.fragments, function(key, value) {
+            jQuery(key).replaceWith(value);
+          });
 
           // Trigger WooCommerce cart update event
           jQuery(document.body).trigger('wc_fragment_refresh');
@@ -265,6 +283,14 @@
               image: productImage
             });
           }
+        } else {
+          // Unexpected response format
+          console.warn('Unexpected response format:', response);
+          if (typeof window.showMessageToast === 'function') {
+            window.showMessageToast('Added to Cart', 'Item added successfully', 'success');
+          }
+          // Reload to update cart
+          setTimeout(() => window.location.reload(), 1000);
         }
       })
       .catch(err => {
