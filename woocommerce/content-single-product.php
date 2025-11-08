@@ -338,6 +338,58 @@ if ( $product->is_type( 'variable' ) ) {
 					<p>No reviews yet. Be the first to review this product!</p>
 				<?php endif; ?>
 			</div>
+
+			<?php if ( comments_open() ) : ?>
+			<div class="review-form-wrapper">
+				<h3>Write a Review</h3>
+				<?php
+				$commenter = wp_get_current_commenter();
+				$comment_form = array(
+					'title_reply'          => '',
+					'title_reply_before'   => '',
+					'title_reply_after'    => '',
+					'comment_notes_before' => '',
+					'comment_notes_after'  => '',
+					'fields'               => array(
+						'author' => '<p class="comment-form-author">' .
+									'<label for="author">' . esc_html__( 'Name', 'woocommerce' ) . '&nbsp;<span class="required">*</span></label> ' .
+									'<input id="author" name="author" type="text" value="' . esc_attr( $commenter['comment_author'] ) . '" size="30" required /></p>',
+						'email'  => '<p class="comment-form-email"><label for="email">' . esc_html__( 'Email', 'woocommerce' ) . '&nbsp;<span class="required">*</span></label> ' .
+									'<input id="email" name="email" type="email" value="' . esc_attr( $commenter['comment_author_email'] ) . '" size="30" required /></p>',
+					),
+					'label_submit'  => __( 'Submit Review', 'woocommerce' ),
+					'logged_in_as'  => '',
+					'comment_field' => '',
+				);
+
+// Rating input for reviews (single, properly-formed string)
+$comment_form['comment_field'] = '<div class="comment-form-rating">'
+    . '<label for="rating">' . esc_html__( 'Your rating', 'woocommerce' ) . ( wc_review_ratings_enabled() ? '&nbsp;<span class="required">*</span>' : '' ) . '</label>'
+    . '<div class="star-rating-selector">'
+        . '<span class="star" data-rating="1">★</span>'
+        . '<span class="star" data-rating="2">★</span>'
+        . '<span class="star" data-rating="3">★</span>'
+        . '<span class="star" data-rating="4">★</span>'
+        . '<span class="star" data-rating="5">★</span>'
+    . '</div>'
+    . '<input type="hidden" name="rating" id="rating" value="">'
+. '</div>';
+
+// Add comment_post_ID for proper review submission
+$comment_form['comment_post_ID'] = $product_id;
+
+comment_form( apply_filters( 'woocommerce_product_review_comment_form_args', $comment_form ) );
+
+
+				// Add comment_post_ID for proper review submission
+				$comment_form['comment_post_ID'] = $product_id;
+				comment_form( apply_filters( 'woocommerce_product_review_comment_form_args', $comment_form ) );
+				?>
+			</div>
+			<?php endif; ?>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<?php
