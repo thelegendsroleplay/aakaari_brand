@@ -73,14 +73,15 @@
       }
     }
 
-    // Initialize default selected values from attributes_options
+    // Initialize default selected values from attributes_options (use slug as canonical value)
     function initDefaults() {
       const attrOpts = product.attributes_options || {};
       Object.keys(attrOpts).forEach(uniqueKey => {
         const attrData = attrOpts[uniqueKey];
-        const opts = attrData.options || attrData; // Support both old and new format
+        const opts = attrData.options || attrData;
         if (Array.isArray(opts) && opts.length) {
-          selectedValues[uniqueKey] = opts[0].value;
+          // Use value_slug as canonical value (fallback to value for backward compatibility)
+          selectedValues[uniqueKey] = opts[0].value_slug || opts[0].value;
         }
       });
     }
@@ -168,7 +169,7 @@
       }
     }
 
-    // Render options using attributes_options and attribute_map
+    // Render options using attributes_options and attribute_map (use slugs as canonical values)
     function renderOptions() {
       if (!optionsWrap) return;
       optionsWrap.innerHTML = '';
@@ -178,10 +179,10 @@
 
       Object.keys(attrOpts).forEach(uniqueKey => {
         const attrData = attrOpts[uniqueKey];
-        const inputKey = attrMap[uniqueKey] || '';
+        const inputKey = attrData.input_key || attrMap[uniqueKey] || '';
 
-        // Support both new format (with display_label) and old format (direct array)
-        const displayLabel = attrData.display_label || uniqueKey;
+        // Use ui_label from new format, fallback to display_label or uniqueKey
+        const displayLabel = attrData.ui_label || attrData.display_label || uniqueKey;
         const opts = attrData.options || attrData;
 
         if (!Array.isArray(opts) || !opts.length) return;
@@ -203,19 +204,27 @@
             const b = document.createElement('button');
             b.type = 'button';
             b.title = opt.label;
-            // prefer hex machine values; if not hex, generate a color
-            if (/^#/.test(opt.value)) b.style.backgroundColor = opt.value;
-            else b.style.backgroundColor = stringToColor(opt.value || opt.label);
+
+            // Use value_slug as canonical value
+            const valueSlug = opt.value_slug || opt.value;
+
+            // Try to detect color from slug or fallback to generated color
+            if (/^#/.test(valueSlug)) {
+              b.style.backgroundColor = valueSlug;
+            } else {
+              b.style.backgroundColor = stringToColor(valueSlug || opt.label);
+            }
 
             b.dataset.uniqueKey = uniqueKey;
             b.dataset.attrKey = inputKey;
-            b.dataset.attrValue = opt.value;
+            b.dataset.attrValueSlug = valueSlug; // canonical slug
+            b.dataset.attrValueId = opt.value_id || 0;
 
-            b.className = (selectedValues[uniqueKey] && selectedValues[uniqueKey] === opt.value) ? 'active' : '';
+            b.className = (selectedValues[uniqueKey] && selectedValues[uniqueKey] === valueSlug) ? 'active' : '';
             b.addEventListener('click', function () {
-              selectedValues[uniqueKey] = this.dataset.attrValue;
+              selectedValues[uniqueKey] = this.dataset.attrValueSlug; // use slug
               Array.from(colorWrap.children).forEach(ch => ch.classList.toggle('active', ch === this));
-              setHiddenAttributeInput(inputKey, this.dataset.attrValue);
+              setHiddenAttributeInput(inputKey, this.dataset.attrValueSlug); // post slug to form
               resolveVariation(true);
             });
             colorWrap.appendChild(b);
@@ -229,14 +238,20 @@
             const b = document.createElement('button');
             b.type = 'button';
             b.textContent = opt.label;
+
+            // Use value_slug as canonical value
+            const valueSlug = opt.value_slug || opt.value;
+
             b.dataset.uniqueKey = uniqueKey;
             b.dataset.attrKey = inputKey;
-            b.dataset.attrValue = opt.value;
-            b.className = (selectedValues[uniqueKey] && selectedValues[uniqueKey] === opt.value) ? 'active' : '';
+            b.dataset.attrValueSlug = valueSlug; // canonical slug
+            b.dataset.attrValueId = opt.value_id || 0;
+
+            b.className = (selectedValues[uniqueKey] && selectedValues[uniqueKey] === valueSlug) ? 'active' : '';
             b.addEventListener('click', function () {
-              selectedValues[uniqueKey] = this.dataset.attrValue;
+              selectedValues[uniqueKey] = this.dataset.attrValueSlug; // use slug
               Array.from(btns.children).forEach(ch => ch.classList.toggle('active', ch === this));
-              setHiddenAttributeInput(inputKey, this.dataset.attrValue);
+              setHiddenAttributeInput(inputKey, this.dataset.attrValueSlug); // post slug to form
               resolveVariation(true);
             });
             btns.appendChild(b);
@@ -246,8 +261,8 @@
 
         optionsWrap.appendChild(row);
 
-        // set initial hidden input for this attribute
-        const initialValue = selectedValues[uniqueKey] || opts[0].value || '';
+        // Set initial hidden input for this attribute (use slug)
+        const initialValue = selectedValues[uniqueKey] || opts[0].value_slug || opts[0].value || '';
         setHiddenAttributeInput(inputKey, initialValue);
       });
     }
@@ -261,7 +276,7 @@
       return '#' + '00000'.substring(0, 6 - c.length) + c;
     }
 
-    // Resolve variation by comparing variation.attributes with selectedValues
+    // Resolve variation by comparing slugs (PHP normalized all variation attributes to slugs)
     function resolveVariation(updatePrice = false) {
       selectedVariationId = '';
       if (!product.variations || !product.variations.length) {
@@ -269,7 +284,7 @@
         return;
       }
 
-      // Build map: inputKey -> uniqueKey from product.attribute_map
+      // Build map: inputKey (e.g., attribute_pa_color) -> uniqueKey (e.g., Colors)
       const attrMap = product.attribute_map || {};
       const inputKeyToUniqueKey = {};
       Object.keys(attrMap).forEach(uniqueKey => {
@@ -278,40 +293,39 @@
       });
 
       let match = null;
-      let bestMatchScore = 0;
 
-      // Try to find matching variation
+      // Try to find matching variation (compare slugs)
       for (let v of product.variations) {
         if (!v.attributes) continue;
 
-        let matchedCount = 0;
-        let totalAttrs = 0;
         let ok = true;
 
+        // Check all variation attributes match selected values (both are slugs now)
         for (let attrKey in v.attributes) {
           if (!v.attributes.hasOwnProperty(attrKey)) continue;
-          totalAttrs++;
 
-          const varVal = (v.attributes[attrKey] || '').toString().toLowerCase().trim();
+          // Variation attribute value (already normalized to slug by PHP)
+          const varValSlug = (v.attributes[attrKey] || '').toString().toLowerCase().trim();
+
+          // Find corresponding uniqueKey for this attribute
           const uniqueKey = inputKeyToUniqueKey[attrKey];
 
-          let selectedVal = '';
+          // Get selected slug value
+          let selectedValSlug = '';
           if (uniqueKey && selectedValues[uniqueKey]) {
-            selectedVal = (selectedValues[uniqueKey] || '').toString().toLowerCase().trim();
+            selectedValSlug = (selectedValues[uniqueKey] || '').toString().toLowerCase().trim();
           }
 
-          // Check if values match
-          if (selectedVal === '' || selectedVal !== varVal) {
+          // Compare slugs (both sides are slugs now)
+          if (selectedValSlug === '' || selectedValSlug !== varValSlug) {
             ok = false;
             break;
           }
-          matchedCount++;
         }
 
-        // Keep track of best match (in case of partial matches)
-        if (ok && matchedCount >= bestMatchScore) {
+        if (ok) {
           match = v;
-          bestMatchScore = matchedCount;
+          break; // Found exact match
         }
       }
 
@@ -330,8 +344,8 @@
           }
         }
 
-        // Debug log (can be removed after testing)
-        console.log('✓ Variation matched:', match.variation_id, 'Selected:', selectedValues);
+        // Debug log (showing slugs)
+        console.log('✓ Variation matched:', match.variation_id, 'Selected slugs:', selectedValues, 'Variation attrs:', match.attributes);
       } else {
         selectedVariationId = '';
         if (variationInput) variationInput.value = '';
@@ -341,8 +355,8 @@
           if (priceCurrent) priceCurrent.innerHTML = product.price_html;
         }
 
-        // Debug log (can be removed after testing)
-        console.log('✗ No variation match. Selected:', selectedValues);
+        // Debug log (showing slugs)
+        console.log('✗ No variation match. Selected slugs:', selectedValues, 'Available variations:', product.variations.map(v => v.attributes));
       }
     }
 

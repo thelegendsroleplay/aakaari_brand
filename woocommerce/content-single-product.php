@@ -47,12 +47,12 @@ $review_count  = (int) $product->get_rating_count();
 $stock_qty     = $product->is_in_stock() ? wc_stock_amount( $product->get_stock_quantity() ) : 0;
 
 /**
- * ATTRIBUTES: Build attributes_options and attribute_map.
+ * ATTRIBUTES: Build attributes_options and attribute_map with normalized slug values.
  *
- * attributes_options: unique_key => [ { label: human, value: machine } ]
+ * attributes_options: unique_key => { ui_label, input_key, options: [ { label, value_slug, value_id } ] }
  * attribute_map: unique_key => input_name (attribute_pa_color or attribute_size etc)
  *
- * We normalize display labels for UI consistency but keep unique keys to avoid collisions.
+ * We emit both slug and ID for each option, but use slug as canonical value for matching and form submission.
  */
 $attributes       = $product->get_attributes();
 $attributes_meta  = array();
@@ -60,55 +60,77 @@ $attribute_map    = array();
 
 foreach ( $attributes as $attr ) {
     $raw_name = $attr->get_name(); // e.g. pa_color or custom
-    $label    = wc_attribute_label( $raw_name );
+    $display_label = wc_attribute_label( $raw_name );
 
-    // Normalize display label for UI consistency
-    $display_label = $label;
-    if ( stripos( $label, 'color' ) !== false ) {
-        $display_label = 'Colors';
-    } elseif ( stripos( $label, 'size' ) !== false ) {
-        $display_label = 'size';
+    // Normalize UI label for consistency
+    $ui_label = $display_label;
+    if ( stripos( $display_label, 'color' ) !== false ) {
+        $ui_label = 'Colors';
+    } elseif ( stripos( $display_label, 'size' ) !== false ) {
+        $ui_label = 'size';
     }
 
-    // Create unique key to avoid collisions when multiple attributes normalize to same label
-    $unique_key = $display_label;
-    if ( isset( $attributes_meta[ $unique_key ] ) ) {
-        // Collision detected - make key unique by appending raw attribute name
-        $unique_key = $display_label . '_' . sanitize_key( $raw_name );
+    // Create unique frontend key to avoid collisions
+    $key_label = $ui_label;
+    if ( isset( $attributes_meta[ $key_label ] ) ) {
+        $key_label = $ui_label . '_' . sanitize_key( $raw_name );
     }
 
+    // Input key for form submission (WooCommerce expects e.g. attribute_pa_color)
     if ( taxonomy_exists( $raw_name ) ) {
-        $input_key = 'attribute_' . $raw_name; // e.g. attribute_pa_color
-        $options = $attr->get_options();
+        $input_key = 'attribute_' . $raw_name; // attribute_pa_color
+
+        // Get all terms for this taxonomy that apply to the product
+        $terms = wc_get_product_terms( $product_id, $raw_name, array( 'fields' => 'all' ) );
         $opts = array();
-        foreach ( $options as $opt ) {
-            // $opt is slug for taxonomy attributes
-            $term = get_term_by( 'slug', $opt, $raw_name );
-            $label_text = $term ? $term->name : $opt;
-            $opts[] = array( 'label' => $label_text, 'value' => $opt );
+
+        if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+            foreach ( $terms as $term ) {
+                // Emit both slug (canonical) and id
+                $opts[] = array(
+                    'label'      => $term->name,
+                    'value_slug' => $term->slug,    // canonical string for matching & form submission
+                    'value_id'   => (int) $term->term_id
+                );
+            }
+        } else {
+            // Fallback: use attribute options (slugs)
+            $options = $attr->get_options();
+            foreach ( $options as $opt ) {
+                $term = get_term_by( 'slug', $opt, $raw_name );
+                $opts[] = array(
+                    'label'      => $term ? $term->name : $opt,
+                    'value_slug' => $opt,
+                    'value_id'   => $term ? (int) $term->term_id : 0
+                );
+            }
         }
     } else {
-        // custom attribute - use raw name for input key
+        // Custom attribute (non-taxonomy)
         $input_key = 'attribute_' . sanitize_title( $raw_name );
         $options = $attr->get_options();
         $opts = array();
         foreach ( $options as $opt ) {
-            // Use raw value to match variation attributes (don't double-sanitize)
-            $opts[] = array( 'label' => $opt, 'value' => (string) $opt );
+            $opts[] = array(
+                'label'      => $opt,
+                'value_slug' => sanitize_title( $opt ), // normalize to slug
+                'value_id'   => 0
+            );
         }
     }
 
     if ( ! empty( $opts ) ) {
-        $attributes_meta[ $unique_key ] = array(
-            'display_label' => $display_label,
-            'options' => $opts
+        $attributes_meta[ $key_label ] = array(
+            'ui_label'   => $ui_label,     // human text to show
+            'input_key'  => $input_key,    // attribute_pa_color (for form)
+            'options'    => $opts          // [{label, value_slug, value_id}]
         );
-        $attribute_map[ $unique_key ]   = $input_key;
+        $attribute_map[ $key_label ] = $input_key;
     }
 }
 
 /**
- * Variations: Fetch variation data using variation product objects for accuracy
+ * Variations: Normalize all variation attributes to slugs for consistent matching
  */
 $variations_data = array();
 if ( $product->is_type( 'variable' ) ) {
@@ -121,9 +143,40 @@ if ( $product->is_type( 'variable' ) ) {
             continue;
         }
 
+        // Normalize each variation attribute value to slug (canonical form)
+        $norm_attrs = array();
+        if ( ! empty( $v['attributes'] ) && is_array( $v['attributes'] ) ) {
+            foreach ( $v['attributes'] as $attr_key => $attr_val ) {
+                // attr_key like 'attribute_pa_color'
+                // attr_val may be slug, term id, or raw value
+                $normalized_value = '';
+
+                // Extract taxonomy name from attribute key
+                $taxonomy = str_replace( 'attribute_', '', $attr_key );
+
+                if ( taxonomy_exists( $taxonomy ) ) {
+                    // Try to resolve by slug first
+                    if ( $term = get_term_by( 'slug', $attr_val, $taxonomy ) ) {
+                        $normalized_value = $term->slug;
+                    } elseif ( is_numeric( $attr_val ) && $term = get_term( (int) $attr_val ) ) {
+                        // Fallback: try by term id
+                        $normalized_value = $term->slug;
+                    } else {
+                        // Use as-is if already a slug
+                        $normalized_value = (string) $attr_val;
+                    }
+                } else {
+                    // Custom attribute - normalize to slug
+                    $normalized_value = sanitize_title( $attr_val );
+                }
+
+                $norm_attrs[ $attr_key ] = $normalized_value;
+            }
+        }
+
         $variations_data[] = array(
             'variation_id'  => $variation_id,
-            'attributes'    => $v['attributes'],
+            'attributes'    => $norm_attrs, // Now all values are slugs
             'price_html'    => $variation_obj->get_price_html(),
             'display_price' => (float) $variation_obj->get_price(),
             'is_in_stock'   => $variation_obj->is_in_stock(),
