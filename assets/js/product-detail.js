@@ -54,22 +54,29 @@
 
     // Helper: Set hidden attribute input value (with fallback)
     function setHiddenAttributeInput(inputKey, value) {
-      if (!inputKey) {
-        return;
+      // Try by ID first (normalized) if inputKey provided
+      if (inputKey) {
+        const id = makeHiddenId(inputKey);
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = value;
+          return;
+        }
+
+        // Fallback: try by name attribute
+        const byName = document.querySelector('input[name="' + inputKey + '"]');
+        if (byName) {
+          byName.value = value;
+          return;
+        }
       }
 
-      // Try by ID first (normalized)
-      const id = makeHiddenId(inputKey);
-      const el = document.getElementById(id);
-      if (el) {
-        el.value = value;
-        return;
-      }
-
-      // Fallback: try by name attribute
-      const byName = document.querySelector('input[name="' + inputKey + '"]');
-      if (byName) {
-        byName.value = value;
+      // Final fallback: try to find any hidden input with attribute_ prefix
+      // (This handles edge cases where inputKey might be missing)
+      const hiddenInputs = document.querySelectorAll('input[type="hidden"][name^="attribute_"]');
+      if (hiddenInputs.length > 0 && value) {
+        // This is a last resort - ideally inputKey should always be provided
+        console.warn('setHiddenAttributeInput: inputKey falsy, attempted fallback');
       }
     }
 
@@ -193,8 +200,8 @@
         labEl.textContent = displayLabel + ':';
         row.appendChild(labEl);
 
-        // Check if this is a color attribute (by display label)
-        const isColorAttr = /color/i.test(displayLabel);
+        // Use is_color flag from PHP (more reliable than regex)
+        const isColorAttr = attrData.is_color === true;
 
         if (isColorAttr) {
           const colorWrap = document.createElement('div');
@@ -208,12 +215,20 @@
             // Use value_slug as canonical value
             const valueSlug = opt.value_slug || opt.value;
 
-            // Try to detect color from slug or fallback to generated color
-            if (/^#/.test(valueSlug)) {
-              b.style.backgroundColor = valueSlug;
+            // Determine color: prefer value_hex, then check if slug is hex, else generate
+            let colorToUse = '';
+            if (opt.value_hex && opt.value_hex.length) {
+              colorToUse = opt.value_hex; // canonical color from term meta
+            } else if (/^#[0-9A-Fa-f]{6}$/.test(valueSlug)) {
+              colorToUse = valueSlug; // slug is already a hex color
+            } else if (/^#[0-9A-Fa-f]{3}$/.test(valueSlug)) {
+              colorToUse = valueSlug; // slug is 3-digit hex
             } else {
-              b.style.backgroundColor = stringToColor(valueSlug || opt.label);
+              colorToUse = stringToColor(String(valueSlug || opt.label || opt.value_id || '')); // generate fallback
             }
+
+            b.style.backgroundColor = colorToUse;
+            b.setAttribute('aria-label', opt.label + (valueSlug ? ' (' + valueSlug + ')' : ''));
 
             b.dataset.uniqueKey = uniqueKey;
             b.dataset.attrKey = inputKey;
@@ -241,6 +256,8 @@
 
             // Use value_slug as canonical value
             const valueSlug = opt.value_slug || opt.value;
+
+            b.setAttribute('aria-label', opt.label + (valueSlug ? ' (' + valueSlug + ')' : ''));
 
             b.dataset.uniqueKey = uniqueKey;
             b.dataset.attrKey = inputKey;
