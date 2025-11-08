@@ -195,6 +195,14 @@ function aakaari_enqueue_assets() {
 			array(),
 			$theme_version
 		);
+
+		wp_enqueue_script(
+			'aakaari-cart-js',
+			$assets_base . '/js/cart.js',
+			array( 'jquery' ),
+			$theme_version,
+			true
+		);
 	}
 
 	// Checkout page
