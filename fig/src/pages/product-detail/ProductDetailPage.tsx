@@ -10,6 +10,9 @@ import { ProductGallery } from './ProductGallery';
 import { ProductInfo } from './ProductInfo';
 import { ProductFeatures } from './ProductFeatures';
 import { ProductReviews } from './ProductReviews';
+import { ProductSpecifications } from './ProductSpecifications';
+import { ProductTrustIndicators } from './ProductTrustIndicators';
+import { ProductQA } from './ProductQA';
 import { RelatedProducts } from './RelatedProducts';
 import './product-detail.css';
 
@@ -127,14 +130,29 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ product, o
         </div>
       </div>
 
+      {/* Trust Indicators */}
+      <div className="detail-container">
+        <ProductTrustIndicators stock={getStockInfo()} />
+      </div>
+
       {/* Features */}
       <div className="detail-container">
         <ProductFeatures />
       </div>
 
+      {/* Specifications */}
+      <div className="detail-container">
+        <ProductSpecifications product={product} />
+      </div>
+
       {/* Reviews */}
       <div className="detail-container">
         <ProductReviews reviews={reviews} productRating={product.rating} />
+      </div>
+
+      {/* Q&A Section */}
+      <div className="detail-container">
+        <ProductQA productId={product.id} />
       </div>
 
       {/* Related Products */}
