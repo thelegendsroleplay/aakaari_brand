@@ -362,14 +362,7 @@ if ( $product->is_type( 'variable' ) ) {
 					'comment_field' => '',
 				);
 
-				$comment_form['comment_field'] = '<div class="comment-form-rating"><label for="rating">' . esc_html__( 'Your rating', 'woocommerce' ) . ( wc_review_ratings_enabled() ? '&nbsp;<span class="required">*</span>' : '' ) . '</label><div class="star-rating-selector"><span class="star" data-rating="1">★</span><span class="star" data-rating="2">★</span><span class="star" data-rating="3">★</span><span class="star" data-rating="4">★</span><span class="star" data-rating="5">★</span></div><input type="hidden" name="rating" id="rating" value="" required><select name="rating-select" id="rating-select" style="display:none" required>
-					<option value="">' . esc_html__( 'Rate&hellip;', 'woocommerce' ) . '</option>
-					<option value="5">' . esc_html__( 'Perfect', 'woocommerce' ) . '</option>
-					<option value="4">' . esc_html__( 'Good', 'woocommerce' ) . '</option>
-					<option value="3">' . esc_html__( 'Average', 'woocommerce' ) . '</option>
-					<option value="2">' . esc_html__( 'Not that bad', 'woocommerce' ) . '</option>
-					<option value="1">' . esc_html__( 'Very poor', 'woocommerce' ) . '</option>
-				</select></div>';
+				$comment_form['comment_field'] = '<div class="comment-form-rating"><label for="rating">' . esc_html__( 'Your rating', 'woocommerce' ) . ( wc_review_ratings_enabled() ? '&nbsp;<span class="required">*</span>' : '' ) . '</label><div class="star-rating-selector"><span class="star" data-rating="1">★</span><span class="star" data-rating="2">★</span><span class="star" data-rating="3">★</span><span class="star" data-rating="4">★</span><span class="star" data-rating="5">★</span></div><input type="hidden" name="rating" id="rating" value="">
 
 				$comment_form['comment_field'] .= '<p class="comment-form-comment"><label for="comment">' . esc_html__( 'Your review', 'woocommerce' ) . '&nbsp;<span class="required">*</span></label><textarea id="comment" name="comment" cols="45" rows="8" required></textarea></p>';
 
