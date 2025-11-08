@@ -311,7 +311,9 @@ $js_product = array(
 
         <div id="optionsWrap" class="options-section" aria-live="polite"></div>
 
-        <form class="cart" method="post" enctype="multipart/form-data" id="aakaari_add_to_cart_form">
+        <form class="cart" action="<?php echo esc_url( apply_filters( 'woocommerce_add_to_cart_form_action', $product->get_permalink() ) ); ?>" method="post" enctype="multipart/form-data" id="aakaari_add_to_cart_form">
+          <?php wp_nonce_field( 'woocommerce-cart', 'woocommerce-cart-nonce' ); ?>
+
           <input type="hidden" name="add-to-cart" id="aakaari_add_to_cart_input" value="<?php echo esc_attr( $product_id ); ?>">
           <input type="hidden" name="product_id" value="<?php echo esc_attr( $product_id ); ?>">
           <input type="hidden" name="variation_id" id="aakaari_variation_id" value="">

@@ -312,15 +312,12 @@ add_action( 'wp_enqueue_scripts', 'aakaari_enqueue_assets' );
  * This checks if our hidden field was submitted and redirects to checkout.
  */
 function aakaari_buy_now_redirect( $url ) {
-    if ( ! isset( $_REQUEST['aakaari_buy_now'] ) ) {
-        return $url; // Not a buy now request
+    // Check if buy now field is set AND equals '1'
+    if ( ! isset( $_REQUEST['aakaari_buy_now'] ) || $_REQUEST['aakaari_buy_now'] !== '1' ) {
+        return $url; // Not a buy now request, use default cart redirect
     }
 
-    // It was a buy now request
-    // Remove the query arg
-    $url = remove_query_arg( 'add-to-cart', $url );
-    
-    // Redirect to checkout
+    // It was a buy now request - redirect to checkout instead of cart
     return wc_get_checkout_url();
 }
 add_filter( 'woocommerce_add_to_cart_success_redirect', 'aakaari_buy_now_redirect', 99 );
