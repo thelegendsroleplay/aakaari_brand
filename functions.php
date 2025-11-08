@@ -650,3 +650,81 @@ function aakaari_review_display_callback( $comment, $args, $depth ) {
 // Remove WooCommerce default related products
 // We'll add a custom one in the template
 remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_related_products', 20 );
+
+// === Aakaari Checkout (Parent theme) ===
+// Add this to the end of your parent theme's functions.php (backup first).
+
+add_action('wp_enqueue_scripts', 'aakaari_enqueue_checkout_assets', 20);
+function aakaari_enqueue_checkout_assets() {
+    // Only load on WooCommerce checkout page
+    if ( function_exists('is_checkout') && ! is_checkout() ) {
+        return;
+    }
+
+    $theme_dir_uri = get_template_directory_uri();
+    $theme_dir = get_template_directory();
+
+    // CSS
+    wp_enqueue_style(
+        'aakaari-checkout-css',
+        $theme_dir_uri . '/assets/css/aakaari-checkout.css',
+        array(),
+        file_exists( $theme_dir . '/assets/css/aakaari-checkout.css' ) ? filemtime( $theme_dir . '/assets/css/aakaari-checkout.css' ) : null
+    );
+
+    // JS
+    wp_enqueue_script(
+        'aakaari-checkout-js',
+        $theme_dir_uri . '/assets/js/aakaari-checkout.js',
+        array('jquery'),
+        file_exists( $theme_dir . '/assets/js/aakaari-checkout.js' ) ? filemtime( $theme_dir . '/assets/js/aakaari-checkout.js' ) : null,
+        true
+    );
+
+    // Localize data for JS
+    wp_localize_script('aakaari-checkout-js', 'aakaariCheckout', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('aakaari_checkout_nonce'),
+        'currency_symbol' => get_woocommerce_currency_symbol(),
+        'is_user_logged_in' => is_user_logged_in(),
+    ));
+}
+
+// AJAX handler for applying coupon from frontend
+add_action('wp_ajax_aakaari_apply_coupon', 'aakaari_apply_coupon');
+add_action('wp_ajax_nopriv_aakaari_apply_coupon', 'aakaari_apply_coupon');
+
+function aakaari_apply_coupon() {
+    check_ajax_referer('aakaari_checkout_nonce', 'nonce');
+
+    if ( ! isset($_POST['coupon']) || empty($_POST['coupon']) ) {
+        wp_send_json_error(array('message' => 'No coupon provided'));
+    }
+
+    $coupon_code = sanitize_text_field( wp_unslash( $_POST['coupon'] ) );
+
+    if ( ! class_exists('WC_Cart') || ! WC()->cart ) {
+        wp_send_json_error(array('message' => 'Cart not available'));
+    }
+
+    // try removing previous same coupon (no harm if not present)
+    WC()->cart->remove_coupon( $coupon_code );
+    $applied = WC()->cart->apply_coupon( $coupon_code );
+
+    WC()->cart->calculate_totals();
+
+    if ( is_wp_error( $applied ) ) {
+        wp_send_json_error(array('message' => $applied->get_error_message()));
+    }
+
+    // Build totals - return formatted strings
+    $subtotal = wc_price( WC()->cart->get_subtotal() );
+    $total = WC()->cart->get_total();
+    $discount_amount = wc_price( WC()->cart->get_cart_discount_total() );
+
+    wp_send_json_success(array(
+        'subtotal' => $subtotal,
+        'total' => $total,
+        'discount' => $discount_amount,
+    ));
+}
