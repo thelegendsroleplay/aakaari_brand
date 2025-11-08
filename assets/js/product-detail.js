@@ -46,6 +46,15 @@
     let inWishlist = false;
     let selectedVariationId = '';
 
+    // DEBUG: Verify all critical DOM elements are found
+    console.log('🔧 INITIALIZATION DEBUG:');
+    console.log('  addCartBtn:', addCartBtn ? '✅ Found' : '❌ NOT FOUND');
+    console.log('  buyNowBtn:', buyNowBtn ? '✅ Found' : '❌ NOT FOUND');
+    console.log('  addToCartForm:', addToCartForm ? '✅ Found' : '❌ NOT FOUND');
+    console.log('  variationInput:', variationInput ? '✅ Found' : '❌ NOT FOUND');
+    console.log('  qtyInput:', qtyInput ? '✅ Found' : '❌ NOT FOUND');
+    console.log('  Product data:', product ? '✅ Found' : '❌ NOT FOUND');
+
     // Helper: Create consistent hidden input ID (matches PHP sanitize_key)
     function makeHiddenId(inputKey) {
       // Normalize to match PHP sanitize_key: lowercase, keep a-z0-9 and underscores only
@@ -450,31 +459,61 @@
       });
 
       addCartBtn && addCartBtn.addEventListener('click', function () {
+        console.log('🛒 ADD TO CART CLICKED');
+        console.log('  Product type:', product.productType);
+        console.log('  Selected variation ID:', selectedVariationId);
+        console.log('  Selected values:', selectedValues);
+        console.log('  Quantity:', quantity);
+        console.log('  Stock:', product.stock);
+
         // Validate variable products have variation selected
         if (product.productType === 'variable' && !selectedVariationId) {
+          console.log('❌ BLOCKED: No variation selected');
           showToast('Please select all product options (color, size, etc.)');
           return;
         }
 
         // Prevent double submissions
-        if (addCartBtn.disabled) return;
+        if (addCartBtn.disabled) {
+          console.log('❌ BLOCKED: Button already disabled');
+          return;
+        }
         addCartBtn.disabled = true;
 
         // Fill hidden attribute inputs from selectedValues
+        console.log('📝 Setting hidden inputs...');
         const attrMap = product.attribute_map || {};
         Object.keys(attrMap).forEach(uniqueKey => {
           const inputKey = attrMap[uniqueKey];
           const value = selectedValues[uniqueKey] || '';
+          console.log(`  ${inputKey} = "${value}"`);
           setHiddenAttributeInput(inputKey, value);
         });
 
-        if (qtyInput) qtyInput.value = String(quantity);
-        if (variationInput) variationInput.value = selectedVariationId || '';
-        if (buyNowInput) buyNowInput.value = '0';
+        if (qtyInput) {
+          qtyInput.value = String(quantity);
+          console.log('  quantity =', qtyInput.value);
+        }
+        if (variationInput) {
+          variationInput.value = selectedVariationId || '';
+          console.log('  variation_id =', variationInput.value);
+        }
+        if (buyNowInput) {
+          buyNowInput.value = '0';
+          console.log('  aakaari_buy_now =', buyNowInput.value);
+        }
 
+        // Log all form data before submit
+        console.log('📋 FORM DATA BEFORE SUBMIT:');
         if (addToCartForm) {
+          const formData = new FormData(addToCartForm);
+          for (let [key, value] of formData.entries()) {
+            console.log(`  ${key} = ${value}`);
+          }
+          console.log('✅ Submitting form to:', addToCartForm.action);
           addToCartForm.submit();
         } else {
+          console.log('❌ ERROR: Form element not found!');
           showToast('Unable to add to cart (form missing).');
           addCartBtn.disabled = false;
         }
