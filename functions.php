@@ -479,3 +479,11 @@ function aakaari_remove_product_wrappers() {
         remove_action( 'woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10 );
     }
 }
+
+// Remove WooCommerce default product tabs (Description, Reviews, Additional Information)
+// We have custom reviews section in content-single-product.php
+remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_product_data_tabs', 10 );
+
+// Remove WooCommerce default related products
+// We have custom related products section in content-single-product.php
+remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_related_products', 20 );
