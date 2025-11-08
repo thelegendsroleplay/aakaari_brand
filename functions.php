@@ -556,37 +556,65 @@ function aakaari_reviews_tab_content() {
         $req = get_option( 'require_name_email' );
         $aria_req = ( $req ? " aria-required='true'" : '' );
 
+        $rating_labels = array(
+            1 => esc_html__( 'Very poor', 'aakaari' ),
+            2 => esc_html__( 'Needs improvement', 'aakaari' ),
+            3 => esc_html__( 'Average', 'aakaari' ),
+            4 => esc_html__( 'Very good', 'aakaari' ),
+            5 => esc_html__( 'Excellent', 'aakaari' ),
+        );
+
         $comment_form = array(
             'title_reply'          => esc_html__( 'Write a review', 'aakaari' ),
             'title_reply_to'       => esc_html__( 'Leave a Reply to %s', 'aakaari' ),
-            'title_reply_before'   => '<span id="reply-title" class="comment-reply-title">',
-            'title_reply_after'    => '</span>',
-            'comment_notes_before' => '',
+            'title_reply_before'   => '<div id="reply-title" class="review-form-title">',
+            'title_reply_after'    => '</div>',
+            'comment_notes_before' => '<p class="review-form-caption">' . esc_html__( 'Share details about quality, fit and overall experience to help other shoppers.', 'aakaari' ) . '</p>',
             'comment_notes_after'  => '',
             'label_submit'         => esc_html__( 'Submit Review', 'aakaari' ),
             'logged_in_as'         => '',
             'comment_field'        => '',
+            'class_form'           => 'aakaari-review-form',
+            'class_submit'         => 'review-submit-btn',
+            'submit_field'         => '<div class="review-form-actions">%1$s %2$s</div>',
+            'submit_button'        => '<button type="submit" name="%1$s" id="%2$s" class="review-submit-btn %3$s">%4$s</button>',
+            'format'               => 'html5',
         );
 
         $comment_form['fields'] = array();
 
-        $comment_form['fields']['author'] = '<p class="comment-form-author">' .
-            '<label for="author">' . esc_html__( 'Name', 'aakaari' ) . '&nbsp;<span class="required">*</span></label> ' .
-            '<input id="author" name="author" type="text" value="' . esc_attr( $commenter['comment_author'] ) . '" size="30"' . $aria_req . ' /></p>';
+        $comment_form['fields']['author']  = '<div class="review-form-grid"><div class="review-form-field">' .
+            '<label class="review-form-label" for="author">' . esc_html__( 'Name', 'aakaari' ) . ' <span class="required">*</span></label>' .
+            '<input class="review-input" id="author" name="author" type="text" autocomplete="name" value="' . esc_attr( $commenter['comment_author'] ) . '" size="30"' . $aria_req . ' placeholder="' . esc_attr__( 'Your full name', 'aakaari' ) . '" /></div>';
 
-        $comment_form['fields']['email'] = '<p class="comment-form-email"><label for="email">' . esc_html__( 'Email', 'aakaari' ) . '&nbsp;<span class="required">*</span></label> ' .
-            '<input id="email" name="email" type="email" value="' . esc_attr( $commenter['comment_author_email'] ) . '" size="30"' . $aria_req . ' /></p>';
+        $comment_form['fields']['email'] = '<div class="review-form-field">' .
+            '<label class="review-form-label" for="email">' . esc_html__( 'Email', 'aakaari' ) . ' <span class="required">*</span></label>' .
+            '<input class="review-input" id="email" name="email" type="email" autocomplete="email" value="' . esc_attr( $commenter['comment_author_email'] ) . '" size="30"' . $aria_req . ' placeholder="' . esc_attr__( 'you@example.com', 'aakaari' ) . '" /></div></div>';
 
-        $comment_form['comment_field'] = '<div class="comment-form-rating"><label for="rating">' . esc_html__( 'Your rating', 'aakaari' ) . '&nbsp;<span class="required">*</span></label><select name="rating" id="rating" required>
-            <option value="">' . esc_html__( 'Rate…', 'aakaari' ) . '</option>
-            <option value="5">' . esc_html__( '5 - Excellent', 'aakaari' ) . '</option>
-            <option value="4">' . esc_html__( '4 - Very good', 'aakaari' ) . '</option>
-            <option value="3">' . esc_html__( '3 - Average', 'aakaari' ) . '</option>
-            <option value="2">' . esc_html__( '2 - Not that bad', 'aakaari' ) . '</option>
-            <option value="1">' . esc_html__( '1 - Very poor', 'aakaari' ) . '</option>
-        </select></div>';
+        $comment_form['comment_field']  = '<div class="review-form-field rating-field">';
+        $comment_form['comment_field'] .= '<label class="review-form-label" id="ratingLabel" for="aakaari-rating-select">' . esc_html__( 'Your rating', 'aakaari' ) . ' <span class="required">*</span></label>';
+        $comment_form['comment_field'] .= '<div class="review-star-picker" role="radiogroup" aria-labelledby="ratingLabel">';
 
-        $comment_form['comment_field'] .= '<p class="comment-form-comment"><label for="comment">' . esc_html__( 'Your review', 'aakaari' ) . '&nbsp;<span class="required">*</span></label><textarea id="comment" name="comment" cols="45" rows="8" required></textarea></p>';
+        foreach ( $rating_labels as $value => $label ) {
+            $comment_form['comment_field'] .= '<button type="button" class="star-btn" role="radio" aria-checked="false" data-value="' . esc_attr( $value ) . '" data-label="' . esc_attr( $label ) . '"><span class="star-icon" aria-hidden="true">★</span><span class="sr-only">' . sprintf( esc_html__( '%s star', 'aakaari' ), $value ) . '</span></button>';
+        }
+
+        $comment_form['comment_field'] .= '</div>';
+        $comment_form['comment_field'] .= '<select name="rating" id="aakaari-rating-select" class="review-rating-select" required aria-hidden="true">';
+        $comment_form['comment_field'] .= '<option value="">' . esc_html__( 'Select…', 'aakaari' ) . '</option>';
+
+        foreach ( $rating_labels as $value => $label ) {
+            $comment_form['comment_field'] .= '<option value="' . esc_attr( $value ) . '">' . esc_html( $value . ' — ' . $label ) . '</option>';
+        }
+
+        $comment_form['comment_field'] .= '</select>';
+        $comment_form['comment_field'] .= '<p class="rating-hint" data-default="' . esc_attr__( 'Tap a star to rate', 'aakaari' ) . '">' . esc_html__( 'Tap a star to rate', 'aakaari' ) . '</p>';
+        $comment_form['comment_field'] .= '</div>';
+
+        $comment_form['comment_field'] .= '<div class="review-form-field">';
+        $comment_form['comment_field'] .= '<label class="review-form-label" for="comment">' . esc_html__( 'Your review', 'aakaari' ) . ' <span class="required">*</span></label>';
+        $comment_form['comment_field'] .= '<textarea class="review-input review-textarea" id="comment" name="comment" rows="6" placeholder="' . esc_attr__( 'What did you like or dislike? Mention quality, fit, comfort…', 'aakaari' ) . '" required></textarea>';
+        $comment_form['comment_field'] .= '</div>';
 
         comment_form( $comment_form, $product_id );
     } else {

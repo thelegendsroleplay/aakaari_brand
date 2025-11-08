@@ -32,6 +32,11 @@
     const addCartBtn = document.getElementById('addCartBtn');
     const buyNowBtn = document.getElementById('buyNowBtn');
     const wishlistBtn = document.getElementById('wishlistBtn');
+    const stockTexts = product.stock_texts || {
+      in_stock: 'In stock',
+      out_of_stock: 'Out of stock',
+      select_options: 'Please select product options'
+    };
 
     // Form hidden inputs
     const qtyInput = document.getElementById('aakaari_qty_input');
@@ -80,6 +85,71 @@
       }
     }
 
+    function normalizeMaxQty(value) {
+      if (value === undefined || value === null || value === '') {
+        return null;
+      }
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed) || parsed < 0) {
+        return null;
+      }
+      return parsed;
+    }
+
+    function needsVariationSelection() {
+      return product.productType === 'variable' && !selectedVariationId;
+    }
+
+    function getAvailableStock() {
+      if (product.is_in_stock === false) {
+        return 0;
+      }
+
+      if (product.stock === null || product.stock === undefined || product.stock === '') {
+        const normalizedMax = normalizeMaxQty(product.max_qty);
+        if (normalizedMax !== null) {
+          return normalizedMax;
+        }
+        return Number.POSITIVE_INFINITY;
+      }
+
+      const numericStock = Number(product.stock);
+      if (!Number.isFinite(numericStock)) {
+        return 0;
+      }
+
+      return numericStock;
+    }
+
+    function hasUnlimitedStock(value) {
+      return value === Number.POSITIVE_INFINITY;
+    }
+
+    function canPurchase() {
+      if (needsVariationSelection()) return false;
+      if (product.is_purchasable === false) return false;
+      if (product.is_in_stock === false) return false;
+      return getAvailableStock() !== 0;
+    }
+
+    function ensureQuantityWithinStock() {
+      quantity = Math.max(1, Math.floor(quantity || 1));
+      const available = getAvailableStock();
+
+      if (available === Number.POSITIVE_INFINITY) {
+        return;
+      }
+
+      if (available <= 0) {
+        quantity = 1;
+        return;
+      }
+
+      if (quantity > available) {
+        quantity = available;
+      }
+    }
+
     // Initialize default selected values from attributes_options (use slug as canonical value)
     function initDefaults() {
       const attrOpts = product.attributes_options || {};
@@ -93,8 +163,104 @@
       });
     }
 
+    function initReviewForm() {
+      const reviewRoot = document.getElementById('review_form');
+      if (!reviewRoot) return;
+
+      const ratingSelect = reviewRoot.querySelector('#aakaari-rating-select');
+      const ratingButtons = Array.from(reviewRoot.querySelectorAll('.review-star-picker button'));
+      const ratingHint = reviewRoot.querySelector('.rating-hint');
+
+      if (!ratingSelect || !ratingButtons.length) return;
+
+      const defaultHint = ratingHint ? ratingHint.dataset.default || ratingHint.textContent : '';
+
+      function updateHint(value) {
+        if (!ratingHint) return;
+        if (value) {
+          const btn = ratingButtons.find(b => Number(b.dataset.value) === value);
+          ratingHint.textContent = (btn && btn.dataset.label) ? btn.dataset.label : defaultHint;
+        } else {
+          ratingHint.textContent = defaultHint;
+        }
+      }
+
+      function renderActive(value) {
+        ratingButtons.forEach(btn => {
+          const btnValue = Number(btn.dataset.value);
+          const isSelected = value && btnValue === value;
+          const isActive = value && btnValue <= value;
+          btn.classList.toggle('is-active', !!isActive);
+          btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+          if (value) {
+            btn.tabIndex = isSelected ? 0 : -1;
+          } else {
+            btn.tabIndex = btnValue === 1 ? 0 : -1;
+          }
+        });
+      }
+
+      function commitRating(value) {
+        const normalized = Number.isFinite(value) && value >= 1 && value <= ratingButtons.length ? value : 0;
+        ratingSelect.value = normalized ? String(normalized) : '';
+        renderActive(normalized);
+        updateHint(normalized);
+      }
+
+      const currentValue = parseInt(ratingSelect.value, 10);
+      commitRating(Number.isFinite(currentValue) ? currentValue : 0);
+
+      ratingButtons.forEach(btn => {
+        const value = Number(btn.dataset.value);
+        btn.addEventListener('click', () => {
+          commitRating(value);
+          btn.focus();
+        });
+        btn.addEventListener('mouseenter', () => {
+          renderActive(value);
+          updateHint(value);
+        });
+        btn.addEventListener('mouseleave', () => {
+          const selected = parseInt(ratingSelect.value, 10) || 0;
+          renderActive(selected);
+          updateHint(selected);
+        });
+        btn.addEventListener('keydown', evt => {
+          if (evt.key === 'ArrowLeft' || evt.key === 'ArrowDown') {
+            evt.preventDefault();
+            const selected = parseInt(ratingSelect.value, 10) || value;
+            const next = selected > 1 ? selected - 1 : ratingButtons.length;
+            commitRating(next);
+            const target = ratingButtons[next - 1];
+            target && target.focus();
+          } else if (evt.key === 'ArrowRight' || evt.key === 'ArrowUp') {
+            evt.preventDefault();
+            const selected = parseInt(ratingSelect.value, 10) || value;
+            const next = selected < ratingButtons.length ? selected + 1 : 1;
+            commitRating(next);
+            const target = ratingButtons[next - 1];
+            target && target.focus();
+          } else if (evt.key === 'Home') {
+            evt.preventDefault();
+            commitRating(1);
+            ratingButtons[0].focus();
+          } else if (evt.key === 'End') {
+            evt.preventDefault();
+            commitRating(ratingButtons.length);
+            ratingButtons[ratingButtons.length - 1].focus();
+          }
+        });
+      });
+
+      ratingSelect.addEventListener('change', () => {
+        const selected = parseInt(ratingSelect.value, 10) || 0;
+        commitRating(selected);
+      });
+    }
+
     function init() {
       initDefaults();
+      product.max_qty = normalizeMaxQty(product.max_qty);
 
       if (productName) productName.textContent = product.name;
       if (productDesc) productDesc.textContent = product.description || '';
@@ -123,6 +289,7 @@
 
       updateStockDisplay();
 
+      initReviewForm();
       bindEvents();
     }
 
@@ -351,20 +518,19 @@
         selectedVariationId = match.variation_id || '';
         if (variationInput) variationInput.value = selectedVariationId;
 
-        // CRITICAL: Sync stock from matched variation (not parent product)
-        if (typeof match.is_in_stock !== 'undefined') {
-          if (match.is_in_stock) {
-            // Variation is in stock - use its stock quantity
-            product.stock = match.stock_qty !== null && match.stock_qty !== undefined ? match.stock_qty : 9999;
-          } else {
-            // Variation is out of stock
-            product.stock = 0;
-          }
-          // Reset quantity to 1 when variation changes
-          quantity = 1;
-          // Update UI to reflect new stock status
-          updateStockDisplay();
-        }
+        // Sync stock state from matched variation
+        const normalizedStock = (match.stock_qty === null || match.stock_qty === undefined || match.stock_qty === '')
+          ? null
+          : Number(match.stock_qty);
+        product.stock = Number.isFinite(normalizedStock) ? normalizedStock : null;
+        product.max_qty = normalizeMaxQty(match.max_qty);
+        product.managing_stock = match.managing_stock === true;
+        product.is_in_stock = match.is_in_stock !== false;
+        product.is_purchasable = match.is_purchasable !== false;
+
+        // Reset quantity to 1 when variation changes
+        quantity = 1;
+        updateStockDisplay();
 
         // Update price if available
         if (updatePrice) {
@@ -386,8 +552,11 @@
         // No variation matched - reset to parent product stock
         // (Only for variable products - we should show parent stock as fallback)
         if (product.productType === 'variable') {
-          // Don't show parent stock for variable products - require selection
-          product.stock = 0; // Force user to select variation
+          product.stock = 0;
+          product.max_qty = null;
+          product.managing_stock = false;
+          product.is_in_stock = false;
+          product.is_purchasable = false;
           quantity = 1;
           updateStockDisplay();
         }
@@ -403,19 +572,66 @@
     }
 
     function updateStockDisplay() {
-      if (!stockText || typeof product.stock === 'undefined') return;
-      stockText.textContent = product.stock > 0 ? (product.stock + ' in stock') : 'Out of stock';
-      qtyNumber.textContent = String(quantity);
-      if (qtyInput) qtyInput.value = String(quantity);
-      if (qtyInc) qtyInc.disabled = product.stock <= quantity;
-      if (qtyDec) qtyDec.disabled = quantity <= 1;
-      if (addCartBtn) addCartBtn.disabled = product.stock === 0;
-      if (buyNowBtn) buyNowBtn.disabled = product.stock === 0;
+      ensureQuantityWithinStock();
+
+      const needsSelection = needsVariationSelection();
+      const availableStock = getAvailableStock();
+      const unlimited = hasUnlimitedStock(availableStock);
+      const outOfStock = product.is_in_stock === false || availableStock <= 0;
+
+      if (stockText) {
+        if (needsSelection) {
+          stockText.textContent = stockTexts.select_options || 'Please select product options';
+        } else if (outOfStock) {
+          stockText.textContent = stockTexts.out_of_stock || 'Out of stock';
+        } else if (unlimited) {
+          stockText.textContent = stockTexts.in_stock || 'In stock';
+        } else {
+          stockText.textContent = availableStock + ' in stock';
+        }
+      }
+
+      if (qtyNumber) {
+        qtyNumber.textContent = String(quantity);
+      }
+      if (qtyInput) {
+        qtyInput.value = String(quantity);
+      }
+
+      if (qtyInc) {
+        if (needsSelection || outOfStock) {
+          qtyInc.disabled = true;
+        } else if (unlimited) {
+          qtyInc.disabled = false;
+        } else {
+          qtyInc.disabled = quantity >= availableStock;
+        }
+      }
+
+      if (qtyDec) {
+        qtyDec.disabled = quantity <= 1;
+      }
+
+      const disableActions = !canPurchase();
+      if (addCartBtn) addCartBtn.disabled = disableActions;
+      if (buyNowBtn) buyNowBtn.disabled = disableActions;
     }
 
     function bindEvents() {
       qtyInc && qtyInc.addEventListener('click', function () {
-        if (quantity < product.stock) {
+        const availableStock = getAvailableStock();
+
+        if (availableStock === Number.POSITIVE_INFINITY) {
+          quantity++;
+          updateStockDisplay();
+          return;
+        }
+
+        if (availableStock <= 0) {
+          return;
+        }
+
+        if (quantity < availableStock) {
           quantity++;
           updateStockDisplay();
         }

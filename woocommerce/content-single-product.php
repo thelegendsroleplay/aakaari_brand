@@ -44,7 +44,28 @@ $regular_price = (float) $product->get_regular_price();
 $sale_price    = $product->is_on_sale() ? (float) $product->get_sale_price() : 0.0;
 $avg_rating    = (float) $product->get_average_rating();
 $review_count  = (int) $product->get_rating_count();
-$stock_qty     = $product->is_in_stock() ? wc_stock_amount( $product->get_stock_quantity() ) : 0;
+
+$raw_stock_qty        = $product->get_stock_quantity();
+$product_manages_stock = $product->managing_stock();
+$stock_qty            = $product_manages_stock ? wc_stock_amount( $raw_stock_qty ) : null;
+$raw_max_qty          = $product->get_max_purchase_quantity();
+
+if ( $raw_max_qty === -1 || $raw_max_qty === null || $raw_max_qty === '' ) {
+    $max_purchase_qty = null;
+} else {
+    $max_purchase_qty = (int) $raw_max_qty;
+}
+
+$initial_stock_text = $product->is_in_stock()
+    ? ( $product_manages_stock && ! is_null( $stock_qty )
+        ? sprintf(
+            /* translators: %d: number of items in stock */
+            _n( '%d in stock', '%d in stock', $stock_qty, 'aakaari' ),
+            $stock_qty
+        )
+        : __( 'In stock', 'aakaari' )
+    )
+    : __( 'Out of stock', 'aakaari' );
 
 /**
  * ATTRIBUTES: Build attributes_options and attribute_map with normalized slug values.
@@ -228,6 +249,16 @@ if ( $product->is_type( 'variable' ) ) {
             }
         }
 
+        $variation_raw_stock    = $variation_obj->get_stock_quantity();
+        $variation_stock_qty    = $variation_obj->managing_stock() ? wc_stock_amount( $variation_raw_stock ) : null;
+        $variation_raw_max_qty  = $variation_obj->get_max_purchase_quantity();
+
+        if ( $variation_raw_max_qty === -1 || $variation_raw_max_qty === null || $variation_raw_max_qty === '' ) {
+            $variation_max_qty = null;
+        } else {
+            $variation_max_qty = (int) $variation_raw_max_qty;
+        }
+
         $variations_data[] = array(
             'variation_id'  => $variation_id,
             'attributes'    => $norm_attrs, // Now all values are slugs
@@ -235,8 +266,9 @@ if ( $product->is_type( 'variable' ) ) {
             'display_price' => (float) $variation_obj->get_price(),
             'is_in_stock'   => $variation_obj->is_in_stock(),
             'is_purchasable'=> $variation_obj->is_purchasable(),
-            'stock_qty'     => $variation_obj->get_stock_quantity(), // Actual stock quantity
-            'max_qty'       => $variation_obj->get_max_purchase_quantity(), // Max allowed
+            'stock_qty'     => $variation_stock_qty, // Null = unlimited / not managing stock
+            'max_qty'       => $variation_max_qty, // Null = unlimited
+            'managing_stock'=> $variation_obj->managing_stock(),
         );
     }
 }
@@ -254,7 +286,16 @@ $js_product = array(
     'reviewCount'        => $review_count,
     'sku'                => $sku,
     'category'           => $category,
-    'stock'              => is_null( $stock_qty ) ? 9999 : (int) $stock_qty,
+    'stock'              => $product->is_in_stock() ? ( is_null( $stock_qty ) ? null : (int) $stock_qty ) : 0,
+    'max_qty'            => $product->is_in_stock() ? $max_purchase_qty : 0,
+    'managing_stock'     => $product_manages_stock,
+    'is_in_stock'        => $product->is_in_stock(),
+    'is_purchasable'     => $product->is_purchasable(),
+    'stock_texts'        => array(
+        'in_stock'        => __( 'In stock', 'aakaari' ),
+        'out_of_stock'    => __( 'Out of stock', 'aakaari' ),
+        'select_options'  => __( 'Please select product options', 'aakaari' ),
+    ),
     'attributes_options' => $attributes_meta, // label => [{label,value}]
     'attribute_map'      => $attribute_map,   // label => input_key
     'productType'        => $product->get_type(),
@@ -332,7 +373,7 @@ $js_product = array(
               <span id="qtyNumber">1</span>
               <button type="button" id="qtyInc" aria-label="<?php esc_attr_e( 'Increase quantity', 'aakaari' ); ?>">+</button>
             </div>
-            <span id="stockText" class="stock-text"><?php echo esc_html( $js_product['stock'] > 0 ? $js_product['stock'] . ' in stock' : 'Out of stock' ); ?></span>
+            <span id="stockText" class="stock-text"><?php echo esc_html( $initial_stock_text ); ?></span>
             <input type="hidden" name="quantity" id="aakaari_qty_input" value="1">
           </div>
 
