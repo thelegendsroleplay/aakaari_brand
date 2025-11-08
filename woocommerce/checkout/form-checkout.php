@@ -143,3 +143,47 @@ $has_shipping    = ! empty( $shipping_fields );
 		<?php do_action( 'woocommerce_after_checkout_form', $checkout ); ?>
 	</div>
 </div>
+
+<script>
+// Simple coupon application
+document.addEventListener('DOMContentLoaded', function() {
+    const applyBtn = document.getElementById('apply_coupon');
+    if ( applyBtn ) {
+        applyBtn.addEventListener('click', function() {
+            const code = document.getElementById('coupon_code').value.trim();
+            if ( ! code ) {
+                alert( '<?php esc_html_e( 'Please enter a coupon code', 'woocommerce' ); ?>' );
+                return;
+            }
+
+            this.disabled = true;
+            this.textContent = '<?php esc_html_e( 'Applying...', 'woocommerce' ); ?>';
+
+            const data = new FormData();
+            data.append( 'action', 'aakaari_apply_coupon' );
+            data.append( 'coupon', code );
+            data.append( 'nonce', '<?php echo wp_create_nonce( 'aakaari_checkout_nonce' ); ?>' );
+
+            fetch( '<?php echo admin_url( 'admin-ajax.php' ); ?>', {
+                method: 'POST',
+                body: data
+            })
+            .then( r => r.json() )
+            .then( data => {
+                if ( data.success ) {
+                    location.reload();
+                } else {
+                    alert( data.data.message || '<?php esc_html_e( 'Invalid coupon code', 'woocommerce' ); ?>' );
+                    applyBtn.disabled = false;
+                    applyBtn.textContent = '<?php esc_html_e( 'Apply', 'woocommerce' ); ?>';
+                }
+            })
+            .catch( () => {
+                alert( '<?php esc_html_e( 'Error applying coupon', 'woocommerce' ); ?>' );
+                applyBtn.disabled = false;
+                applyBtn.textContent = '<?php esc_html_e( 'Apply', 'woocommerce' ); ?>';
+            });
+        });
+    }
+});
+</script>
