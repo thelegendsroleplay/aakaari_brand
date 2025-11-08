@@ -223,19 +223,39 @@
         },
         body: new URLSearchParams(data)
       })
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return r.json();
+      })
       .then(response => {
         // Re-enable button
         btn.disabled = false;
         btn.textContent = 'Add to Cart';
 
-        if (response.error) {
+        console.log('Add to cart response:', response);
+
+        // Check for various error conditions
+        if (response.error || response.error_message || !response.fragments) {
+          const errorMsg = response.error_message || 'Could not add to cart';
+          console.error('Add to cart failed:', errorMsg);
+
           if (typeof window.showMessageToast === 'function') {
-            window.showMessageToast('Error', 'Could not add to cart', 'info');
+            window.showMessageToast('Error', errorMsg, 'error');
           }
         } else {
+          // Success! Update cart fragments
+          if (response.fragments) {
+            // Update cart count in header
+            jQuery.each(response.fragments, function(key, value) {
+              jQuery(key).replaceWith(value);
+            });
+          }
+
           // Trigger WooCommerce cart update event
-          document.body.dispatchEvent(new Event('wc_fragment_refresh'));
+          jQuery(document.body).trigger('wc_fragment_refresh');
+          jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, btn]);
 
           // Show beautiful toast notification
           if (typeof window.showCartToast === 'function') {
@@ -248,12 +268,12 @@
         }
       })
       .catch(err => {
-        console.error(err);
+        console.error('Add to cart error:', err);
         btn.disabled = false;
         btn.textContent = 'Add to Cart';
 
         if (typeof window.showMessageToast === 'function') {
-          window.showMessageToast('Added to Cart', 'Item added successfully', 'success');
+          window.showMessageToast('Error', 'Could not add to cart. Please try again.', 'error');
         }
       });
     }
