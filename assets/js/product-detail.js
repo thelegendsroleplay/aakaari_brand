@@ -310,13 +310,21 @@
         inputKeyToUniqueKey[inputKey] = uniqueKey;
       });
 
+      // DEBUG: Show mappings
+      console.log('🔍 DEBUG - Attribute Mapping:');
+      console.log('  attribute_map:', attrMap);
+      console.log('  inputKeyToUniqueKey:', inputKeyToUniqueKey);
+      console.log('  selectedValues:', selectedValues);
+
       let match = null;
 
       // Try to find matching variation (compare slugs)
-      for (let v of product.variations) {
+      for (let i = 0; i < product.variations.length; i++) {
+        const v = product.variations[i];
         if (!v.attributes) continue;
 
         let ok = true;
+        const debugInfo = { variation_id: v.variation_id, checks: [] };
 
         // Check all variation attributes match selected values (both are slugs now)
         for (let attrKey in v.attributes) {
@@ -334,6 +342,16 @@
             selectedValSlug = (selectedValues[uniqueKey] || '').toString().toLowerCase().trim();
           }
 
+          // DEBUG: Log each comparison
+          const matches = selectedValSlug === varValSlug;
+          debugInfo.checks.push({
+            attrKey,
+            uniqueKey,
+            varValSlug,
+            selectedValSlug,
+            matches
+          });
+
           // Compare slugs (both sides are slugs now)
           if (selectedValSlug === '' || selectedValSlug !== varValSlug) {
             ok = false;
@@ -341,8 +359,12 @@
           }
         }
 
+        // DEBUG: Show why variation didn't match
+        console.log(`  Variation ${i + 1}:`, debugInfo);
+
         if (ok) {
           match = v;
+          console.log('  ✅ MATCH FOUND!');
           break; // Found exact match
         }
       }
