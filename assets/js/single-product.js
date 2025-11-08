@@ -73,6 +73,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Initialize Size/Color selection for variable products
+    const sizeButtons = document.querySelectorAll('.size-btn');
+    const colorButtons = document.querySelectorAll('.color-btn');
+    const selectedSizeInput = document.getElementById('selected-size');
+    const selectedColorInput = document.getElementById('selected-color');
+
+    if (sizeButtons.length > 0) {
+        sizeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all size buttons
+                sizeButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                // Update hidden input
+                if (selectedSizeInput) {
+                    selectedSizeInput.value = this.dataset.size;
+                }
+            });
+        });
+    }
+
+    if (colorButtons.length > 0) {
+        colorButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all color buttons
+                colorButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                // Update hidden input
+                if (selectedColorInput) {
+                    selectedColorInput.value = this.dataset.color;
+                }
+            });
+        });
+    }
+
     // --- EVENT HANDLER FUNCTIONS ---
 
     /**
@@ -213,6 +249,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const qtyInput = form.querySelector('input[name="quantity"]');
                 if (qtyInput) {
                     qtyInput.value = quantity;
+                }
+
+                // Validate size/color selection for variable products
+                if (selectedSizeInput && selectedSizeInput.value === '') {
+                    e.preventDefault();
+                    alert('Please select a size');
+                    return false;
+                }
+
+                if (selectedColorInput && selectedColorInput.value === '') {
+                    e.preventDefault();
+                    alert('Please select a color');
+                    return false;
                 }
             });
         }

@@ -464,6 +464,86 @@
   margin: 0;
 }
 
+/* Review Form */
+.review-form-wrapper {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.review-form-wrapper h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem;
+}
+
+.review-form-wrapper form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.review-form-wrapper label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.review-form-wrapper input[type="text"],
+.review-form-wrapper input[type="email"],
+.review-form-wrapper textarea,
+.review-form-wrapper select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.review-form-wrapper input[type="text"]:focus,
+.review-form-wrapper input[type="email"]:focus,
+.review-form-wrapper textarea:focus,
+.review-form-wrapper select:focus {
+  outline: none;
+  border-color: #000;
+}
+
+.review-form-wrapper textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.review-form-wrapper .required {
+  color: #e53e3e;
+}
+
+.review-form-wrapper input[type="submit"] {
+  background: #000;
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.review-form-wrapper input[type="submit"]:hover {
+  background: #333;
+}
+
+.review-form-wrapper .comment-form-author,
+.review-form-wrapper .comment-form-email,
+.review-form-wrapper .comment-form-rating,
+.review-form-wrapper .comment-form-comment {
+  margin-bottom: 0;
+}
+
 /* Related Products */
 .related-section {
   background: white;

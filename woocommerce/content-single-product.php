@@ -49,24 +49,21 @@ if ( $sale_price && $regular_price ) {
 // Get attributes for size/color if variable product
 $sizes = array();
 $colors = array();
+$size_attribute_name = '';
+$color_attribute_name = '';
+
 if ( $product->is_type( 'variable' ) ) {
 	$attributes = $product->get_variation_attributes();
 	foreach ( $attributes as $attribute_name => $options ) {
 		$attribute_label = wc_attribute_label( $attribute_name );
 		if ( stripos( $attribute_label, 'size' ) !== false ) {
 			$sizes = $options;
+			$size_attribute_name = $attribute_name;
 		} elseif ( stripos( $attribute_label, 'color' ) !== false || stripos( $attribute_label, 'colour' ) !== false ) {
 			$colors = $options;
+			$color_attribute_name = $attribute_name;
 		}
 	}
-}
-
-// Default values if not variable product
-if ( empty( $sizes ) ) {
-	$sizes = array( 'S', 'M', 'L', 'XL' );
-}
-if ( empty( $colors ) ) {
-	$colors = array( 'Black', 'White', 'Gray', 'Blue' );
 }
 ?>
 
@@ -164,6 +161,7 @@ if ( empty( $colors ) ) {
 
 					<?php do_action( 'woocommerce_before_add_to_cart_button' ); ?>
 
+					<?php if ( $product->is_type( 'variable' ) && ! empty( $sizes ) ) : ?>
 					<div class="options-section">
 						<div class="option-row">
 							<label>Size:</label>
@@ -172,8 +170,10 @@ if ( empty( $colors ) ) {
 									<button type="button" class="size-btn" data-size="<?php echo esc_attr( $size ); ?>"><?php echo esc_html( $size ); ?></button>
 								<?php endforeach; ?>
 							</div>
+							<input type="hidden" name="<?php echo esc_attr( $size_attribute_name ); ?>" id="selected-size" value="">
 						</div>
 
+						<?php if ( ! empty( $colors ) ) : ?>
 						<div class="option-row">
 							<label>Color:</label>
 							<div class="color-btns" id="color-options">
@@ -181,8 +181,11 @@ if ( empty( $colors ) ) {
 									<button type="button" class="color-btn" data-color="<?php echo esc_attr( $color ); ?>" style="background-color: <?php echo esc_attr( strtolower( $color ) ); ?>" title="<?php echo esc_attr( $color ); ?>"></button>
 								<?php endforeach; ?>
 							</div>
+							<input type="hidden" name="<?php echo esc_attr( $color_attribute_name ); ?>" id="selected-color" value="">
 						</div>
+						<?php endif; ?>
 					</div>
+					<?php endif; ?>
 
 					<div class="quantity-row">
 						<label>Quantity:</label>
@@ -252,14 +255,14 @@ if ( empty( $colors ) ) {
 							<circle cx="5.5" cy="18.5" r="2.5"></circle>
 							<circle cx="18.5" cy="18.5" r="2.5"></circle>
 						</svg>
-						<span>Free shipping over $100</span>
+						<span>Free shipping on orders over ₹999</span>
 					</div>
 					<div class="feature">
 						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<polyline points="1 4 1 10 7 10"></polyline>
 							<path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
 						</svg>
-						<span>30-day returns</span>
+						<span>Replacement only</span>
 					</div>
 				</div>
 
@@ -274,46 +277,84 @@ if ( empty( $colors ) ) {
 			</div>
 		</div>
 
-		<?php if ( comments_open() || get_comments_number() ) : ?>
-			<div class="reviews-section" id="reviews-section">
-				<h2>Customer Reviews</h2>
-				<div class="reviews-list" id="reviews-list">
-					<?php
-					$comments = get_comments( array(
-						'post_id' => $product_id,
-						'status'  => 'approve',
-						'type'    => 'review',
-					) );
+		<div class="reviews-section" id="reviews-section">
+			<h2>Customer Reviews</h2>
 
-					if ( ! empty( $comments ) ) :
-						foreach ( $comments as $comment ) :
-							$review_rating = get_comment_meta( $comment->comment_ID, 'rating', true );
-							?>
-							<div class="review-item">
-								<div class="review-header">
-									<div class="stars">
-										<?php
-										for ( $i = 1; $i <= 5; $i++ ) {
-											if ( $i <= $review_rating ) {
-												echo '<svg class="star-filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-											} else {
-												echo '<svg class="star-empty" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-											}
+			<div class="reviews-list" id="reviews-list">
+				<?php
+				$comments = get_comments( array(
+					'post_id' => $product_id,
+					'status'  => 'approve',
+					'type'    => 'review',
+				) );
+
+				if ( ! empty( $comments ) ) :
+					foreach ( $comments as $comment ) :
+						$review_rating = get_comment_meta( $comment->comment_ID, 'rating', true );
+						?>
+						<div class="review-item">
+							<div class="review-header">
+								<div class="stars">
+									<?php
+									for ( $i = 1; $i <= 5; $i++ ) {
+										if ( $i <= $review_rating ) {
+											echo '<svg class="star-filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+										} else {
+											echo '<svg class="star-empty" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
 										}
-										?>
-									</div>
-									<span class="review-author"><?php echo esc_html( $comment->comment_author ); ?></span>
+									}
+									?>
 								</div>
-								<h4><?php echo esc_html( get_the_title( $product_id ) ); ?></h4>
-								<p><?php echo esc_html( $comment->comment_content ); ?></p>
+								<span class="review-author"><?php echo esc_html( $comment->comment_author ); ?></span>
 							</div>
-						<?php endforeach;
-					else : ?>
-						<p>No reviews yet.</p>
-					<?php endif; ?>
-				</div>
+							<h4><?php echo esc_html( get_the_title( $product_id ) ); ?></h4>
+							<p><?php echo esc_html( $comment->comment_content ); ?></p>
+						</div>
+					<?php endforeach;
+				else : ?>
+					<p>No reviews yet. Be the first to review this product!</p>
+				<?php endif; ?>
 			</div>
-		<?php endif; ?>
+
+			<?php if ( comments_open() ) : ?>
+			<div class="review-form-wrapper">
+				<h3>Write a Review</h3>
+				<?php
+				$commenter = wp_get_current_commenter();
+				$comment_form = array(
+					'title_reply'          => '',
+					'title_reply_before'   => '',
+					'title_reply_after'    => '',
+					'comment_notes_before' => '',
+					'comment_notes_after'  => '',
+					'fields'               => array(
+						'author' => '<p class="comment-form-author">' .
+									'<label for="author">' . esc_html__( 'Name', 'woocommerce' ) . '&nbsp;<span class="required">*</span></label> ' .
+									'<input id="author" name="author" type="text" value="' . esc_attr( $commenter['comment_author'] ) . '" size="30" required /></p>',
+						'email'  => '<p class="comment-form-email"><label for="email">' . esc_html__( 'Email', 'woocommerce' ) . '&nbsp;<span class="required">*</span></label> ' .
+									'<input id="email" name="email" type="email" value="' . esc_attr( $commenter['comment_author_email'] ) . '" size="30" required /></p>',
+					),
+					'label_submit'  => __( 'Submit Review', 'woocommerce' ),
+					'logged_in_as'  => '',
+					'comment_field' => '',
+				);
+
+				$comment_form['comment_field'] = '<div class="comment-form-rating"><label for="rating">' . esc_html__( 'Your rating', 'woocommerce' ) . ( wc_review_ratings_enabled() ? '&nbsp;<span class="required">*</span>' : '' ) . '</label><select name="rating" id="rating" required>
+					<option value="">' . esc_html__( 'Rate&hellip;', 'woocommerce' ) . '</option>
+					<option value="5">' . esc_html__( 'Perfect', 'woocommerce' ) . '</option>
+					<option value="4">' . esc_html__( 'Good', 'woocommerce' ) . '</option>
+					<option value="3">' . esc_html__( 'Average', 'woocommerce' ) . '</option>
+					<option value="2">' . esc_html__( 'Not that bad', 'woocommerce' ) . '</option>
+					<option value="1">' . esc_html__( 'Very poor', 'woocommerce' ) . '</option>
+				</select></div>';
+
+				$comment_form['comment_field'] .= '<p class="comment-form-comment"><label for="comment">' . esc_html__( 'Your review', 'woocommerce' ) . '&nbsp;<span class="required">*</span></label><textarea id="comment" name="comment" cols="45" rows="8" required></textarea></p>';
+
+				comment_form( $comment_form );
+				?>
+			</div>
+			<?php endif; ?>
+		</div>
 
 		<?php
 		$related_ids = wc_get_related_products( $product_id, 4 );
