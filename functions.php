@@ -216,23 +216,20 @@ function aakaari_enqueue_assets() {
     // ** START: SINGLE PRODUCT PAGE FIX **
     // ========================================================================
     if ( function_exists( 'is_product' ) && is_product() ) {
-        
+
         wp_enqueue_script(
             'aakaari-product-detail',
             $assets_base . '/js/product-detail.js',
             array( 'jquery' ),
-            '1.0.1', // Incremented version
-            true 
+            '2.0.0', // Updated: Major attribute/variation fixes
+            true
         );
-        
-        // ** THE FIX IS HERE **
-        // Added dependencies `array('aakaari-header', 'aakaari-footer')`
-        // This forces `product-detail.css` to load AFTER the main styles.
+
         wp_enqueue_style(
             'aakaari-product-detail-css',
             $assets_base . '/css/product-detail.css',
-             array('aakaari-header', 'aakaari-footer'), // <-- ADDED DEPENDENCIES
-             '1.0.1' // Incremented version
+            array('aakaari-header', 'aakaari-footer'),
+            '2.0.0' // Updated: Tabs, reviews, related products styles
         );
     }
     // ========================================================================
