@@ -1,369 +1,278 @@
 /**
- * Single Product Page - Modern Interactive Features
- * Handles gallery, quantity, wishlist, and cart functionality
+ * Single Product Page - WooCommerce Integration
+ * Matching provided HTML specification
  */
 
-(function() {
-  'use strict';
+document.addEventListener('DOMContentLoaded', () => {
 
-  let currentImageIndex = 0;
-  let qty = 1;
-  let inWishlist = false;
-  let productImages = [];
+    // --- STATE VARIABLES ---
+    let currentImageIndex = 0;
+    let quantity = 1;
+    let inWishlist = false;
 
-  /* DOM refs */
-  let heroImg, thumbsContainer, qtyValue, decQtyBtn, incQtyBtn;
-  let wishlistBtn, addToCartBtn, buyNowBtn;
+    // --- DOM ELEMENT SELECTORS ---
+    const mainImage = document.getElementById('main-image');
+    const thumbnailList = document.getElementById('thumbnail-list');
+    const qtyDecreaseBtn = document.getElementById('qty-decrease');
+    const qtyIncreaseBtn = document.getElementById('qty-increase');
+    const quantityDisplay = document.getElementById('quantity-display');
+    const wishlistBtn = document.getElementById('wishlist-btn');
+    const wishlistIcon = document.getElementById('wishlist-icon-svg');
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const buyNowBtn = document.getElementById('buy-now-btn');
+    const backBtn = document.getElementById('back-btn');
 
-  /**
-   * Initialize on DOM ready
-   */
-  function init() {
-    // Get DOM elements
-    heroImg = document.getElementById('gallery-hero-img');
-    thumbsContainer = document.getElementById('gallery-thumbs');
-    qtyValue = document.getElementById('qty-value');
-    decQtyBtn = document.getElementById('dec-qty');
-    incQtyBtn = document.getElementById('inc-qty');
-    wishlistBtn = document.getElementById('wishlist-btn');
-    addToCartBtn = document.getElementById('add-to-cart-btn');
-    buyNowBtn = document.getElementById('buy-now-btn');
+    // Get max quantity from stock info or default
+    const stockInfo = document.getElementById('stock-info');
+    const stockText = stockInfo ? stockInfo.textContent.trim() : '';
+    const stockMatch = stockText.match(/^(\d+)/);
+    const maxQuantity = stockMatch ? parseInt(stockMatch[1]) : 9999;
 
-    if (!heroImg || !thumbsContainer) return;
+    // --- INITIALIZATION ---
 
-    // Get images from thumbnails
-    const thumbs = thumbsContainer.querySelectorAll('.gallery-thumb');
-    productImages = Array.from(thumbs).map(thumb => ({
-      src: thumb.dataset.image || thumb.querySelector('img')?.src,
-      thumb: thumb
-    }));
+    // Initialize image gallery
+    if (thumbnailList && mainImage) {
+        const thumbnailButtons = thumbnailList.querySelectorAll('.thumbnail-btn');
 
-    // Initialize gallery
-    if (productImages.length > 0) {
-      setHeroImage(0);
-      enableHeroSwipe();
+        thumbnailButtons.forEach((btn, index) => {
+            btn.addEventListener('click', () => selectImage(index, btn));
+        });
     }
 
-    // Quantity controls
-    if (decQtyBtn) {
-      decQtyBtn.addEventListener('click', () => changeQty(qty - 1));
-    }
-    if (incQtyBtn) {
-      incQtyBtn.addEventListener('click', () => changeQty(qty + 1));
+    // Initialize quantity controls
+    if (qtyDecreaseBtn && qtyIncreaseBtn && quantityDisplay) {
+        qtyDecreaseBtn.addEventListener('click', () => updateQuantity(-1));
+        qtyIncreaseBtn.addEventListener('click', () => updateQuantity(1));
     }
 
-    // Wishlist
+    // Initialize wishlist
     if (wishlistBtn) {
-      wishlistBtn.addEventListener('click', toggleWishlist);
+        // Check if product is in wishlist on page load
+        const productId = wishlistBtn.dataset.productId;
+        if (productId && typeof aakaari_get_wishlist === 'function') {
+            const wishlist = aakaari_get_wishlist();
+            if (wishlist.includes(productId)) {
+                inWishlist = true;
+                wishlistBtn.classList.add('active');
+                wishlistIcon.classList.add('filled');
+            }
+        }
+
+        wishlistBtn.addEventListener('click', toggleWishlist);
     }
 
-    // Add to cart
-    if (addToCartBtn) {
-      addToCartBtn.addEventListener('click', handleAddToCart);
-    }
-
-    // Buy now
+    // Initialize Buy Now button
     if (buyNowBtn) {
-      buyNowBtn.addEventListener('click', handleBuyNow);
+        buyNowBtn.addEventListener('click', handleBuyNow);
     }
 
-    // Thumbnail clicks
-    thumbs.forEach((thumb, index) => {
-      thumb.addEventListener('click', () => setHeroImage(index));
-    });
-
-    // Variation selects (if variable product)
-    const variationSelects = document.querySelectorAll('.variations select');
-    variationSelects.forEach(select => {
-      select.addEventListener('change', handleVariationChange);
-    });
-
-    // Initialize WooCommerce variation form
-    initializeWooCommerceVariations();
-  }
-
-  /**
-   * Set hero image by index
-   */
-  function setHeroImage(index) {
-    if (!productImages[index] || !heroImg) return;
-
-    const imageData = productImages[index];
-    currentImageIndex = index;
-
-    // Update hero image
-    heroImg.src = imageData.src;
-
-    // Update active thumbnail
-    productImages.forEach((img, idx) => {
-      if (img.thumb) {
-        img.thumb.classList.toggle('active', idx === index);
-      }
-    });
-
-    // Scroll thumbnail into view
-    if (imageData.thumb) {
-      imageData.thumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
-  }
-
-  /**
-   * Enable swipe gestures for hero image
-   */
-  function enableHeroSwipe() {
-    const hero = document.querySelector('.gallery-hero');
-    if (!hero) return;
-
-    let startX = 0;
-    let moved = false;
-    const threshold = 40;
-
-    hero.addEventListener('touchstart', e => {
-      startX = e.touches[0].clientX;
-      moved = false;
-    }, { passive: true });
-
-    hero.addEventListener('touchmove', e => {
-      const dx = e.touches[0].clientX - startX;
-      if (Math.abs(dx) > 8) moved = true;
-    }, { passive: true });
-
-    hero.addEventListener('touchend', e => {
-      if (!moved) return;
-      const dx = e.changedTouches[0].clientX - startX;
-
-      if (dx < -threshold) {
-        // Swipe left - next image
-        const next = Math.min(productImages.length - 1, currentImageIndex + 1);
-        setHeroImage(next);
-      } else if (dx > threshold) {
-        // Swipe right - previous image
-        const prev = Math.max(0, currentImageIndex - 1);
-        setHeroImage(prev);
-      }
-    }, { passive: true });
-  }
-
-  /**
-   * Change quantity
-   */
-  function changeQty(newQty) {
-    const maxQty = parseInt(qtyValue?.dataset.max || 9999);
-    qty = Math.max(1, Math.min(maxQty, newQty));
-
-    if (qtyValue) {
-      qtyValue.textContent = qty;
+    // Initialize Back button
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            window.history.back();
+        });
     }
 
-    // Update WooCommerce quantity input if exists
-    const qtyInput = document.querySelector('input.qty');
-    if (qtyInput) {
-      qtyInput.value = qty;
-    }
-  }
+    // --- EVENT HANDLER FUNCTIONS ---
 
-  /**
-   * Toggle wishlist
-   */
-  function toggleWishlist(e) {
-    e.preventDefault();
+    /**
+     * Select main image
+     */
+    function selectImage(index, clickedBtn) {
+        if (!mainImage || !thumbnailList) return;
 
-    const productId = wishlistBtn?.dataset.productId;
-    if (!productId) return;
+        currentImageIndex = index;
 
-    // Check if we have custom wishlist functions
-    if (typeof aakaari_toggle_wishlist === 'function') {
-      aakaari_toggle_wishlist(productId, function(success) {
-        if (success) {
-          inWishlist = !inWishlist;
-          wishlistBtn.classList.toggle('active', inWishlist);
-          wishlistBtn.setAttribute('aria-pressed', String(inWishlist));
-
-          const message = inWishlist ? 'Added to wishlist' : 'Removed from wishlist';
-          showToast(message);
-        }
-      });
-    } else {
-      // Fallback - just toggle UI
-      inWishlist = !inWishlist;
-      wishlistBtn.classList.toggle('active', inWishlist);
-      wishlistBtn.setAttribute('aria-pressed', String(inWishlist));
-
-      const message = inWishlist ? 'Added to wishlist' : 'Removed from wishlist';
-      showToast(message);
-    }
-  }
-
-  /**
-   * Handle add to cart
-   */
-  function handleAddToCart(e) {
-    e.preventDefault();
-
-    const form = document.querySelector('form.cart');
-    if (!form) {
-      showToast('Unable to add to cart');
-      return;
-    }
-
-    // Get form data
-    const formData = new FormData(form);
-    formData.set('quantity', qty);
-
-    // Add AJAX action
-    formData.append('action', 'woocommerce_add_to_cart');
-
-    // Disable button
-    addToCartBtn.disabled = true;
-    addToCartBtn.textContent = 'Adding...';
-
-    // Submit via AJAX
-    fetch(wc_add_to_cart_params?.ajax_url || ajaxurl || '/wp-admin/admin-ajax.php', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        showToast(data.error || 'Could not add to cart');
-      } else {
-        showToast('Added to cart successfully!');
-
-        // Update cart fragments
-        if (typeof jQuery !== 'undefined' && jQuery(document.body).trigger) {
-          jQuery(document.body).trigger('wc_fragment_refresh');
-        }
-      }
-    })
-    .catch(error => {
-      console.error('Add to cart error:', error);
-      showToast('Could not add to cart');
-    })
-    .finally(() => {
-      addToCartBtn.disabled = false;
-      addToCartBtn.textContent = 'Add to cart';
-    });
-  }
-
-  /**
-   * Handle buy now
-   */
-  function handleBuyNow(e) {
-    e.preventDefault();
-
-    // Add to cart first, then redirect to checkout
-    handleAddToCart(e);
-
-    setTimeout(() => {
-      const checkoutUrl = wc_add_to_cart_params?.checkout_url || '/checkout';
-      window.location.href = checkoutUrl;
-    }, 500);
-  }
-
-  /**
-   * Handle variation change
-   */
-  function handleVariationChange() {
-    // WooCommerce handles variation logic
-    // We just need to update our quantity based on stock
-    setTimeout(() => {
-      const stockSpan = document.querySelector('.stock');
-      if (stockSpan) {
-        const isInStock = stockSpan.classList.contains('in-stock');
-        if (addToCartBtn) {
-          addToCartBtn.disabled = !isInStock;
-        }
-        if (buyNowBtn) {
-          buyNowBtn.disabled = !isInStock;
-        }
-      }
-    }, 100);
-  }
-
-  /**
-   * Initialize WooCommerce variations if present
-   */
-  function initializeWooCommerceVariations() {
-    if (typeof jQuery === 'undefined') return;
-
-    const $ = jQuery;
-    const $form = $('form.variations_form');
-
-    if ($form.length) {
-      // WooCommerce variations form
-      $form.on('found_variation', function(event, variation) {
-        // Update price
-        if (variation.display_price) {
-          const priceEl = document.querySelector('.product-price-main');
-          if (priceEl) {
-            priceEl.textContent = variation.price_html || '$' + variation.display_price;
-          }
+        // Get the image URL from the clicked button
+        const imageUrl = clickedBtn.dataset.image;
+        if (imageUrl) {
+            mainImage.src = imageUrl;
         }
 
-        // Update stock
-        if (variation.is_in_stock) {
-          const stockEl = document.querySelector('.product-stock');
-          if (stockEl) {
-            stockEl.textContent = variation.availability_html || 'In stock';
-            stockEl.classList.remove('out-of-stock');
-          }
+        // Update active class on thumbnails
+        const thumbnailButtons = thumbnailList.querySelectorAll('.thumbnail-btn');
+        thumbnailButtons.forEach((btn, i) => {
+            btn.classList.toggle('active', i === index);
+        });
+    }
+
+    /**
+     * Update quantity
+     */
+    function updateQuantity(change) {
+        const newQuantity = quantity + change;
+
+        if (newQuantity >= 1 && newQuantity <= maxQuantity) {
+            quantity = newQuantity;
+            quantityDisplay.textContent = quantity;
+
+            // Update WooCommerce hidden quantity input
+            const qtyInput = document.querySelector('input.qty');
+            if (qtyInput) {
+                qtyInput.value = quantity;
+            }
+        }
+    }
+
+    /**
+     * Toggle wishlist
+     */
+    function toggleWishlist(e) {
+        e.preventDefault();
+
+        const productId = wishlistBtn.dataset.productId;
+        if (!productId) return;
+
+        // Check if we have custom wishlist functions
+        if (typeof aakaari_toggle_wishlist === 'function') {
+            aakaari_toggle_wishlist(productId, function(success, isInWishlist) {
+                if (success) {
+                    inWishlist = isInWishlist;
+                    wishlistBtn.classList.toggle('active', inWishlist);
+                    wishlistIcon.classList.toggle('filled', inWishlist);
+
+                    const message = inWishlist ? 'Added to wishlist' : 'Removed from wishlist';
+                    console.log(message);
+
+                    // Show toast notification if available
+                    if (typeof showToast === 'function') {
+                        showToast(message);
+                    } else if (typeof AakaariToast !== 'undefined') {
+                        AakaariToast.show(message);
+                    }
+                }
+            });
         } else {
-          const stockEl = document.querySelector('.product-stock');
-          if (stockEl) {
-            stockEl.textContent = 'Out of stock';
-            stockEl.classList.add('out-of-stock');
-          }
+            // Fallback - just toggle UI
+            inWishlist = !inWishlist;
+            wishlistBtn.classList.toggle('active', inWishlist);
+            wishlistIcon.classList.toggle('filled', inWishlist);
+
+            const message = inWishlist ? 'Added to wishlist' : 'Removed from wishlist';
+            console.log(message);
         }
-
-        // Update image if variation has one
-        if (variation.image && variation.image.src && heroImg) {
-          heroImg.src = variation.image.src;
-        }
-      });
-
-      $form.on('reset_data', function() {
-        // Reset to default when variation is cleared
-        const originalPrice = $form.data('original-price');
-        if (originalPrice) {
-          const priceEl = document.querySelector('.product-price-main');
-          if (priceEl) {
-            priceEl.textContent = originalPrice;
-          }
-        }
-      });
-    }
-  }
-
-  /**
-   * Show toast notification
-   */
-  let toastTimer = null;
-  function showToast(message) {
-    let toast = document.getElementById('product-toast');
-
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'product-toast';
-      toast.className = 'toast-notification';
-      toast.setAttribute('role', 'status');
-      toast.setAttribute('aria-live', 'polite');
-      document.body.appendChild(toast);
     }
 
-    toast.textContent = message;
-    toast.classList.add('show');
+    /**
+     * Handle Buy Now button
+     */
+    function handleBuyNow(e) {
+        e.preventDefault();
 
-    if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      toast.classList.remove('show');
-    }, 1700);
-  }
+        // First, add the product to cart
+        const form = document.querySelector('form.cart');
+        if (!form) {
+            console.error('Cart form not found');
+            return;
+        }
 
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+        // Update quantity in form
+        const qtyInput = form.querySelector('input[name="quantity"]');
+        if (qtyInput) {
+            qtyInput.value = quantity;
+        }
 
-})();
+        // Submit the form to add to cart
+        const formData = new FormData(form);
+
+        // Disable button
+        buyNowBtn.disabled = true;
+        buyNowBtn.textContent = 'Processing...';
+
+        // Submit via AJAX
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            // After adding to cart, redirect to checkout
+            if (typeof wc_single_product_params !== 'undefined' && wc_single_product_params.checkout_url) {
+                window.location.href = wc_single_product_params.checkout_url;
+            } else {
+                // Fallback checkout URL
+                window.location.href = '/checkout';
+            }
+        })
+        .catch(error => {
+            console.error('Buy now error:', error);
+            buyNowBtn.disabled = false;
+            buyNowBtn.textContent = 'Buy Now';
+        });
+    }
+
+    // --- WOOCOMMERCE INTEGRATION ---
+
+    /**
+     * Handle WooCommerce add to cart
+     */
+    if (addToCartBtn) {
+        const form = document.querySelector('form.cart');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Update quantity before submission
+                const qtyInput = form.querySelector('input[name="quantity"]');
+                if (qtyInput) {
+                    qtyInput.value = quantity;
+                }
+            });
+        }
+    }
+
+    /**
+     * Handle WooCommerce variations (if variable product)
+     */
+    if (typeof jQuery !== 'undefined') {
+        const $ = jQuery;
+        const $form = $('form.variations_form');
+
+        if ($form.length) {
+            // WooCommerce variations form
+            $form.on('found_variation', function(event, variation) {
+                // Update price
+                if (variation.display_price) {
+                    const priceEl = document.getElementById('product-price');
+                    if (priceEl && variation.price_html) {
+                        // Extract price from HTML
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = variation.price_html;
+                        const priceText = tempDiv.textContent || tempDiv.innerText;
+                        priceEl.textContent = priceText;
+                    }
+                }
+
+                // Update stock
+                const stockEl = document.getElementById('stock-info');
+                if (stockEl) {
+                    if (variation.is_in_stock) {
+                        if (variation.max_qty) {
+                            stockEl.textContent = variation.max_qty + ' in stock';
+                        } else {
+                            stockEl.textContent = 'In stock';
+                        }
+                        stockEl.style.color = '#10b981';
+
+                        if (addToCartBtn) addToCartBtn.disabled = false;
+                        if (buyNowBtn) buyNowBtn.disabled = false;
+                    } else {
+                        stockEl.textContent = 'Out of stock';
+                        stockEl.style.color = '#e53e3e';
+
+                        if (addToCartBtn) addToCartBtn.disabled = true;
+                        if (buyNowBtn) buyNowBtn.disabled = true;
+                    }
+                }
+
+                // Update image if variation has one
+                if (variation.image && variation.image.url && mainImage) {
+                    mainImage.src = variation.image.url;
+                }
+            });
+
+            $form.on('reset_data', function() {
+                // Reset to default when variation is cleared
+                // This is handled by WooCommerce
+            });
+        }
+    }
+
+});
