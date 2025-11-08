@@ -368,6 +368,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         });
+
+        // Add validation for review form
+        const reviewForm = document.querySelector('.comment-form');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', function(e) {
+                if (!ratingInput.value || ratingInput.value === '') {
+                    e.preventDefault();
+                    alert('Please select a rating by clicking on the stars');
+                    return false;
+                }
+            });
+        }
     }
 
 });
