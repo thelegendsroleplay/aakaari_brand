@@ -373,14 +373,53 @@ if ( $product->is_type( 'variable' ) ) {
 
 				$comment_form['comment_field'] .= '<p class="comment-form-comment"><label for="comment">' . esc_html__( 'Your review', 'woocommerce' ) . '&nbsp;<span class="required">*</span></label><textarea id="comment" name="comment" cols="45" rows="8" required></textarea></p>';
 
-				comment_form( $comment_form );
+				// Add comment_post_ID for proper review submission
+				$comment_form['comment_post_ID'] = $product_id;
+				comment_form( apply_filters( 'woocommerce_product_review_comment_form_args', $comment_form ) );
 				?>
 			</div>
 			<?php endif; ?>
 		</div>
 
 		<?php
+		// Get related products, if none found get from same category, otherwise get latest
 		$related_ids = wc_get_related_products( $product_id, 4 );
+
+		// If no related products, get products from same category
+		if ( empty( $related_ids ) ) {
+			$terms = get_the_terms( $product_id, 'product_cat' );
+			if ( $terms && ! is_wp_error( $terms ) ) {
+				$term_ids = wp_list_pluck( $terms, 'term_id' );
+				$args = array(
+					'post_type'      => 'product',
+					'posts_per_page' => 4,
+					'post__not_in'   => array( $product_id ),
+					'tax_query'      => array(
+						array(
+							'taxonomy' => 'product_cat',
+							'field'    => 'term_id',
+							'terms'    => $term_ids,
+						),
+					),
+				);
+				$query = new WP_Query( $args );
+				$related_ids = wp_list_pluck( $query->posts, 'ID' );
+			}
+		}
+
+		// If still no products, get latest products
+		if ( empty( $related_ids ) ) {
+			$args = array(
+				'post_type'      => 'product',
+				'posts_per_page' => 4,
+				'post__not_in'   => array( $product_id ),
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			);
+			$query = new WP_Query( $args );
+			$related_ids = wp_list_pluck( $query->posts, 'ID' );
+		}
+
 		if ( ! empty( $related_ids ) ) :
 			?>
 			<div class="related-section" id="related-section">
