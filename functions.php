@@ -214,10 +214,11 @@ function aakaari_enqueue_assets() {
 
 	// Single Product page
 	if ( function_exists( 'is_product' ) && is_product() ) {
+		// Enqueue with higher priority and proper dependencies
 		wp_enqueue_style(
 			'aakaari-single-product',
 			$assets_base . '/css/single-product.css',
-			array(),
+			array( 'aakaari-reset' ), // Depend on reset to load after
 			time() // Force cache refresh
 		);
 
@@ -233,6 +234,17 @@ function aakaari_enqueue_assets() {
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'checkout_url' => wc_get_checkout_url(),
 		) );
+
+		// Add inline CSS to ensure our styles take precedence
+		$inline_css = '
+		/* Force custom product page styles */
+		.product-page { background: #f5f5f5 !important; min-height: 100vh !important; }
+		.product-layout { display: grid !important; grid-template-columns: 450px 1fr !important; }
+		@media (max-width: 1024px) {
+			.product-layout { grid-template-columns: 1fr !important; }
+		}
+		';
+		wp_add_inline_style( 'aakaari-single-product', $inline_css );
 	}
 
 	// Checkout page
@@ -428,11 +440,11 @@ add_action( 'after_switch_theme', 'aakaari_delete_all_pages_and_create_required'
  * Remove default WooCommerce features that conflict with custom design
  */
 
-// Disable WooCommerce default cart styles
-add_filter( 'woocommerce_enqueue_styles', 'aakaari_disable_woocommerce_cart_styles' );
-function aakaari_disable_woocommerce_cart_styles( $enqueue_styles ) {
-	if ( is_cart() ) {
-		// Disable default WooCommerce styles on cart page
+// Disable WooCommerce default styles on cart and product pages
+add_filter( 'woocommerce_enqueue_styles', 'aakaari_disable_woocommerce_default_styles' );
+function aakaari_disable_woocommerce_default_styles( $enqueue_styles ) {
+	if ( is_cart() || is_product() ) {
+		// Disable default WooCommerce styles that might conflict
 		unset( $enqueue_styles['woocommerce-general'] );
 		unset( $enqueue_styles['woocommerce-layout'] );
 		unset( $enqueue_styles['woocommerce-smallscreen'] );
@@ -444,10 +456,10 @@ function aakaari_disable_woocommerce_cart_styles( $enqueue_styles ) {
 remove_action( 'woocommerce_before_main_content', 'woocommerce_output_content_wrapper', 10 );
 remove_action( 'woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10 );
 
-// Remove WooCommerce breadcrumbs on cart page
-add_action( 'template_redirect', 'aakaari_remove_cart_breadcrumbs' );
-function aakaari_remove_cart_breadcrumbs() {
-	if ( is_cart() ) {
+// Remove WooCommerce breadcrumbs on cart and product pages
+add_action( 'template_redirect', 'aakaari_remove_woocommerce_breadcrumbs' );
+function aakaari_remove_woocommerce_breadcrumbs() {
+	if ( is_cart() || is_product() ) {
 		remove_action( 'woocommerce_before_main_content', 'woocommerce_breadcrumb', 20 );
 	}
 }

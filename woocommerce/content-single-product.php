@@ -46,7 +46,8 @@ if ( $sale_price && $regular_price ) {
 }
 ?>
 
-<div class="product-page">
+<!-- Custom Product Page Template v2.0 -->
+<div class="product-page" data-template="custom-single-product">
 	<div class="product-container">
 		<button id="back-btn" class="back-link" onclick="window.history.back()">
 			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
