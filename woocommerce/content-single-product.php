@@ -26,9 +26,32 @@ $all_images = array_unique( array_filter( $all_images ) );
 // Get product data
 $rating = $product->get_average_rating();
 $review_count = $product->get_review_count();
+
+// Get prices - handle both simple and variable products
 $regular_price = $product->get_regular_price();
 $sale_price = $product->get_sale_price();
-$current_price = $sale_price ? $sale_price : $regular_price;
+
+// For variable products, get price range or default price
+if ( $product->is_type( 'variable' ) ) {
+	$current_price = $product->get_price();
+	// If no price set, get from first variation
+	if ( empty( $current_price ) ) {
+		$variations = $product->get_available_variations();
+		if ( ! empty( $variations ) ) {
+			$first_variation = reset( $variations );
+			$current_price = $first_variation['display_price'];
+			$regular_price = $first_variation['display_regular_price'];
+		}
+	}
+} else {
+	$current_price = $sale_price ? $sale_price : $regular_price;
+}
+
+// Ensure prices are floats
+$current_price = floatval( $current_price );
+$regular_price = floatval( $regular_price );
+$sale_price = floatval( $sale_price );
+
 $stock_status = $product->get_stock_status();
 $stock_quantity = $product->get_stock_quantity();
 $sku = $product->get_sku();
@@ -42,7 +65,7 @@ if ( empty( $short_desc ) ) {
 
 // Calculate discount percentage
 $discount_percentage = 0;
-if ( $sale_price && $regular_price ) {
+if ( $sale_price && $regular_price && $sale_price < $regular_price ) {
 	$discount_percentage = round( ( ( $regular_price - $sale_price ) / $regular_price ) * 100 );
 }
 
@@ -145,9 +168,9 @@ if ( $product->is_type( 'variable' ) ) {
 				<?php endif; ?>
 
 				<div class="price-row">
-					<span class="price" id="product-price">$<?php echo number_format( $current_price, 2 ); ?></span>
+					<span class="price" id="product-price">₹<?php echo number_format( $current_price, 2 ); ?></span>
 					<?php if ( $sale_price ) : ?>
-						<span class="old-price" id="product-old-price">$<?php echo number_format( $regular_price, 2 ); ?></span>
+						<span class="old-price" id="product-old-price">₹<?php echo number_format( $regular_price, 2 ); ?></span>
 					<?php endif; ?>
 				</div>
 
@@ -378,7 +401,7 @@ if ( $product->is_type( 'variable' ) ) {
 							<?php endif; ?>
 							<div class="related-product-info">
 								<h5><?php echo esc_html( $related_product->get_name() ); ?></h5>
-								<p>$<?php echo number_format( $related_product->get_price(), 2 ); ?></p>
+								<p>₹<?php echo number_format( floatval( $related_product->get_price() ), 2 ); ?></p>
 							</div>
 						</a>
 					<?php endforeach; ?>
