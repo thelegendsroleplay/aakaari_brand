@@ -1,232 +1,147 @@
 <?php
 /**
- * Aakaari Checkout - Mobile-First, Clean Design
- * Only for logged-in users, completely custom design using WooCommerce backend
- *
- * @version 1.0.0
+ * Aakaari custom checkout template that keeps WooCommerce backend logic intact
  */
 
 defined( 'ABSPATH' ) || exit;
 
-// Force login requirement
-if ( ! is_user_logged_in() ) {
-    echo '<div class="aakaari-checkout-login-required">';
-    echo '<div class="login-required-card">';
-    echo '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
-    echo '<h2>' . esc_html__( 'Login Required', 'woocommerce' ) . '</h2>';
-    echo '<p>' . esc_html__( 'Please sign in to complete your purchase', 'woocommerce' ) . '</p>';
-    echo '<div class="login-actions">';
-    echo '<a href="' . esc_url( wc_get_page_permalink( 'myaccount' ) . '?redirect=' . urlencode( wc_get_checkout_url() ) ) . '" class="btn btn-primary">' . esc_html__( 'Sign In', 'woocommerce' ) . '</a>';
-    echo '<a href="' . esc_url( wc_get_page_permalink( 'myaccount' ) ) . '" class="btn btn-outline">' . esc_html__( 'Create Account', 'woocommerce' ) . '</a>';
-    echo '</div>';
-    echo '</div>';
-    echo '</div>';
-    return;
-}
-
-// Check if cart is empty
-if ( WC()->cart->is_empty() ) {
-    echo '<div class="aakaari-checkout-empty">';
-    echo '<div class="empty-card">';
-    echo '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>';
-    echo '<h2>' . esc_html__( 'Your Cart is Empty', 'woocommerce' ) . '</h2>';
-    echo '<p>' . esc_html__( 'Add some items to your cart before checking out', 'woocommerce' ) . '</p>';
-    echo '<a href="' . esc_url( wc_get_page_permalink( 'shop' ) ) . '" class="btn btn-primary">' . esc_html__( 'Continue Shopping', 'woocommerce' ) . '</a>';
-    echo '</div>';
-    echo '</div>';
-    return;
-}
-
 $checkout = WC()->checkout();
+$cart     = WC()->cart;
+
+if ( ! $checkout->is_registration_enabled() && $checkout->is_registration_required() && ! is_user_logged_in() ) {
+	echo esc_html( apply_filters( 'woocommerce_checkout_must_be_logged_in_message', __( 'You must be logged in to checkout.', 'woocommerce' ) ) );
+	return;
+}
+
+$shipping_fields = $checkout->get_checkout_fields( 'shipping' );
+$billing_fields  = $checkout->get_checkout_fields( 'billing' );
+$has_shipping    = ! empty( $shipping_fields );
 ?>
 
-<div class="aakaari-checkout">
-    <div class="aakaari-checkout-container">
+<div class="checkout-page">
+	<div class="checkout-container">
+		<div class="checkout-steps" id="steps">
+			<div class="step" data-step="1"><div class="step-number">1</div><span><?php esc_html_e( 'Shipping', 'aakaari' ); ?></span></div>
+			<div class="step-line"></div>
+			<div class="step" data-step="2"><div class="step-number">2</div><span><?php esc_html_e( 'Billing', 'aakaari' ); ?></span></div>
+			<div class="step-line"></div>
+			<div class="step" data-step="3"><div class="step-number">3</div><span><?php esc_html_e( 'Review & Pay', 'aakaari' ); ?></span></div>
+		</div>
 
-        <!-- Progress Indicator (Mobile-First) -->
-        <div class="checkout-progress">
-            <div class="progress-step active">
-                <div class="step-circle">1</div>
-                <span class="step-label"><?php esc_html_e( 'Details', 'woocommerce' ); ?></span>
-            </div>
-            <div class="progress-line"></div>
-            <div class="progress-step">
-                <div class="step-circle">2</div>
-                <span class="step-label"><?php esc_html_e( 'Payment', 'woocommerce' ); ?></span>
-            </div>
-            <div class="progress-line"></div>
-            <div class="progress-step">
-                <div class="step-circle">3</div>
-                <span class="step-label"><?php esc_html_e( 'Done', 'woocommerce' ); ?></span>
-            </div>
-        </div>
+		<?php do_action( 'woocommerce_before_checkout_form', $checkout ); ?>
 
-        <form name="checkout" method="post" class="checkout woocommerce-checkout" action="<?php echo esc_url( wc_get_checkout_url() ); ?>" enctype="multipart/form-data">
+		<?php if ( $cart && $cart->is_empty() ) : ?>
+			<div class="empty-checkout">
+				<h2><?php esc_html_e( 'Your cart is empty', 'aakaari' ); ?></h2>
+				<p><?php esc_html_e( 'Add items to continue with checkout.', 'aakaari' ); ?></p>
+				<a class="btn-primary btn-full" href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php esc_html_e( 'Continue Shopping', 'aakaari' ); ?></a>
+			</div>
+		<?php else : ?>
 
-            <?php if ( $checkout->get_checkout_fields() ) : ?>
+		<div class="checkout-grid">
+			<form name="checkout" method="post" class="checkout woocommerce-checkout checkout-form" action="<?php echo esc_url( wc_get_checkout_url() ); ?>" enctype="multipart/form-data" novalidate>
 
-                <?php do_action( 'woocommerce_checkout_before_customer_details' ); ?>
+				<?php if ( $checkout->get_checkout_fields() ) : ?>
 
-                <div class="checkout-layout">
+					<?php do_action( 'woocommerce_checkout_before_customer_details' ); ?>
 
-                    <!-- LEFT: Form Fields (Mobile-First Priority) -->
-                    <div class="checkout-form-column">
+					<div class="step-content" data-step="1">
+						<div class="form-section">
+							<h2><?php esc_html_e( 'Shipping Address', 'aakaari' ); ?></h2>
 
-                        <!-- Contact Information -->
-                        <div class="checkout-section">
-                            <h2 class="section-title">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                                <?php esc_html_e( 'Contact Information', 'woocommerce' ); ?>
-                            </h2>
-                            <div class="field-group">
-                                <?php
-                                $billing_email = $checkout->get_value( 'billing_email' );
-                                if ( empty( $billing_email ) && is_user_logged_in() ) {
-                                    $current_user = wp_get_current_user();
-                                    $billing_email = $current_user->user_email;
-                                }
-                                ?>
-                                <label for="billing_email"><?php esc_html_e( 'Email', 'woocommerce' ); ?> <span class="required">*</span></label>
-                                <input type="email" class="input-field" name="billing_email" id="billing_email" placeholder="<?php esc_attr_e( 'john@example.com', 'woocommerce' ); ?>" value="<?php echo esc_attr( $billing_email ); ?>" required />
-                            </div>
-                        </div>
+							<?php if ( $has_shipping ) : ?>
+								<div class="form-grid">
+									<?php
+									foreach ( $shipping_fields as $key => $field ) :
+										echo '<div class="form-group">';
+										woocommerce_form_field( $key, $field, $checkout->get_value( $key ) );
+										echo '</div>';
+									endforeach;
+									?>
+								</div>
+							<?php else : ?>
+								<p class="no-shipping-required"><?php esc_html_e( 'This order does not require shipping information.', 'aakaari' ); ?></p>
+							<?php endif; ?>
 
-                        <!-- Shipping Address -->
-                        <div class="checkout-section">
-                            <h2 class="section-title">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                </svg>
-                                <?php esc_html_e( 'Shipping Address', 'woocommerce' ); ?>
-                            </h2>
+							<div class="form-actions">
+								<button class="btn-primary btn-full" id="continueToBilling"><?php esc_html_e( 'Continue to Billing', 'aakaari' ); ?></button>
+							</div>
+						</div>
+					</div>
 
-                            <?php do_action( 'woocommerce_checkout_shipping' ); ?>
-                        </div>
+					<div class="step-content" data-step="2" style="display:none">
+						<div class="form-section">
+							<h2><?php esc_html_e( 'Billing Details', 'aakaari' ); ?></h2>
 
-                        <!-- Payment Method -->
-                        <div class="checkout-section">
-                            <h2 class="section-title">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                                    <line x1="1" y1="10" x2="23" y2="10"></line>
-                                </svg>
-                                <?php esc_html_e( 'Payment Method', 'woocommerce' ); ?>
-                            </h2>
+							<div class="same-address-check">
+								<input id="ship_to_same" type="checkbox" checked>
+								<label for="ship_to_same"><?php esc_html_e( 'Use shipping address as billing address', 'aakaari' ); ?></label>
+							</div>
+							<input type="hidden" name="ship_to_different_address" id="ship_to_different_address_hidden" value="0">
 
-                            <?php if ( WC()->cart->needs_payment() ) : ?>
-                                <div class="checkout-payment">
-                                    <?php woocommerce_checkout_payment(); ?>
-                                </div>
-                            <?php else : ?>
-                                <p class="no-payment-required"><?php esc_html_e( 'No payment required for this order.', 'woocommerce' ); ?></p>
-                            <?php endif; ?>
-                        </div>
+							<div id="billingFields">
+								<div class="form-grid">
+									<?php
+									foreach ( $billing_fields as $key => $field ) :
+										echo '<div class="form-group">';
+										woocommerce_form_field( $key, $field, $checkout->get_value( $key ) );
+										echo '</div>';
+									endforeach;
+									?>
+								</div>
+							</div>
 
-                    </div>
+							<div id="additionalFields">
+								<?php do_action( 'woocommerce_checkout_after_customer_details' ); ?>
+							</div>
 
-                    <!-- RIGHT: Order Summary (Sticky on Desktop) -->
-                    <div class="checkout-summary-column">
-                        <div class="order-summary-sticky">
-                            <div class="order-summary">
-                                <h3 class="summary-title"><?php esc_html_e( 'Order Summary', 'woocommerce' ); ?></h3>
+							<div class="form-actions">
+								<button class="btn" aria-variant="outline" id="backToShipping"><?php esc_html_e( 'Back', 'aakaari' ); ?></button>
+								<button class="btn-primary" id="continueToPayment"><?php esc_html_e( 'Review & Pay', 'aakaari' ); ?></button>
+							</div>
+						</div>
+					</div>
 
-                                <!-- Cart Items -->
-                                <div class="summary-items">
-                                    <?php
-                                    foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-                                        $_product = $cart_item['data'];
-                                        if ( ! $_product || ! $_product->exists() || $cart_item['quantity'] <= 0 ) {
-                                            continue;
-                                        }
-                                        ?>
-                                        <div class="summary-item">
-                                            <div class="item-image">
-                                                <?php
-                                                $thumbnail = $_product->get_image( array( 60, 60 ) );
-                                                echo $thumbnail;
-                                                ?>
-                                                <span class="item-qty"><?php echo esc_html( $cart_item['quantity'] ); ?></span>
-                                            </div>
-                                            <div class="item-details">
-                                                <h4 class="item-name"><?php echo esc_html( $_product->get_name() ); ?></h4>
-                                                <?php
-                                                $item_data = wc_get_formatted_cart_item_data( $cart_item );
-                                                if ( $item_data ) {
-                                                    echo '<div class="item-meta">' . $item_data . '</div>';
-                                                }
-                                                ?>
-                                            </div>
-                                            <div class="item-price">
-                                                <?php echo WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ); ?>
-                                            </div>
-                                        </div>
-                                        <?php
-                                    }
-                                    ?>
-                                </div>
+					<div class="step-content" data-step="3" style="display:none">
+						<div class="form-section">
+							<h2><?php esc_html_e( 'Review & Payment', 'aakaari' ); ?></h2>
 
-                                <!-- Coupon Code -->
-                                <div class="coupon-section">
-                                    <details class="coupon-toggle">
-                                        <summary><?php esc_html_e( 'Have a coupon code?', 'woocommerce' ); ?></summary>
-                                        <div class="coupon-form">
-                                            <input type="text" id="coupon_code" placeholder="<?php esc_attr_e( 'Enter code', 'woocommerce' ); ?>" class="input-field" />
-                                            <button type="button" id="apply_coupon" class="btn btn-outline btn-sm"><?php esc_html_e( 'Apply', 'woocommerce' ); ?></button>
-                                        </div>
-                                    </details>
-                                </div>
+							<?php do_action( 'woocommerce_checkout_before_order_review' ); ?>
 
-                                <!-- Totals -->
-                                <div class="summary-totals">
-                                    <div class="total-row">
-                                        <span><?php esc_html_e( 'Subtotal', 'woocommerce' ); ?></span>
-                                        <span><?php echo WC()->cart->get_cart_subtotal(); ?></span>
-                                    </div>
+							<div id="order_review" class="woocommerce-checkout-review-order aakaari-order-review">
+								<?php do_action( 'woocommerce_checkout_order_review' ); ?>
+							</div>
 
-                                    <?php if ( WC()->cart->get_cart_discount_total() > 0 ) : ?>
-                                    <div class="total-row discount">
-                                        <span><?php esc_html_e( 'Discount', 'woocommerce' ); ?></span>
-                                        <span>-<?php echo wc_price( WC()->cart->get_cart_discount_total() ); ?></span>
-                                    </div>
-                                    <?php endif; ?>
+							<?php do_action( 'woocommerce_checkout_after_order_review' ); ?>
 
-                                    <?php if ( WC()->cart->needs_shipping() ) : ?>
-                                    <div class="total-row">
-                                        <span><?php esc_html_e( 'Shipping', 'woocommerce' ); ?></span>
-                                        <span><?php echo WC()->cart->get_cart_shipping_total(); ?></span>
-                                    </div>
-                                    <?php endif; ?>
+							<div class="form-actions">
+								<button class="btn" aria-variant="outline" id="backToBillingSummary"><?php esc_html_e( 'Back', 'aakaari' ); ?></button>
+							</div>
+						</div>
+					</div>
 
-                                    <?php if ( wc_tax_enabled() && ! WC()->cart->display_prices_including_tax() ) : ?>
-                                    <div class="total-row">
-                                        <span><?php echo esc_html( WC()->countries->tax_or_vat() ); ?></span>
-                                        <span><?php echo WC()->cart->get_taxes_total(); ?></span>
-                                    </div>
-                                    <?php endif; ?>
+				<?php endif; ?>
 
-                                    <div class="total-row total-final">
-                                        <span><?php esc_html_e( 'Total', 'woocommerce' ); ?></span>
-                                        <span class="total-amount"><?php echo WC()->cart->get_total(); ?></span>
-                                    </div>
-                                </div>
+			</form>
 
-                            </div>
-                        </div>
-                    </div>
+			<aside class="order-summary" id="orderSummary" aria-live="polite">
+				<h3><?php esc_html_e( 'Order Summary', 'aakaari' ); ?></h3>
 
-                </div>
+				<div class="coupon-section">
+					<input id="couponInput" placeholder="<?php esc_attr_e( 'Coupon code', 'woocommerce' ); ?>">
+					<button class="btn" id="applyCouponBtn" aria-variant="outline"><?php esc_html_e( 'Apply', 'woocommerce' ); ?></button>
+				</div>
 
-                <?php do_action( 'woocommerce_checkout_after_customer_details' ); ?>
+				<div class="summary-live" id="orderSummaryBody">
+					<!-- Populated from order review via JS to stay in sync -->
+				</div>
+			</aside>
+		</div><!-- .checkout-grid -->
 
-            <?php endif; ?>
+		<?php endif; ?>
 
-        </form>
-
-    </div>
+		<?php do_action( 'woocommerce_after_checkout_form', $checkout ); ?>
+	</div>
 </div>
 
 <script>
