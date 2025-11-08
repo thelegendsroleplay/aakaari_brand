@@ -116,41 +116,7 @@ if ( $product->is_type( 'variable' ) ) {
     }
 }
 
-/* Reviews (up to 10) */
-$reviews = array();
-$comments = get_comments( array(
-    'post_id' => $product_id,
-    'status'  => 'approve',
-    'number'  => 10,
-) );
-foreach ( $comments as $c ) {
-    $rating = (int) get_comment_meta( $c->comment_ID, 'rating', true );
-    $reviews[] = array(
-        'id'       => $c->comment_ID,
-        'userName' => $c->comment_author,
-        'rating'   => $rating ? $rating : 5,
-        'title'    => wp_trim_words( $c->comment_content, 6, '' ),
-        'comment'  => wp_strip_all_tags( $c->comment_content ),
-    );
-}
-
-/* Related */
-$related_ids = wc_get_related_products( $product_id, 8 );
-$related = array();
-foreach ( $related_ids as $rid ) {
-    $rprod = wc_get_product( $rid );
-    if ( $rprod ) {
-        $related[] = array(
-            'id'    => $rid,
-            'name'  => $rprod->get_name(),
-            'price' => (float) $rprod->get_price(),
-            'img'   => wp_get_attachment_image_url( $rprod->get_image_id(), 'aakaari-product' ),
-            'url'   => get_permalink( $rid ),
-        );
-    }
-}
-
-/* JS product payload */
+/* JS product payload (for UI interactions only) */
 $js_product = array(
     'id'                 => $product_id,
     'name'               => $product_name,
@@ -168,8 +134,6 @@ $js_product = array(
     'attribute_map'      => $attribute_map,   // label => input_key
     'productType'        => $product->get_type(),
     'variations'         => $variations_data,
-    'reviews'            => $reviews,
-    'related'            => $related,
     'add_to_cart_url'    => esc_url( $product->add_to_cart_url() ),
 );
 
@@ -270,51 +234,59 @@ $js_product = array(
       </div>
     </div>
 
-    <section id="reviewsSection" class="reviews-section">
-      <h2><?php esc_html_e( 'Customer Reviews', 'aakaari' ); ?></h2>
-      <div id="reviewsList" class="reviews-list"></div>
+    <?php
+    /**
+     * Product Tabs (Description, Size Chart, Reviews)
+     * WooCommerce will output tabs here
+     */
+    do_action( 'woocommerce_after_single_product_summary' );
+    ?>
 
-      <?php
-      if ( comments_open( $product_id ) ) :
-        $commenter = wp_get_current_commenter();
-        $req = get_option( 'require_name_email' );
-        $aria_req = ( $req ? " aria-required='true'" : '' );
+    <?php
+    /**
+     * Related Products Section
+     * Display related products with proper WooCommerce functionality
+     */
+    $related_ids = wc_get_related_products( $product_id, 8 );
+    if ( ! empty( $related_ids ) ) :
+    ?>
+      <section class="related-products-section">
+        <h2><?php esc_html_e( 'You May Also Like', 'aakaari' ); ?></h2>
+        <div class="related-products-grid">
+          <?php
+          foreach ( $related_ids as $related_id ) :
+            $related_product = wc_get_product( $related_id );
+            if ( ! $related_product ) continue;
 
-        $comment_field = '<p class="comment-form-rating">
-            <label for="rating">' . __( 'Your rating', 'aakaari' ) . '</label>
-            <select name="rating" id="rating" required>
-              <option value="">' . esc_html__( 'Rate…', 'aakaari' ) . '</option>
-              <option value="5">5 - ' . esc_html__( 'Excellent', 'aakaari' ) . '</option>
-              <option value="4">4 - ' . esc_html__( 'Very good', 'aakaari' ) . '</option>
-              <option value="3">3 - ' . esc_html__( 'Average', 'aakaari' ) . '</option>
-              <option value="2">2 - ' . esc_html__( 'Not that bad', 'aakaari' ) . '</option>
-              <option value="1">1 - ' . esc_html__( 'Very poor', 'aakaari' ) . '</option>
-            </select>
-          </p>';
-
-        $comments_args = array(
-          'title_reply'          => __( 'Write a review', 'aakaari' ),
-          'label_submit'         => __( 'Submit Review', 'aakaari' ),
-          'comment_field'        => $comment_field . '<p class="comment-form-comment"><label for="comment">' . _x( 'Comment', 'noun' ) . '</label><textarea id="comment" name="comment" cols="45" rows="6" required></textarea></p>',
-          'fields'               => apply_filters( 'comment_form_default_fields', array(
-              'author' => '<p class="comment-form-author"><label for="author">' . __( 'Name', 'aakaari' ) . '</label><input id="author" name="author" type="text" value="' . esc_attr( $commenter['comment_author'] ) . '" size="30" ' . $aria_req . ' /></p>',
-              'email'  => '<p class="comment-form-email"><label for="email">' . __( 'Email', 'aakaari' ) . '</label><input id="email" name="email" type="text" value="' . esc_attr( $commenter['comment_author_email'] ) . '" size="30" ' . $aria_req . ' /></p>'
-          ) ),
-          'id_form'              => 'review_form',
-          'class_form'           => 'review-form',
-          'comment_notes_before' => '',
-          'action'               => site_url( '/wp-comments-post.php' ),
-        );
-
-        comment_form( $comments_args, $product_id );
-      endif;
-      ?>
-    </section>
-
-    <?php if ( ! empty( $js_product['related'] ) ) : ?>
-      <section id="relatedSection" class="related-section">
-        <h2><?php esc_html_e( 'Related Products', 'aakaari' ); ?></h2>
-        <div id="relatedCarousel" class="row" style="flex-wrap:wrap; gap:12px;"></div>
+            $related_image_id = $related_product->get_image_id();
+            $related_image_url = $related_image_id ? wp_get_attachment_image_url( $related_image_id, 'aakaari-product' ) : wc_placeholder_img_src();
+            ?>
+            <div class="related-product-item">
+              <a href="<?php echo esc_url( get_permalink( $related_id ) ); ?>" class="related-product-link">
+                <div class="related-product-image">
+                  <img src="<?php echo esc_url( $related_image_url ); ?>" alt="<?php echo esc_attr( $related_product->get_name() ); ?>">
+                  <?php if ( $related_product->is_on_sale() ) : ?>
+                    <span class="related-product-badge"><?php esc_html_e( 'Sale', 'aakaari' ); ?></span>
+                  <?php endif; ?>
+                </div>
+                <h3 class="related-product-title"><?php echo esc_html( $related_product->get_name() ); ?></h3>
+                <div class="related-product-rating">
+                  <?php echo wc_get_rating_html( $related_product->get_average_rating() ); ?>
+                  <span class="related-product-reviews">(<?php echo esc_html( $related_product->get_rating_count() ); ?>)</span>
+                </div>
+                <div class="related-product-price">
+                  <?php echo $related_product->get_price_html(); ?>
+                </div>
+              </a>
+              <div class="related-product-actions">
+                <?php
+                // Add to cart button
+                woocommerce_template_loop_add_to_cart( array( 'product' => $related_product ) );
+                ?>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
       </section>
     <?php endif; ?>
 

@@ -32,8 +32,6 @@
     const addCartBtn = document.getElementById('addCartBtn');
     const buyNowBtn = document.getElementById('buyNowBtn');
     const wishlistBtn = document.getElementById('wishlistBtn');
-    const reviewsList = document.getElementById('reviewsList');
-    const relatedCarousel = document.getElementById('relatedCarousel');
 
     // Form hidden inputs
     const qtyInput = document.getElementById('aakaari_qty_input');
@@ -88,14 +86,6 @@
       resolveVariation(); // try to resolve initial variation (update price if matched)
 
       updateStockDisplay();
-
-      if (Array.isArray(product.reviews) && product.reviews.length && reviewsList) {
-        renderReviews();
-      }
-
-      if (Array.isArray(product.related) && product.related.length && relatedCarousel) {
-        renderRelated();
-      }
 
       bindEvents();
     }
@@ -316,83 +306,6 @@
       if (qtyDec) qtyDec.disabled = quantity <= 1;
       if (addCartBtn) addCartBtn.disabled = product.stock === 0;
       if (buyNowBtn) buyNowBtn.disabled = product.stock === 0;
-    }
-
-    function renderReviews() {
-        
-      if (!reviewsList) return;
-      reviewsList.innerHTML = '';
-      product.reviews.forEach(r => {
-        const item = document.createElement('div');
-        item.className = 'review-item';
-        const header = document.createElement('div');
-        header.className = 'review-header';
-        const s = document.createElement('div');
-        s.className = 'stars';
-        for (let i = 0; i < 5; i++) {
-          const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-          star.setAttribute('viewBox', '0 0 24 24');
-          star.setAttribute('width', '14');
-          star.setAttribute('height', '14');
-          star.innerHTML = i < r.rating
-            ? '<path class="star-filled" d="M12 .587l3.668 7.431L24 9.748l-6 5.848 1.416 8.279L12 19.77 4.584 23.875 6 15.596 0 9.748l8.332-1.73z"></path>'
-            : '<path class="star-empty" d="M12 17.27l6.18 3.73-1.64-7.03L21.5 9.24l-7.19-.62L12 2 9.69 8.62 2.5 9.24l5.96 4.72-1.64 7.03z" fill="none"></path>';
-          s.appendChild(star);
-        }
-        const author = document.createElement('span');
-        author.className = 'review-author';
-        author.textContent = r.userName;
-        header.appendChild(s);
-        header.appendChild(author);
-        item.appendChild(header);
-
-        const h4 = document.createElement('h4');
-        h4.textContent = r.title;
-        item.appendChild(h4);
-
-        const p = document.createElement('p');
-        p.textContent = r.comment;
-        item.appendChild(p);
-
-        reviewsList.appendChild(item);
-      });
-    }
-
-    function renderRelated() {
-      if (!relatedCarousel) return;
-      relatedCarousel.innerHTML = '';
-      product.related.forEach(r => {
-        const wrap = document.createElement('div');
-        wrap.style.width = '140px';
-        wrap.style.border = '1px solid #eee';
-        wrap.style.borderRadius = '8px';
-        wrap.style.padding = '8px';
-        wrap.style.background = '#fff';
-        wrap.style.cursor = 'pointer';
-        const img = document.createElement('img');
-        img.src = r.img || '';
-        img.alt = r.name;
-        img.style.width = '100%';
-        img.style.height = '96px';
-        img.style.objectFit = 'cover';
-        img.style.borderRadius = '6px';
-        const name = document.createElement('div');
-        name.textContent = r.name;
-        name.style.fontSize = '0.9rem';
-        name.style.fontWeight = '600';
-        name.style.marginTop = '6px';
-        const price = document.createElement('div');
-        price.textContent = '$' + (r.price ? Number(r.price).toFixed(2) : '0.00');
-        price.style.fontSize = '0.85rem';
-        price.style.color = '#111827';
-        wrap.appendChild(img);
-        wrap.appendChild(name);
-        wrap.appendChild(price);
-        wrap.addEventListener('click', function () {
-          if (r.url) window.location.href = r.url;
-        });
-        relatedCarousel.appendChild(wrap);
-      });
     }
 
     function bindEvents() {
