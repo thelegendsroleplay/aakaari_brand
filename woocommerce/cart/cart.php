@@ -9,31 +9,35 @@ defined( 'ABSPATH' ) || exit;
 
 do_action( 'woocommerce_before_cart' ); ?>
 
+<?php if ( WC()->cart->is_empty() ) : ?>
+
+<div class="cart-page cart-page-empty">
+    <div class="cart-container">
+        <div class="empty-cart">
+            <div class="empty-icon">🛍️</div>
+            <h1>Your cart is empty</h1>
+            <p>Looks like you haven't added anything yet.<br />Start exploring our latest collection!</p>
+            <a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="btn btn-full">
+                Continue Shopping
+            </a>
+            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="muted-link">Back to Home</a>
+        </div>
+    </div>
+</div>
+
+<?php else : ?>
+
 <div class="cart-page">
     <div class="cart-container">
-
         <div class="cart-header">
             <h1>Shopping Cart</h1>
             <p id="items-count"><?php echo WC()->cart->get_cart_contents_count(); ?> <?php echo WC()->cart->get_cart_contents_count() === 1 ? 'item' : 'items'; ?></p>
         </div>
 
-        <?php if ( WC()->cart->is_empty() ) : ?>
+        <form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
+            <?php do_action( 'woocommerce_before_cart_table' ); ?>
 
-            <div class="empty-cart">
-                <div class="empty-icon">🛍️</div>
-                <h2>Your cart is empty</h2>
-                <p>Add some items to get started</p>
-                <a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="btn btn-full">
-                    Continue Shopping
-                </a>
-            </div>
-
-        <?php else : ?>
-
-            <form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
-                <?php do_action( 'woocommerce_before_cart_table' ); ?>
-
-                <div class="cart-grid">
+            <div class="cart-grid">
                     <!-- Left: Cart Items -->
                     <div class="cart-items">
                         <?php
@@ -244,12 +248,11 @@ do_action( 'woocommerce_before_cart' ); ?>
                     </aside>
                 </div>
 
-                <?php do_action( 'woocommerce_after_cart_table' ); ?>
-            </form>
-
-        <?php endif; ?>
-
+            <?php do_action( 'woocommerce_after_cart_table' ); ?>
+        </form>
     </div>
 </div>
+
+<?php endif; ?>
 
 <?php do_action( 'woocommerce_after_cart' ); ?>
