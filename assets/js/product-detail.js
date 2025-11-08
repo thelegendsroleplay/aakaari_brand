@@ -228,6 +228,7 @@
             }
 
             b.style.backgroundColor = colorToUse;
+            b.style.backgroundImage = 'none'; // ensure no background-image overrides
             b.setAttribute('aria-label', opt.label + (valueSlug ? ' (' + valueSlug + ')' : ''));
 
             b.dataset.uniqueKey = uniqueKey;
