@@ -90,16 +90,19 @@ if ( $product->is_type( 'variable' ) ) {
 }
 ?>
 
-<!-- Product Detail Page - WooCommerce Integration -->
+<!-- Product Detail Page - WooCommerce Integration - Amazon/Flipkart Inspired -->
 <div class="product-page">
 	<div class="product-container">
-		<button id="back-btn" class="back-link" onclick="window.history.back()">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-				<line x1="19" y1="12" x2="5" y2="12"></line>
-				<polyline points="12 19 5 12 12 5"></polyline>
-			</svg>
-			Back to Products
-		</button>
+		<!-- Breadcrumb Navigation -->
+		<nav class="breadcrumb">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a>
+			<span class="separator">›</span>
+			<a href="<?php echo esc_url( get_permalink( wc_get_page_id( 'shop' ) ) ); ?>">Products</a>
+			<?php if ( $categories ) : ?>
+				<span class="separator">›</span>
+				<span><?php echo wp_kses_post( strip_tags( $categories ) ); ?></span>
+			<?php endif; ?>
+		</nav>
 
 		<div class="product-layout">
 			<div class="product-images">
@@ -108,15 +111,19 @@ if ( $product->is_type( 'variable' ) ) {
 						<?php $first_image = reset( $all_images ); ?>
 						<?php echo wp_get_attachment_image( $first_image, 'large', false, array(
 							'id' => 'main-image',
-							'alt' => $product->get_name()
+							'alt' => $product->get_name(),
+							'class' => 'zoomable-image'
 						) ); ?>
 					<?php else : ?>
-						<img src="<?php echo esc_url( wc_placeholder_img_src() ); ?>" alt="<?php echo esc_attr( $product->get_name() ); ?>" id="main-image">
+						<img src="<?php echo esc_url( wc_placeholder_img_src() ); ?>" alt="<?php echo esc_attr( $product->get_name() ); ?>" id="main-image" class="zoomable-image">
 					<?php endif; ?>
 
 					<?php if ( $discount_percentage > 0 ) : ?>
-						<span class="discount-badge" id="discount-badge"><?php echo $discount_percentage; ?>%</span>
+						<span class="discount-badge" id="discount-badge"><?php echo $discount_percentage; ?>% OFF</span>
 					<?php endif; ?>
+
+					<!-- Zoom lens for image zoom effect -->
+					<div class="zoom-lens" id="zoom-lens"></div>
 				</div>
 
 				<?php if ( count( $all_images ) > 1 ) : ?>
@@ -138,44 +145,107 @@ if ( $product->is_type( 'variable' ) ) {
 
 			<div class="product-info">
 				<div class="info-header">
-					<h1 id="product-name"><?php echo esc_html( $product->get_name() ); ?></h1>
-					<button
-						class="wishlist-icon"
-						id="wishlist-btn"
-						data-product-id="<?php echo esc_attr( $product_id ); ?>"
-						aria-label="Add to wishlist">
-						<svg id="wishlist-icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-						</svg>
-					</button>
+					<div class="title-section">
+						<span class="brand-badge">Aakaari Brand</span>
+						<h1 id="product-name"><?php echo esc_html( $product->get_name() ); ?></h1>
+					</div>
+					<div class="header-actions">
+						<button
+							class="wishlist-icon"
+							id="wishlist-btn"
+							data-product-id="<?php echo esc_attr( $product_id ); ?>"
+							aria-label="Add to wishlist">
+							<svg id="wishlist-icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+							</svg>
+						</button>
+						<button class="share-icon" id="share-btn" aria-label="Share product">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<circle cx="18" cy="5" r="3"></circle>
+								<circle cx="6" cy="12" r="3"></circle>
+								<circle cx="18" cy="19" r="3"></circle>
+								<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+								<line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+							</svg>
+						</button>
+					</div>
 				</div>
 
 				<?php if ( $review_count > 0 ) : ?>
 					<div class="rating-row">
-						<div class="stars" id="product-rating-stars">
-							<?php
-							for ( $i = 1; $i <= 5; $i++ ) {
-								if ( $i <= floor( $rating ) ) {
-									echo '<svg class="star-filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-								} else {
-									echo '<svg class="star-empty" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-								}
-							}
-							?>
+						<div class="rating-badge">
+							<span class="rating-value"><?php echo number_format( $rating, 1 ); ?> <svg class="star-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span>
 						</div>
-						<span class="rating-text" id="product-rating-text"><?php echo number_format( $rating, 1 ); ?> (<?php echo $review_count; ?> reviews)</span>
+						<span class="rating-text" id="product-rating-text"><?php echo number_format( $review_count ); ?> Ratings & <?php echo $review_count; ?> Reviews</span>
 					</div>
 				<?php endif; ?>
 
-				<div class="price-row">
-					<span class="price" id="product-price">₹<?php echo number_format( $current_price, 2 ); ?></span>
-					<?php if ( $sale_price ) : ?>
-						<span class="old-price" id="product-old-price">₹<?php echo number_format( $regular_price, 2 ); ?></span>
-					<?php endif; ?>
+				<div class="price-section">
+					<div class="price-row">
+						<span class="price" id="product-price">₹<?php echo number_format( $current_price, 2 ); ?></span>
+						<?php if ( $sale_price ) : ?>
+							<span class="old-price" id="product-old-price">₹<?php echo number_format( $regular_price, 2 ); ?></span>
+							<span class="savings-text"><?php echo $discount_percentage; ?>% off</span>
+						<?php endif; ?>
+					</div>
+					<p class="tax-text">Inclusive of all taxes</p>
 				</div>
 
+				<!-- Available Offers Section -->
+				<div class="offers-section">
+					<h3 class="section-title">Available Offers</h3>
+					<div class="offer-list">
+						<div class="offer-item">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<rect x="3" y="8" width="18" height="4" rx="1"></rect>
+								<path d="M12 8v13"></path>
+								<path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"></path>
+								<path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"></path>
+							</svg>
+							<div class="offer-content">
+								<strong>Bank Offer:</strong> 10% instant discount on Bank Debit Cards
+							</div>
+						</div>
+						<div class="offer-item">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+								<line x1="1" y1="10" x2="23" y2="10"></line>
+							</svg>
+							<div class="offer-content">
+								<strong>Special Offer:</strong> Get extra 5% off (price inclusive of discount)
+							</div>
+						</div>
+						<div class="offer-item">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<rect x="1" y="3" width="15" height="13"></rect>
+								<polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+								<circle cx="5.5" cy="18.5" r="2.5"></circle>
+								<circle cx="18.5" cy="18.5" r="2.5"></circle>
+							</svg>
+							<div class="offer-content">
+								<strong>No Cost EMI:</strong> Available on orders above ₹3000
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Product Highlights -->
 				<?php if ( $short_desc ) : ?>
-					<p class="description" id="product-description"><?php echo wp_kses_post( $short_desc ); ?></p>
+				<div class="highlights-section">
+					<h3 class="section-title">Product Highlights</h3>
+					<ul class="highlights-list">
+						<?php
+						// Convert short description to bullet points
+						$highlights = explode( '.', strip_tags( $short_desc ) );
+						foreach ( $highlights as $highlight ) {
+							$highlight = trim( $highlight );
+							if ( ! empty( $highlight ) ) {
+								echo '<li>' . esc_html( $highlight ) . '</li>';
+							}
+						}
+						?>
+					</ul>
+				</div>
 				<?php endif; ?>
 
 				<?php do_action( 'woocommerce_before_add_to_cart_form' ); ?>
@@ -210,6 +280,30 @@ if ( $product->is_type( 'variable' ) ) {
 					</div>
 					<?php endif; ?>
 
+					<!-- Delivery Check Section -->
+					<div class="delivery-section">
+						<h4>Delivery</h4>
+						<div class="pincode-checker">
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+								<circle cx="12" cy="10" r="3"></circle>
+							</svg>
+							<input type="text" id="pincode-input" placeholder="Enter Delivery Pincode" maxlength="6" pattern="[0-9]{6}">
+							<button type="button" id="check-pincode-btn">Check</button>
+						</div>
+						<div class="delivery-info" id="delivery-info" style="display: none;">
+							<p class="delivery-date">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<rect x="1" y="3" width="15" height="13"></rect>
+									<polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+									<circle cx="5.5" cy="18.5" r="2.5"></circle>
+									<circle cx="18.5" cy="18.5" r="2.5"></circle>
+								</svg>
+								Delivery by <strong id="delivery-date-text"></strong>
+							</p>
+						</div>
+					</div>
+
 					<div class="quantity-row">
 						<label>Quantity:</label>
 						<div class="quantity-box">
@@ -229,6 +323,9 @@ if ( $product->is_type( 'variable' ) ) {
 						?>
 						<span class="stock-text" id="stock-info">
 							<?php if ( $stock_status === 'instock' ) : ?>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
 								<?php if ( $stock_quantity ) : ?>
 									<?php echo $stock_quantity; ?> in stock
 								<?php else : ?>
@@ -270,38 +367,149 @@ if ( $product->is_type( 'variable' ) ) {
 
 				<?php do_action( 'woocommerce_after_add_to_cart_form' ); ?>
 
-				<div class="features-row">
-					<div class="feature">
-						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<!-- Trust Badges -->
+				<div class="trust-badges">
+					<div class="badge-item">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<rect x="1" y="3" width="15" height="13"></rect>
 							<polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
 							<circle cx="5.5" cy="18.5" r="2.5"></circle>
 							<circle cx="18.5" cy="18.5" r="2.5"></circle>
 						</svg>
-						<span>Free shipping on orders over ₹999</span>
+						<div class="badge-text">
+							<strong>Free Delivery</strong>
+							<span>On orders over ₹999</span>
+						</div>
 					</div>
-					<div class="feature">
-						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<div class="badge-item">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+						</svg>
+						<div class="badge-text">
+							<strong>Secure Transaction</strong>
+							<span>100% secure payment</span>
+						</div>
+					</div>
+					<div class="badge-item">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<polyline points="1 4 1 10 7 10"></polyline>
 							<path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
 						</svg>
-						<span>Replacement only</span>
+						<div class="badge-text">
+							<strong>7 Days Replacement</strong>
+							<span>Easy returns</span>
+						</div>
 					</div>
-				</div>
-
-				<div class="product-meta">
-					<?php if ( $sku ) : ?>
-						<div><span>SKU:</span> <span id="product-sku"><?php echo esc_html( $sku ); ?></span></div>
-					<?php endif; ?>
-					<?php if ( $categories ) : ?>
-						<div><span>Category:</span> <span id="product-category"><?php echo wp_kses_post( strip_tags( $categories ) ); ?></span></div>
-					<?php endif; ?>
+					<div class="badge-item">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M9 11l3 3L22 4"></path>
+							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+						</svg>
+						<div class="badge-text">
+							<strong>Warranty Policy</strong>
+							<span>1 Year warranty</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="reviews-section" id="reviews-section">
-			<h2>Customer Reviews</h2>
+		<!-- Tabbed Product Information Section -->
+		<div class="product-tabs-section">
+			<div class="tabs-header">
+				<button class="tab-btn active" data-tab="description">Description</button>
+				<button class="tab-btn" data-tab="specifications">Specifications</button>
+				<button class="tab-btn" data-tab="reviews">Reviews</button>
+			</div>
+
+			<div class="tabs-content">
+				<!-- Description Tab -->
+				<div class="tab-panel active" id="description-tab">
+					<h3>Product Description</h3>
+					<div class="description-content">
+						<?php echo wp_kses_post( $product->get_description() ); ?>
+						<?php if ( empty( $product->get_description() ) ) : ?>
+							<p><?php echo wp_kses_post( $short_desc ); ?></p>
+						<?php endif; ?>
+					</div>
+				</div>
+
+				<!-- Specifications Tab -->
+				<div class="tab-panel" id="specifications-tab">
+					<h3>Specifications</h3>
+					<table class="specifications-table">
+						<tbody>
+							<?php if ( $sku ) : ?>
+							<tr>
+								<td class="spec-label">SKU</td>
+								<td class="spec-value"><?php echo esc_html( $sku ); ?></td>
+							</tr>
+							<?php endif; ?>
+							<?php if ( $categories ) : ?>
+							<tr>
+								<td class="spec-label">Category</td>
+								<td class="spec-value"><?php echo wp_kses_post( strip_tags( $categories ) ); ?></td>
+							</tr>
+							<?php endif; ?>
+							<tr>
+								<td class="spec-label">Stock Status</td>
+								<td class="spec-value"><?php echo $stock_status === 'instock' ? 'In Stock' : 'Out of Stock'; ?></td>
+							</tr>
+							<?php if ( $stock_quantity ) : ?>
+							<tr>
+								<td class="spec-label">Available Quantity</td>
+								<td class="spec-value"><?php echo esc_html( $stock_quantity ); ?> units</td>
+							</tr>
+							<?php endif; ?>
+							<?php
+							// Get product attributes
+							$attributes = $product->get_attributes();
+							if ( ! empty( $attributes ) ) :
+								foreach ( $attributes as $attribute ) :
+									if ( $attribute->get_variation() ) continue; // Skip variation attributes
+									?>
+									<tr>
+										<td class="spec-label"><?php echo wc_attribute_label( $attribute->get_name() ); ?></td>
+										<td class="spec-value">
+											<?php
+											$values = array();
+											if ( $attribute->is_taxonomy() ) {
+												$attribute_taxonomy = $attribute->get_taxonomy_object();
+												$attribute_values = wc_get_product_terms( $product->get_id(), $attribute->get_name(), array( 'fields' => 'names' ) );
+												foreach ( $attribute_values as $attribute_value ) {
+													$values[] = esc_html( $attribute_value );
+												}
+											} else {
+												$values = $attribute->get_options();
+												foreach ( $values as &$value ) {
+													$value = make_clickable( esc_html( $value ) );
+												}
+											}
+											echo implode( ', ', $values );
+											?>
+										</td>
+									</tr>
+								<?php endforeach;
+							endif;
+							?>
+							<tr>
+								<td class="spec-label">Weight</td>
+								<td class="spec-value"><?php echo $product->get_weight() ? esc_html( $product->get_weight() ) . ' ' . esc_html( get_option( 'woocommerce_weight_unit' ) ) : 'N/A'; ?></td>
+							</tr>
+							<?php if ( $product->get_dimensions( false ) ) : ?>
+							<tr>
+								<td class="spec-label">Dimensions</td>
+								<td class="spec-value"><?php echo esc_html( $product->get_dimensions( false ) ); ?></td>
+							</tr>
+							<?php endif; ?>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Reviews Tab -->
+				<div class="tab-panel" id="reviews-tab">
+					<div class="reviews-section" id="reviews-section">
+			<h3>Customer Reviews</h3>
 
 			<div class="reviews-list" id="reviews-list">
 				<?php
@@ -372,6 +580,9 @@ if ( $product->is_type( 'variable' ) ) {
 				?>
 			</div>
 			<?php endif; ?>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<?php
