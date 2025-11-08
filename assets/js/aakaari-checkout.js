@@ -2,102 +2,158 @@
    UI step navigation, coupon ajax and checkout submit for parent theme integration.
 */
 
-(function($){
-  $(function(){
+(function ($) {
+  $(function () {
     const ajaxUrl = (window.aakaariCheckout && window.aakaariCheckout.ajax_url) ? window.aakaariCheckout.ajax_url : '/wp-admin/admin-ajax.php';
     const nonce = (window.aakaariCheckout && window.aakaariCheckout.nonce) ? window.aakaariCheckout.nonce : '';
+    const $checkoutForm = $('form.checkout');
+    const $summaryBody = $('#orderSummaryBody');
 
     function renderSteps(step) {
-      $('.checkout-steps .step').each(function(){
-        var s = parseInt($(this).data('step'),10);
+      $('.checkout-steps .step').each(function () {
+        const s = parseInt($(this).data('step'), 10);
         $(this).toggleClass('active', step >= s);
         $(this).toggleClass('completed', step > s);
       });
     }
 
-    function bindStepActions(){
-      $(document).on('click', '#continueToBilling', function(e){
-        e.preventDefault();
-        var required = ['#shipping_first_name','#shipping_address_1','#shipping_city','#shipping_state','#shipping_postcode','#shipping_phone'];
-        // If Woo fields have different IDs, keep validation minimal
-        for(var i=0;i<required.length;i++){
-          var $el = $(required[i]);
-          if($el.length && !$el.val()){
-            alert('Please fill required shipping fields.');
-            return false;
-          }
+    function scrollToForm() {
+      const $target = $('.checkout-form');
+      if ($target.length) {
+        $('html, body').animate({ scrollTop: $target.offset().top - 12 }, 250);
+      }
+    }
+
+    function showStep(step) {
+      renderSteps(step);
+      $('.step-content').hide()
+        .filter('[data-step="' + step + '"]').show();
+      $('.checkout-form').attr('data-current-step', step);
+      if (step === 3) {
+        $(document.body).trigger('update_checkout');
+      }
+      scrollToForm();
+    }
+
+    function syncSummaryFromReview() {
+      if (!$summaryBody.length) return;
+      const $review = $('#order_review');
+      if (!$review.length) return;
+
+      const items = $review.find('.summary-items').clone(true, true);
+      const totals = $review.find('.summary-totals').clone(true, true);
+
+      if (!items.length && !totals.length) {
+        return;
+      }
+
+      const frag = $('<div/>');
+      if (items.length) {
+        frag.append(items);
+      }
+      if (totals.length) {
+        frag.append('<div class="summary-divider"></div>');
+        frag.append(totals);
+      }
+      $summaryBody.html(frag.html());
+    }
+
+    function syncBillingFromShipping() {
+      if (!$('#ship_to_same').is(':checked')) {
+        return;
+      }
+      $('[id^="shipping_"]').each(function () {
+        const shippingId = this.id;
+        const billingId = shippingId.replace(/^shipping_/, 'billing_');
+        const $billing = $('#' + billingId);
+        if ($billing.length) {
+          const value = $(this).val();
+          $billing.val(value).trigger('change');
         }
+      });
+    }
+
+    function toggleBillingFields() {
+      const $toggle = $('#ship_to_same');
+      if (!$toggle.length) return;
+      const same = $toggle.is(':checked');
+      $('#billingFields').toggleClass('is-hidden', same).attr('aria-hidden', same ? 'true' : 'false');
+      $('#ship_to_different_address_hidden').val(same ? '0' : '1');
+      if (same) {
+        syncBillingFromShipping();
+      }
+    }
+
+    function bindEvents() {
+      $(document).on('click', '#continueToBilling', function (e) {
+        e.preventDefault();
         showStep(2);
       });
 
-      $(document).on('click', '#continueToPayment', function(e){
-        e.preventDefault();
-        showStep(3);
-      });
-
-      $(document).on('click', '#backToShipping', function(e){
+      $(document).on('click', '#backToShipping', function (e) {
         e.preventDefault();
         showStep(1);
       });
 
-      $(document).on('click', '#backToBilling', function(e){
+      $(document).on('click', '#continueToPayment', function (e) {
+        e.preventDefault();
+        syncBillingFromShipping();
+        showStep(3);
+      });
+
+      $(document).on('click', '#backToBillingSummary', function (e) {
         e.preventDefault();
         showStep(2);
       });
 
-      $(document).on('click', '.payment-option', function(){
-        $('.payment-option').removeClass('selected');
-        $(this).addClass('selected');
+      $(document).on('change keyup blur', '[id^="shipping_"]', function () {
+        if ($('#ship_to_same').is(':checked')) {
+          syncBillingFromShipping();
+        }
       });
 
-      $(document).on('click', '#applyCouponBtn', function(e){
+      $(document).on('change', '#ship_to_same', function () {
+        toggleBillingFields();
+      });
+
+      $(document).on('click', '#applyCouponBtn', function (e) {
         e.preventDefault();
-        var code = $('#couponInput').val();
-        if(!code){ alert('Enter coupon'); return; }
-        var $btn = $(this);
+        const code = $('#couponInput').val();
+        if (!code) {
+          alert('Enter coupon');
+          return;
+        }
+        const $btn = $(this);
         $btn.prop('disabled', true).text('Applying...');
         $.post(ajaxUrl, { action: 'aakaari_apply_coupon', coupon: code, nonce: nonce })
-          .done(function(resp){
-            if(resp.success){
-              alert('Coupon applied');
-              if(resp.data && resp.data.total){
-                $('.summary-totals').html(
-                  '<div class="total-row"><span>Subtotal</span><span>' + resp.data.subtotal + '</span></div>' +
-                  ( resp.data.discount ? '<div class="total-row discount"><span>Discount</span><span>' + resp.data.discount + '</span></div>' : '' ) +
-                  '<div style="height:8px"></div><div class="total-row grand-total"><span>Total</span><span>' + resp.data.total + '</span></div>'
-                );
-              } else {
-                location.reload();
-              }
+          .done(function (resp) {
+            if (resp.success) {
+              $(document.body).trigger('update_checkout');
             } else {
               alert(resp.data && resp.data.message ? resp.data.message : 'Coupon failed');
             }
           })
-          .always(function(){
+          .always(function () {
             $btn.prop('disabled', false).text('Apply');
           });
       });
 
-      $(document).on('click', '#placeOrderBtn', function(e){
-        e.preventDefault();
-        var $form = $('form.checkout');
-        if($form.length){
-          // Let WooCommerce handle the real validation & submission
-          $form.submit();
-        } else {
-          alert('Checkout form not found. Ensure WooCommerce checkout template is loaded.');
-        }
+      if ($checkoutForm.length) {
+        $checkoutForm.on('submit', function () {
+          if ($('#ship_to_same').is(':checked')) {
+            syncBillingFromShipping();
+          }
+        });
+      }
+
+      $(document.body).on('updated_checkout', function () {
+        syncSummaryFromReview();
       });
     }
 
-    function showStep(step){
-      renderSteps(step);
-      $('.step-content').hide();
-      $('.step-content[data-step="'+step+'"]').show();
-      $('html, body').animate({ scrollTop: $('.checkout-form').offset().top - 10 }, 250);
-    }
-
-    bindStepActions();
+    bindEvents();
+    toggleBillingFields();
+    syncSummaryFromReview();
     showStep(1);
   });
 })(jQuery);

@@ -354,8 +354,8 @@ add_action( 'after_switch_theme', 'aakaari_delete_all_pages_and_create_required'
 // Disable WooCommerce default cart styles
 add_filter( 'woocommerce_enqueue_styles', 'aakaari_disable_woocommerce_cart_styles' );
 function aakaari_disable_woocommerce_cart_styles( $enqueue_styles ) {
-    if ( is_cart() ) {
-        // Disable default WooCommerce styles on cart page
+    if ( is_cart() || ( function_exists( 'is_checkout' ) && is_checkout() ) ) {
+        // Disable default WooCommerce styles on cart / checkout page
         unset( $enqueue_styles['woocommerce-general'] );
         unset( $enqueue_styles['woocommerce-layout'] );
         unset( $enqueue_styles['woocommerce-smallscreen'] );
@@ -681,12 +681,33 @@ function aakaari_enqueue_checkout_assets() {
         true
     );
 
+    $saved_addresses = array(
+        'shipping' => array(),
+        'billing'  => array(),
+    );
+
+    if ( is_user_logged_in() && function_exists( 'wc' ) ) {
+        $customer = wc()->customer;
+        if ( $customer instanceof WC_Customer ) {
+            $shipping_address = $customer->get_address( 'shipping' );
+            $billing_address  = $customer->get_address( 'billing' );
+
+            if ( is_array( $shipping_address ) ) {
+                $saved_addresses['shipping'] = array_map( 'wc_clean', $shipping_address );
+            }
+            if ( is_array( $billing_address ) ) {
+                $saved_addresses['billing'] = array_map( 'wc_clean', $billing_address );
+            }
+        }
+    }
+
     // Localize data for JS
     wp_localize_script('aakaari-checkout-js', 'aakaariCheckout', array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce'    => wp_create_nonce('aakaari_checkout_nonce'),
         'currency_symbol' => get_woocommerce_currency_symbol(),
         'is_user_logged_in' => is_user_logged_in(),
+        'saved_addresses' => $saved_addresses,
     ));
 }
 
@@ -728,3 +749,27 @@ function aakaari_apply_coupon() {
         'discount' => $discount_amount,
     ));
 }
+
+/**
+ * Remove default WooCommerce coupon toggle on checkout
+ */
+add_action( 'wp', 'aakaari_remove_checkout_coupon_prompt', 20 );
+function aakaari_remove_checkout_coupon_prompt() {
+    if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+        remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
+    }
+}
+
+/**
+ * Keep customers logged in longer and default "remember me" to on
+ */
+add_filter( 'auth_cookie_expiration', 'aakaari_extend_auth_cookie', 20, 3 );
+function aakaari_extend_auth_cookie( $length, $user_id, $remember ) {
+    $desired = 30 * DAY_IN_SECONDS; // 30 days
+    if ( $remember ) {
+        return $desired;
+    }
+    return $length;
+}
+
+add_filter( 'woocommerce_login_form_remember_me_default', '__return_true' );
