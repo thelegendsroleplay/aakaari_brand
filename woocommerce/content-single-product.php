@@ -300,4 +300,12 @@ $js_product = array(
       home_url: "<?php echo esc_js( home_url() ); ?>",
       theme_url: "<?php echo esc_js( get_stylesheet_directory_uri() ); ?>"
     };
+
+    // DEBUG: Log product data to console (remove this after debugging)
+    console.log('=== PRODUCT DEBUG INFO ===');
+    console.log('Product Type:', window.aakaari_product.productType);
+    console.log('Attributes Options:', window.aakaari_product.attributes_options);
+    console.log('Attribute Map:', window.aakaari_product.attribute_map);
+    console.log('Variations:', window.aakaari_product.variations);
+    console.log('Full Product Data:', window.aakaari_product);
 </script>
