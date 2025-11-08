@@ -474,6 +474,33 @@
   display: block;
 }
 
+/* Star Rating Selector */
+.star-rating-selector {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.star-rating-selector .star {
+  cursor: pointer;
+  font-size: 2rem;
+  color: #d1d5db;
+  transition: color 0.2s;
+}
+
+.star-rating-selector .star:hover,
+.star-rating-selector .star.active {
+  color: #fbbf24;
+}
+
+.star-rating-selector input[type="hidden"] {
+  display: none;
+}
+
+.comment-form-rating select {
+  display: none;
+}
+
 .review-form-wrapper input[type="text"],
 .review-form-wrapper input[type="email"],
 .review-form-wrapper textarea,
@@ -732,8 +759,9 @@
 
   .add-cart-btn,
   .buy-btn {
-    height: 2.75rem;
-    font-size: 0.9375rem;
+    height: 3.25rem;
+    font-size: 1rem;
+    font-weight: 600;
   }
 
   .features-row {
@@ -912,8 +940,9 @@
 
   .add-cart-btn,
   .buy-btn {
-    height: 2.5rem;
-    font-size: 0.875rem;
+    height: 3rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
   }
 
   .features-row {
