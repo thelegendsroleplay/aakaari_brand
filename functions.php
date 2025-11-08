@@ -47,6 +47,11 @@ function aakaari_theme_setup() {
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'woocommerce' );
 
+	// Enable AJAX add to cart
+	add_theme_support( 'wc-product-gallery-zoom' );
+	add_theme_support( 'wc-product-gallery-lightbox' );
+	add_theme_support( 'wc-product-gallery-slider' );
+
 	register_nav_menus( array(
 		'primary' => __( 'Primary Menu', 'aakaari' ),
 	) );
@@ -54,6 +59,25 @@ function aakaari_theme_setup() {
 	add_image_size( 'aakaari-product', 600, 600, true );
 }
 add_action( 'after_setup_theme', 'aakaari_theme_setup' );
+
+/**
+ * Enable AJAX add to cart for all products
+ */
+add_filter( 'woocommerce_product_add_to_cart_url', 'aakaari_enable_ajax_add_to_cart', 10, 2 );
+function aakaari_enable_ajax_add_to_cart( $url, $product ) {
+	// Return empty to use AJAX add to cart
+	return '';
+}
+
+/**
+ * Add AJAX add to cart class to all add to cart buttons
+ */
+add_filter( 'woocommerce_loop_add_to_cart_link', 'aakaari_ajax_add_to_cart_class', 10, 2 );
+function aakaari_ajax_add_to_cart_class( $html, $product ) {
+	// Add ajax_add_to_cart class
+	$html = str_replace( 'class="', 'class="ajax_add_to_cart ', $html );
+	return $html;
+}
 
 /**
  * Enqueue assets from assets/css and assets/js
@@ -100,13 +124,6 @@ function aakaari_enqueue_assets() {
 		wp_enqueue_style(
 			'aakaari-homepage',
 			$assets_base . '/css/homepage.css',
-			array( 'aakaari-reset' ),
-			$theme_version
-		);
-
-		wp_enqueue_style(
-			'aakaari-product-card',
-			$assets_base . '/css/product-card.css',
 			array( 'aakaari-reset' ),
 			$theme_version
 		);
