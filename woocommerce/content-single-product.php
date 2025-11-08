@@ -14,6 +14,7 @@ $theme_url = get_stylesheet_directory_uri();
 ?>
 <link rel="stylesheet" href="<?php echo esc_url( $theme_url . '/assets/css/product-detail.css' ); ?>">
 
+<!-- Product Detail Page - WooCommerce Integration -->
 <div class="product-page">
   <div class="product-container">
     <button id="back-btn" class="back-link">
