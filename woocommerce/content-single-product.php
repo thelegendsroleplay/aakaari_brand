@@ -1,7 +1,7 @@
 <?php
 /**
  * The template for displaying product content in the single-product.php template
- * Custom design matching provided HTML specification
+ * Custom design from main branch - Fully functional with WooCommerce
  *
  * @package Aakaari
  */
@@ -28,10 +28,11 @@ $rating = $product->get_average_rating();
 $review_count = $product->get_review_count();
 $regular_price = $product->get_regular_price();
 $sale_price = $product->get_sale_price();
+$current_price = $sale_price ? $sale_price : $regular_price;
 $stock_status = $product->get_stock_status();
 $stock_quantity = $product->get_stock_quantity();
 $sku = $product->get_sku();
-$categories = wc_get_product_category_list( $product_id );
+$categories = wc_get_product_category_list( $product_id, ', ' );
 
 // Get short description
 $short_desc = $product->get_short_description();
@@ -44,10 +45,33 @@ $discount_percentage = 0;
 if ( $sale_price && $regular_price ) {
 	$discount_percentage = round( ( ( $regular_price - $sale_price ) / $regular_price ) * 100 );
 }
+
+// Get attributes for size/color if variable product
+$sizes = array();
+$colors = array();
+if ( $product->is_type( 'variable' ) ) {
+	$attributes = $product->get_variation_attributes();
+	foreach ( $attributes as $attribute_name => $options ) {
+		$attribute_label = wc_attribute_label( $attribute_name );
+		if ( stripos( $attribute_label, 'size' ) !== false ) {
+			$sizes = $options;
+		} elseif ( stripos( $attribute_label, 'color' ) !== false || stripos( $attribute_label, 'colour' ) !== false ) {
+			$colors = $options;
+		}
+	}
+}
+
+// Default values if not variable product
+if ( empty( $sizes ) ) {
+	$sizes = array( 'S', 'M', 'L', 'XL' );
+}
+if ( empty( $colors ) ) {
+	$colors = array( 'Black', 'White', 'Gray', 'Blue' );
+}
 ?>
 
-<!-- Custom Product Page Template v2.0 -->
-<div class="product-page" data-template="custom-single-product">
+<!-- Product Detail Page - WooCommerce Integration -->
+<div class="product-page">
 	<div class="product-container">
 		<button id="back-btn" class="back-link" onclick="window.history.back()">
 			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -71,9 +95,7 @@ if ( $sale_price && $regular_price ) {
 					<?php endif; ?>
 
 					<?php if ( $discount_percentage > 0 ) : ?>
-						<span class="discount-badge" id="discount-badge" style="display: inline-block;">-<?php echo $discount_percentage; ?>%</span>
-					<?php else : ?>
-						<span class="discount-badge" id="discount-badge" style="display: none;"></span>
+						<span class="discount-badge" id="discount-badge"><?php echo $discount_percentage; ?>%</span>
 					<?php endif; ?>
 				</div>
 
@@ -126,12 +148,9 @@ if ( $sale_price && $regular_price ) {
 				<?php endif; ?>
 
 				<div class="price-row">
+					<span class="price" id="product-price">$<?php echo number_format( $current_price, 2 ); ?></span>
 					<?php if ( $sale_price ) : ?>
-						<span class="price" id="product-price">$<?php echo number_format( $sale_price, 2 ); ?></span>
-						<span class="old-price" id="product-old-price" style="display: inline;">$<?php echo number_format( $regular_price, 2 ); ?></span>
-					<?php else : ?>
-						<span class="price" id="product-price">$<?php echo number_format( $regular_price, 2 ); ?></span>
-						<span class="old-price" id="product-old-price" style="display: none;"></span>
+						<span class="old-price" id="product-old-price">$<?php echo number_format( $regular_price, 2 ); ?></span>
 					<?php endif; ?>
 				</div>
 
@@ -145,32 +164,25 @@ if ( $sale_price && $regular_price ) {
 
 					<?php do_action( 'woocommerce_before_add_to_cart_button' ); ?>
 
-					<?php if ( $product->is_type( 'variable' ) ) : ?>
-						<div class="options-section">
-							<?php
-							$attributes = $product->get_variation_attributes();
-							$available_variations = $product->get_available_variations();
-
-							foreach ( $attributes as $attribute_name => $options ) :
-								$attribute_label = wc_attribute_label( $attribute_name );
-								$sanitized_name = sanitize_title( $attribute_name );
-								?>
-								<div class="option-row">
-									<label><?php echo esc_html( $attribute_label ); ?>:</label>
-									<div class="option-btns" id="<?php echo $sanitized_name; ?>-options">
-										<?php
-										wc_dropdown_variation_attribute_options( array(
-											'options'   => $options,
-											'attribute' => $attribute_name,
-											'product'   => $product,
-											'class'     => 'variation-select',
-										) );
-										?>
-									</div>
-								</div>
-							<?php endforeach; ?>
+					<div class="options-section">
+						<div class="option-row">
+							<label>Size:</label>
+							<div class="option-btns" id="size-options">
+								<?php foreach ( $sizes as $size ) : ?>
+									<button type="button" class="size-btn" data-size="<?php echo esc_attr( $size ); ?>"><?php echo esc_html( $size ); ?></button>
+								<?php endforeach; ?>
+							</div>
 						</div>
-					<?php endif; ?>
+
+						<div class="option-row">
+							<label>Color:</label>
+							<div class="color-btns" id="color-options">
+								<?php foreach ( $colors as $color ) : ?>
+									<button type="button" class="color-btn" data-color="<?php echo esc_attr( $color ); ?>" style="background-color: <?php echo esc_attr( strtolower( $color ) ); ?>" title="<?php echo esc_attr( $color ); ?>"></button>
+								<?php endforeach; ?>
+							</div>
+						</div>
+					</div>
 
 					<div class="quantity-row">
 						<label>Quantity:</label>
