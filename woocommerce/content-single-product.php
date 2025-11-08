@@ -49,12 +49,10 @@ $stock_qty     = $product->is_in_stock() ? wc_stock_amount( $product->get_stock_
 /**
  * ATTRIBUTES: Build attributes_options and attribute_map.
  *
- * attributes_options: label => [ { label: human, value: machine } ]
- * attribute_map: label => input_name (attribute_pa_color or attribute_size etc)
+ * attributes_options: unique_key => [ { label: human, value: machine } ]
+ * attribute_map: unique_key => input_name (attribute_pa_color or attribute_size etc)
  *
- * We normalize label names so front-end keys are predictable:
- *  - color-like -> "Colors"
- *  - size-like  -> "size"
+ * We normalize display labels for UI consistency but keep unique keys to avoid collisions.
  */
 $attributes       = $product->get_attributes();
 $attributes_meta  = array();
@@ -64,12 +62,19 @@ foreach ( $attributes as $attr ) {
     $raw_name = $attr->get_name(); // e.g. pa_color or custom
     $label    = wc_attribute_label( $raw_name );
 
-    // Normalize label to the exact names user requested
+    // Normalize display label for UI consistency
+    $display_label = $label;
     if ( stripos( $label, 'color' ) !== false ) {
-        $label = 'Colors';
+        $display_label = 'Colors';
     } elseif ( stripos( $label, 'size' ) !== false ) {
-        // exact lowercase 'size' as requested
-        $label = 'size';
+        $display_label = 'size';
+    }
+
+    // Create unique key to avoid collisions when multiple attributes normalize to same label
+    $unique_key = $display_label;
+    if ( isset( $attributes_meta[ $unique_key ] ) ) {
+        // Collision detected - make key unique by appending raw attribute name
+        $unique_key = $display_label . '_' . sanitize_key( $raw_name );
     }
 
     if ( taxonomy_exists( $raw_name ) ) {
@@ -83,35 +88,46 @@ foreach ( $attributes as $attr ) {
             $opts[] = array( 'label' => $label_text, 'value' => $opt );
         }
     } else {
-        // custom attribute
+        // custom attribute - use raw name for input key
         $input_key = 'attribute_' . sanitize_title( $raw_name );
         $options = $attr->get_options();
         $opts = array();
         foreach ( $options as $opt ) {
-            $opts[] = array( 'label' => $opt, 'value' => sanitize_title( $opt ) );
+            // Use raw value to match variation attributes (don't double-sanitize)
+            $opts[] = array( 'label' => $opt, 'value' => (string) $opt );
         }
     }
 
     if ( ! empty( $opts ) ) {
-        $attributes_meta[ $label ] = $opts;
-        $attribute_map[ $label ]   = $input_key;
+        $attributes_meta[ $unique_key ] = array(
+            'display_label' => $display_label,
+            'options' => $opts
+        );
+        $attribute_map[ $unique_key ]   = $input_key;
     }
 }
 
 /**
- * Variations: include price_html if available (for JS to update UI)
+ * Variations: Fetch variation data using variation product objects for accuracy
  */
 $variations_data = array();
 if ( $product->is_type( 'variable' ) ) {
     $available_variations = $product->get_available_variations();
     foreach ( $available_variations as $v ) {
+        $variation_id = $v['variation_id'];
+        $variation_obj = wc_get_product( $variation_id );
+
+        if ( ! $variation_obj ) {
+            continue;
+        }
+
         $variations_data[] = array(
-            'variation_id' => $v['variation_id'],
-            'attributes'   => $v['attributes'],
-            // Price HTML: attempt to fetch from variation product object for accurate formatting
-            'price_html'   => isset( $v['price_html'] ) ? $v['price_html'] : '',
-            'display_price'=> isset( $v['display_price'] ) ? $v['display_price'] : '',
-            'is_in_stock'  => isset( $v['is_in_stock'] ) ? $v['is_in_stock'] : true,
+            'variation_id'  => $variation_id,
+            'attributes'    => $v['attributes'],
+            'price_html'    => $variation_obj->get_price_html(),
+            'display_price' => (float) $variation_obj->get_price(),
+            'is_in_stock'   => $variation_obj->is_in_stock(),
+            'is_purchasable'=> $variation_obj->is_purchasable(),
         );
     }
 }
@@ -195,7 +211,7 @@ $js_product = array(
           <input type="hidden" name="aakaari_buy_now" id="aakaari_buy_now" value="0">
 
           <?php foreach ( $attribute_map as $label => $input_key ) : ?>
-            <input type="hidden" name="<?php echo esc_attr( $input_key ); ?>" id="aakaari_attr_<?php echo esc_attr( sanitize_title( $input_key ) ); ?>" value="">
+            <input type="hidden" name="<?php echo esc_attr( $input_key ); ?>" id="aakaari_attr_<?php echo esc_attr( sanitize_key( $input_key ) ); ?>" value="">
           <?php endforeach; ?>
 
           <div class="quantity-row">

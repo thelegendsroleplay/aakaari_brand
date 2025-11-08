@@ -41,18 +41,46 @@
 
     // State
     let selectedImage = 0;
-    let selectedValues = {}; // label -> machine-value
+    let selectedValues = {}; // unique_key -> machine-value
     let quantity = 1;
     let inWishlist = false;
     let selectedVariationId = '';
 
+    // Helper: Create consistent hidden input ID (matches PHP sanitize_key)
+    function makeHiddenId(inputKey) {
+      // Normalize to match PHP sanitize_key: lowercase, keep a-z0-9 and underscores only
+      return 'aakaari_attr_' + String(inputKey).toLowerCase().replace(/[^a-z0-9_]/g, '');
+    }
+
+    // Helper: Set hidden attribute input value (with fallback)
+    function setHiddenAttributeInput(inputKey, value) {
+      if (!inputKey) {
+        return;
+      }
+
+      // Try by ID first (normalized)
+      const id = makeHiddenId(inputKey);
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = value;
+        return;
+      }
+
+      // Fallback: try by name attribute
+      const byName = document.querySelector('input[name="' + inputKey + '"]');
+      if (byName) {
+        byName.value = value;
+      }
+    }
+
     // Initialize default selected values from attributes_options
     function initDefaults() {
       const attrOpts = product.attributes_options || {};
-      Object.keys(attrOpts).forEach(label => {
-        const opts = attrOpts[label];
-        if (opts && opts.length) {
-          selectedValues[label] = opts[0].value;
+      Object.keys(attrOpts).forEach(uniqueKey => {
+        const attrData = attrOpts[uniqueKey];
+        const opts = attrData.options || attrData; // Support both old and new format
+        if (Array.isArray(opts) && opts.length) {
+          selectedValues[uniqueKey] = opts[0].value;
         }
       });
     }
@@ -140,7 +168,7 @@
       }
     }
 
-    // Render options using attributes_options and attribute_map exactly as provided from server
+    // Render options using attributes_options and attribute_map
     function renderOptions() {
       if (!optionsWrap) return;
       optionsWrap.innerHTML = '';
@@ -148,17 +176,26 @@
       const attrOpts = product.attributes_options || {};
       const attrMap = product.attribute_map || {};
 
-      Object.keys(attrOpts).forEach(label => {
-        const opts = attrOpts[label];
-        const inputKey = attrMap[label] || '';
+      Object.keys(attrOpts).forEach(uniqueKey => {
+        const attrData = attrOpts[uniqueKey];
+        const inputKey = attrMap[uniqueKey] || '';
+
+        // Support both new format (with display_label) and old format (direct array)
+        const displayLabel = attrData.display_label || uniqueKey;
+        const opts = attrData.options || attrData;
+
+        if (!Array.isArray(opts) || !opts.length) return;
 
         const row = document.createElement('div');
         row.className = 'option-row';
         const labEl = document.createElement('label');
-        labEl.textContent = label + ':';
+        labEl.textContent = displayLabel + ':';
         row.appendChild(labEl);
 
-        if (/color/i.test(label) || label === 'Colors') {
+        // Check if this is a color attribute (by display label)
+        const isColorAttr = /color/i.test(displayLabel);
+
+        if (isColorAttr) {
           const colorWrap = document.createElement('div');
           colorWrap.className = 'color-btns';
 
@@ -170,13 +207,13 @@
             if (/^#/.test(opt.value)) b.style.backgroundColor = opt.value;
             else b.style.backgroundColor = stringToColor(opt.value || opt.label);
 
-            b.dataset.attrLabel = label;
+            b.dataset.uniqueKey = uniqueKey;
             b.dataset.attrKey = inputKey;
             b.dataset.attrValue = opt.value;
 
-            b.className = (selectedValues[label] && selectedValues[label] === opt.value) ? 'active' : '';
+            b.className = (selectedValues[uniqueKey] && selectedValues[uniqueKey] === opt.value) ? 'active' : '';
             b.addEventListener('click', function () {
-              selectedValues[label] = this.dataset.attrValue;
+              selectedValues[uniqueKey] = this.dataset.attrValue;
               Array.from(colorWrap.children).forEach(ch => ch.classList.toggle('active', ch === this));
               setHiddenAttributeInput(inputKey, this.dataset.attrValue);
               resolveVariation(true);
@@ -192,12 +229,12 @@
             const b = document.createElement('button');
             b.type = 'button';
             b.textContent = opt.label;
-            b.dataset.attrLabel = label;
+            b.dataset.uniqueKey = uniqueKey;
             b.dataset.attrKey = inputKey;
             b.dataset.attrValue = opt.value;
-            b.className = (selectedValues[label] && selectedValues[label] === opt.value) ? 'active' : '';
+            b.className = (selectedValues[uniqueKey] && selectedValues[uniqueKey] === opt.value) ? 'active' : '';
             b.addEventListener('click', function () {
-              selectedValues[label] = this.dataset.attrValue;
+              selectedValues[uniqueKey] = this.dataset.attrValue;
               Array.from(btns.children).forEach(ch => ch.classList.toggle('active', ch === this));
               setHiddenAttributeInput(inputKey, this.dataset.attrValue);
               resolveVariation(true);
@@ -210,7 +247,8 @@
         optionsWrap.appendChild(row);
 
         // set initial hidden input for this attribute
-        setHiddenAttributeInput(inputKey, selectedValues[label] || (opts[0] && opts[0].value) || '');
+        const initialValue = selectedValues[uniqueKey] || opts[0].value || '';
+        setHiddenAttributeInput(inputKey, initialValue);
       });
     }
 
@@ -223,19 +261,7 @@
       return '#' + '00000'.substring(0, 6 - c.length) + c;
     }
 
-    function setHiddenAttributeInput(inputKey, value) {
-      if (!inputKey) return;
-      const id = 'aakaari_attr_' + inputKey.replace(/[^a-z0-9_\-]/gi, '');
-      const el = document.getElementById(id);
-      if (el) {
-        el.value = value;
-      } else {
-        const byName = document.querySelector('input[name="' + inputKey + '"]');
-        if (byName) byName.value = value;
-      }
-    }
-
-    // Resolve variation by comparing variation.attributes (machine values) with selectedValues (machine values)
+    // Resolve variation by comparing variation.attributes with selectedValues
     function resolveVariation(updatePrice = false) {
       selectedVariationId = '';
       if (!product.variations || !product.variations.length) {
@@ -243,57 +269,80 @@
         return;
       }
 
-      // build map inputKey -> label from product.attribute_map
+      // Build map: inputKey -> uniqueKey from product.attribute_map
       const attrMap = product.attribute_map || {};
-      const keyToLabel = {};
-      Object.keys(attrMap).forEach(lbl => {
-        keyToLabel[attrMap[lbl]] = lbl;
+      const inputKeyToUniqueKey = {};
+      Object.keys(attrMap).forEach(uniqueKey => {
+        const inputKey = attrMap[uniqueKey];
+        inputKeyToUniqueKey[inputKey] = uniqueKey;
       });
 
       let match = null;
+      let bestMatchScore = 0;
+
+      // Try to find matching variation
       for (let v of product.variations) {
+        if (!v.attributes) continue;
+
+        let matchedCount = 0;
+        let totalAttrs = 0;
         let ok = true;
-        if (v.attributes) {
-          for (let attrKey in v.attributes) {
-            if (!v.attributes.hasOwnProperty(attrKey)) continue;
-            const varVal = (v.attributes[attrKey] || '').toString().toLowerCase();
-            const label = keyToLabel[attrKey] || null;
-            let selectedVal = null;
-            if (label) selectedVal = (selectedValues[label] || '').toString().toLowerCase();
-            else {
-              // fallback try to find any selectedValues that equal varVal
-              selectedVal = Object.values(selectedValues).find(sv => sv && sv.toString().toLowerCase() === varVal) || '';
-            }
-            if (selectedVal === '' || selectedVal !== varVal) {
-              ok = false;
-              break;
-            }
+
+        for (let attrKey in v.attributes) {
+          if (!v.attributes.hasOwnProperty(attrKey)) continue;
+          totalAttrs++;
+
+          const varVal = (v.attributes[attrKey] || '').toString().toLowerCase().trim();
+          const uniqueKey = inputKeyToUniqueKey[attrKey];
+
+          let selectedVal = '';
+          if (uniqueKey && selectedValues[uniqueKey]) {
+            selectedVal = (selectedValues[uniqueKey] || '').toString().toLowerCase().trim();
           }
+
+          // Check if values match
+          if (selectedVal === '' || selectedVal !== varVal) {
+            ok = false;
+            break;
+          }
+          matchedCount++;
         }
-        if (ok) {
+
+        // Keep track of best match (in case of partial matches)
+        if (ok && matchedCount >= bestMatchScore) {
           match = v;
-          break;
+          bestMatchScore = matchedCount;
         }
       }
 
       if (match) {
         selectedVariationId = match.variation_id || '';
         if (variationInput) variationInput.value = selectedVariationId;
-        // price update if available
-        if (updatePrice && match.price_html) {
-          if (priceCurrent) priceCurrent.innerHTML = match.price_html;
-          if (priceOld) priceOld.style.display = 'none';
-        } else if (updatePrice && match.display_price) {
-          if (priceCurrent) priceCurrent.innerHTML = formatPrice(match.display_price);
-          if (priceOld) priceOld.style.display = 'none';
+
+        // Update price if available
+        if (updatePrice) {
+          if (match.price_html) {
+            if (priceCurrent) priceCurrent.innerHTML = match.price_html;
+            if (priceOld) priceOld.style.display = 'none';
+          } else if (match.display_price) {
+            if (priceCurrent) priceCurrent.innerHTML = formatPrice(match.display_price);
+            if (priceOld) priceOld.style.display = 'none';
+          }
         }
+
+        // Debug log (can be removed after testing)
+        console.log('✓ Variation matched:', match.variation_id, 'Selected:', selectedValues);
       } else {
         selectedVariationId = '';
         if (variationInput) variationInput.value = '';
-        // fallback to base product price_html
+
+        // Fallback to base product price_html
         if (updatePrice && product.price_html) {
           if (priceCurrent) priceCurrent.innerHTML = product.price_html;
         }
+
+        // Debug log (can be removed after testing)
+        console.log('✗ No variation match. Selected:', selectedValues);
       }
     }
 
@@ -323,11 +372,21 @@
       });
 
       addCartBtn && addCartBtn.addEventListener('click', function () {
+        // Validate variable products have variation selected
+        if (product.productType === 'variable' && !selectedVariationId) {
+          showToast('Please select all product options (color, size, etc.)');
+          return;
+        }
+
+        // Prevent double submissions
+        if (addCartBtn.disabled) return;
+        addCartBtn.disabled = true;
+
         // Fill hidden attribute inputs from selectedValues
         const attrMap = product.attribute_map || {};
-        Object.keys(attrMap).forEach(label => {
-          const inputKey = attrMap[label];
-          const value = selectedValues[label] || '';
+        Object.keys(attrMap).forEach(uniqueKey => {
+          const inputKey = attrMap[uniqueKey];
+          const value = selectedValues[uniqueKey] || '';
           setHiddenAttributeInput(inputKey, value);
         });
 
@@ -335,15 +394,29 @@
         if (variationInput) variationInput.value = selectedVariationId || '';
         if (buyNowInput) buyNowInput.value = '0';
 
-        if (addToCartForm) addToCartForm.submit();
-        else showToast('Unable to add to cart (form missing).');
+        if (addToCartForm) {
+          addToCartForm.submit();
+        } else {
+          showToast('Unable to add to cart (form missing).');
+          addCartBtn.disabled = false;
+        }
       });
 
       buyNowBtn && buyNowBtn.addEventListener('click', function () {
+        // Validate variable products have variation selected
+        if (product.productType === 'variable' && !selectedVariationId) {
+          showToast('Please select all product options (color, size, etc.)');
+          return;
+        }
+
+        // Prevent double submissions
+        if (buyNowBtn.disabled) return;
+        buyNowBtn.disabled = true;
+
         const attrMap = product.attribute_map || {};
-        Object.keys(attrMap).forEach(label => {
-          const inputKey = attrMap[label];
-          const value = selectedValues[label] || '';
+        Object.keys(attrMap).forEach(uniqueKey => {
+          const inputKey = attrMap[uniqueKey];
+          const value = selectedValues[uniqueKey] || '';
           setHiddenAttributeInput(inputKey, value);
         });
 
@@ -351,8 +424,12 @@
         if (variationInput) variationInput.value = selectedVariationId || '';
         if (buyNowInput) buyNowInput.value = '1';
 
-        if (addToCartForm) addToCartForm.submit();
-        else showToast('Unable to proceed to checkout (form missing).');
+        if (addToCartForm) {
+          addToCartForm.submit();
+        } else {
+          showToast('Unable to proceed to checkout (form missing).');
+          buyNowBtn.disabled = false;
+        }
       });
 
       wishlistBtn && wishlistBtn.addEventListener('click', function () {
