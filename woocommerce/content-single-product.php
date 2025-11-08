@@ -235,6 +235,8 @@ if ( $product->is_type( 'variable' ) ) {
             'display_price' => (float) $variation_obj->get_price(),
             'is_in_stock'   => $variation_obj->is_in_stock(),
             'is_purchasable'=> $variation_obj->is_purchasable(),
+            'stock_qty'     => $variation_obj->get_stock_quantity(), // Actual stock quantity
+            'max_qty'       => $variation_obj->get_max_purchase_quantity(), // Max allowed
         );
     }
 }
