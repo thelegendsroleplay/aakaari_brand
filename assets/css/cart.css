@@ -29,6 +29,20 @@ body.woocommerce-cart .entry-title,
   padding: 2rem 0;
 }
 
+/* Empty Cart - Centered Layout */
+.cart-page-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.cart-page-empty .cart-container {
+  max-width: 480px;
+  width: 100%;
+  padding: 0;
+}
+
 .cart-container {
   max-width: 1280px;
   margin: 0 auto;
@@ -63,13 +77,20 @@ body.woocommerce-cart .entry-title,
   border-radius: 0.75rem;
   padding: 4rem 2rem;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  width: 100%;
 }
 
 .empty-icon {
-  font-size: 4rem;
-  margin: 0 auto 1.5rem;
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
   color: #d1d5db;
+}
+
+.empty-cart h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
 }
 
 .empty-cart h2 {
@@ -81,6 +102,22 @@ body.woocommerce-cart .entry-title,
 .empty-cart p {
   color: #6b7280;
   margin: 0 0 2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.muted-link {
+  display: block;
+  margin-top: 1.25rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.muted-link:hover {
+  text-decoration: underline;
+  color: #111827;
 }
 
 /* Cart Items */
