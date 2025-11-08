@@ -798,6 +798,7 @@ body.woocommerce-checkout .entry-title,
     border-color: #bfdbfe !important;
 }
 
+/* Review order styling */
 .woocommerce-checkout-review-order .summary-items + .summary-totals {
   margin-top: 1rem;
 }
@@ -844,4 +845,225 @@ body.woocommerce-checkout .entry-title,
 
 .woocommerce-checkout-payment .place-order .button {
   width: 100%;
+}
+
+/* =====================================================
+   SHIP TO DIFFERENT ADDRESS
+   ===================================================== */
+
+.ship-to-different-address {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    margin: 0;
+}
+
+.shipping-address-fields {
+    margin-top: 1rem;
+}
+
+/* =====================================================
+   PAYMENT SECTION IN SIDEBAR
+   ===================================================== */
+
+.checkout-payment-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e5e7eb;
+}
+
+.payment-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: #111827;
+}
+
+/* Override payment methods in sidebar */
+.checkout-payment-section .wc_payment_methods {
+    margin-bottom: 1rem !important;
+}
+
+.checkout-payment-section .wc_payment_method {
+    padding: 0.875rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.checkout-payment-section .wc_payment_method label {
+    font-size: 0.875rem !important;
+}
+
+.checkout-payment-section #place_order {
+    margin-top: 1rem !important;
+}
+
+/* =====================================================
+   ENHANCED WOOCOMMERCE NOTIFICATIONS (SITE-WIDE)
+   ===================================================== */
+
+/* Override ALL WooCommerce notices globally */
+.woocommerce-error,
+.woocommerce-message,
+.woocommerce-info,
+.woocommerce-notice,
+ul.woocommerce-error,
+ul.woocommerce-message,
+ul.woocommerce-info {
+    list-style: none !important;
+    padding: 1rem 1.25rem !important;
+    margin: 0 0 1.5rem !important;
+    border-radius: 8px !important;
+    border-left: 4px solid !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.6 !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+}
+
+/* Error (Red) */
+.woocommerce-error,
+ul.woocommerce-error {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border-left-color: #dc2626 !important;
+}
+
+.woocommerce-error::before,
+ul.woocommerce-error::before {
+    content: "⚠️";
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* Success (Green) */
+.woocommerce-message,
+ul.woocommerce-message {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+    border-left-color: #10b981 !important;
+}
+
+.woocommerce-message::before,
+ul.woocommerce-message::before {
+    content: "✓";
+    font-size: 1.25rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* Info (Blue) */
+.woocommerce-info,
+ul.woocommerce-info,
+.woocommerce-notice {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+    border-left-color: #3b82f6 !important;
+}
+
+.woocommerce-info::before,
+ul.woocommerce-info::before,
+.woocommerce-notice::before {
+    content: "ℹ️";
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* List items inside notices */
+.woocommerce-error li,
+.woocommerce-message li,
+.woocommerce-info li {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove default WooCommerce icons */
+.woocommerce-error .button,
+.woocommerce-message .button,
+.woocommerce-info .button {
+    margin-left: auto !important;
+    padding: 0.5rem 1rem !important;
+    background: #000 !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-size: 0.875rem !important;
+}
+
+/* Mobile notifications */
+@media (max-width: 480px) {
+    .woocommerce-error,
+    .woocommerce-message,
+    .woocommerce-info,
+    ul.woocommerce-error,
+    ul.woocommerce-message,
+    ul.woocommerce-info {
+        padding: 0.875rem 1rem !important;
+        font-size: 0.875rem !important;
+    }
+}
+
+/* =====================================================
+   CHECKOUT VALIDATION ERRORS
+   ===================================================== */
+
+.woocommerce-checkout .woocommerce-NoticeGroup {
+    margin-bottom: 2rem;
+}
+
+.woocommerce-checkout .woocommerce-error {
+    position: sticky;
+    top: 1rem;
+    z-index: 100;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* =====================================================
+   FORM VALIDATION STYLING
+   ===================================================== */
+
+.woocommerce-invalid input,
+.woocommerce-invalid select,
+.woocommerce-invalid textarea {
+    border-color: #ef4444 !important;
+    background: #fef2f2 !important;
+}
+
+.woocommerce-invalid label {
+    color: #dc2626 !important;
+}
+
+.woocommerce-validated input,
+.woocommerce-validated select {
+    border-color: #10b981 !important;
+}
+
+/* =====================================================
+   ADDITIONAL MOBILE IMPROVEMENTS
+   ===================================================== */
+
+@media (max-width: 480px) {
+    .checkout-payment-section {
+        padding-top: 1rem;
+    }
+
+    .payment-title {
+        font-size: 0.9375rem;
+    }
 }
