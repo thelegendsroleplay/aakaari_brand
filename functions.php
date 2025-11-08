@@ -406,14 +406,6 @@ function aakaari_disable_woocommerce_cart_styles( $enqueue_styles ) {
 remove_action( 'woocommerce_before_main_content', 'woocommerce_output_content_wrapper', 10 );
 remove_action( 'woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10 );
 
-// Disable WooCommerce cart fragments (optional, improves performance)
-add_action( 'wp_enqueue_scripts', 'aakaari_disable_cart_fragments', 20 );
-function aakaari_disable_cart_fragments() {
-	if ( is_cart() ) {
-		wp_dequeue_script( 'wc-cart-fragments' );
-	}
-}
-
 // Remove WooCommerce breadcrumbs on cart page
 add_action( 'template_redirect', 'aakaari_remove_cart_breadcrumbs' );
 function aakaari_remove_cart_breadcrumbs() {
