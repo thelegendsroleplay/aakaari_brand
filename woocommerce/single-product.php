@@ -1,20 +1,19 @@
 <?php
 /**
- * The Template for displaying all single products
+ * single-product.php
+ * Simple wrapper for product single. Place in your theme's root (it will be used by WP).
  */
 
 defined( 'ABSPATH' ) || exit;
 
-get_header( 'shop' );
+get_header();
 
-?>
+if ( have_posts() ) :
+  while ( have_posts() ) : the_post();
+    // If using WooCommerce template structure, it often loads content-single-product.php
+    // We'll include our template directly.
+    wc_get_template_part( 'content', 'single-product' );
+  endwhile;
+endif;
 
-<?php while ( have_posts() ) : ?>
-    <?php the_post(); ?>
-
-    <?php wc_get_template_part( 'content', 'single-product' ); ?>
-
-<?php endwhile; ?>
-
-<?php
-get_footer( 'shop' );
+get_footer();
