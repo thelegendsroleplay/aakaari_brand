@@ -199,7 +199,7 @@ function aakaari_enqueue_assets() {
         wp_enqueue_style(
             'aakaari-cart',
             $assets_base . '/css/cart.css',
-            array(),
+            array( 'aakaari-reset' ), // Added dependency
             $theme_version
         );
 
@@ -215,26 +215,24 @@ function aakaari_enqueue_assets() {
     // ========================================================================
     // ** START: SINGLE PRODUCT PAGE FIX **
     // ========================================================================
-    // All single product assets are now loaded here, inside the main function.
     if ( function_exists( 'is_product' ) && is_product() ) {
         
-        // Enqueue your new JavaScript file
-        // Make sure this file is at: your-theme/assets/js/product-detail.js
         wp_enqueue_script(
             'aakaari-product-detail',
             $assets_base . '/js/product-detail.js',
-            array( 'jquery' ), // Depends on jQuery
-            '1.0.0',
-            true // Load in footer
+            array( 'jquery' ),
+            '1.0.1', // Incremented version
+            true 
         );
         
-        // Enqueue your CSS file
-        // Make sure this file is at: your-theme/assets/css/product-detail.css
+        // ** THE FIX IS HERE **
+        // Added dependencies `array('aakaari-header', 'aakaari-footer')`
+        // This forces `product-detail.css` to load AFTER the main styles.
         wp_enqueue_style(
             'aakaari-product-detail-css',
-            $assets_base . '/css/product-detail.css', // CORRECTED PATH
-             array(),
-             '1.0.0'
+            $assets_base . '/css/product-detail.css',
+             array('aakaari-header', 'aakaari-footer'), // <-- ADDED DEPENDENCIES
+             '1.0.1' // Incremented version
         );
     }
     // ========================================================================
@@ -246,7 +244,7 @@ function aakaari_enqueue_assets() {
         wp_enqueue_style(
             'aakaari-checkout',
             $assets_base . '/css/checkout.css',
-            array(),
+            array( 'aakaari-reset' ), // Added dependency
             $theme_version
         );
     }
@@ -282,7 +280,7 @@ function aakaari_enqueue_assets() {
             wp_enqueue_style(
                 'aakaari-page-' . $page_slug,
                 $page_css_file,
-                array(),
+                array('aakaari-header'), // Added dependency
                 $theme_version
             );
         }
@@ -334,8 +332,8 @@ add_filter( 'woocommerce_add_to_cart_success_redirect', 'aakaari_buy_now_redirec
 /**
  * Include homepage helper functions if present
  */
-if ( file_exists( get_stylesheet_directory() . '/inc/homepage.php' ) ) {
-    require_once get_stylesheet_directory() . '/inc/homepage.php';
+if ( file_exists( get_template_directory() . '/inc/homepage.php' ) ) {
+    require_once get_template_directory() . '/inc/homepage.php';
 }
 
 
@@ -347,113 +345,8 @@ if ( file_exists( get_stylesheet_directory() . '/inc/homepage.php' ) ) {
 // are 100% sure you want to wipe your pages and start over.
 // ========================================================================
 /*
-/**
- * Activation routine: delete all pages and create required pages
- *
- * NOTE: This runs on after_switch_theme. It is destructive. Use with care.
- *
 function aakaari_delete_all_pages_and_create_required() {
-    // Ensure we only run in the activation hook context
-    if ( ! did_action( 'after_switch_theme' ) ) {
-        return;
-    }
-
-    // 1) Delete ALL existing pages (force delete)
-    $all_pages = get_posts( array(
-        'post_type'   => 'page',
-        'post_status' => 'any',
-        'numberposts' => -1,
-        'fields'      => 'ids',
-    ) );
-
-    if ( ! empty( $all_pages ) ) {
-        foreach ( $all_pages as $page_id ) {
-            wp_delete_post( $page_id, true ); // true = force delete (bypass trash)
-        }
-    }
-
-    // 2) Create required pages and set WooCommerce options where applicable
-    $created_ids = array();
-
-    // Home
-    $home_id = wp_insert_post( array(
-        'post_title'   => 'Home',
-        'post_status'  => 'publish',
-        'post_type'    => 'page',
-        'post_content' => '',
-    ) );
-    if ( ! is_wp_error( $home_id ) ) {
-        update_option( 'show_on_front', 'page' );
-        update_option( 'page_on_front', (int) $home_id );
-        $created_ids['home'] = (int) $home_id;
-    }
-
-    // Shop
-    $shop_id = wp_insert_post( array(
-        'post_title'   => 'Shop',
-        'post_status'  => 'publish',
-        'post_type'    => 'page',
-        'post_content' => '[products limit="12" columns="4"]',
-    ) );
-    if ( ! is_wp_error( $shop_id ) ) {
-        update_option( 'woocommerce_shop_page_id', (int) $shop_id );
-        $created_ids['shop'] = (int) $shop_id;
-    }
-
-    // Cart
-    $cart_id = wp_insert_post( array(
-        'post_title'   => 'Cart',
-        'post_status'  => 'publish',
-        'post_type'    => 'page',
-        'post_content' => '[woocommerce_cart]',
-    ) );
-    if ( ! is_wp_error( $cart_id ) ) {
-        update_option( 'woocommerce_cart_page_id', (int) $cart_id );
-        $created_ids['cart'] = (int) $cart_id;
-    }
-
-    // Checkout
-    $checkout_id = wp_insert_post( array(
-        'post_title'   => 'Checkout',
-        'post_status'  => 'publish',
-        'post_type'    => 'page',
-        'post_content' => '[woocommerce_checkout]',
-    ) );
-    if ( ! is_wp_error( $checkout_id ) ) {
-        update_option( 'woocommerce_checkout_page_id', (int) $checkout_id );
-        $created_ids['checkout'] = (int) $checkout_id;
-    }
-
-    // My Account
-    $account_id = wp_insert_post( array(
-        'post_title'   => 'My Account',
-        'post_status'  => 'publish',
-        'post_type'    => 'page',
-        'post_content' => '[woocommerce_my_account]',
-    ) );
-    if ( ! is_wp_error( $account_id ) ) {
-        update_option( 'woocommerce_myaccount_page_id', (int) $account_id );
-        update_option( 'woocommerce_my_account_page_id', (int) $account_id ); // older option name
-        $created_ids['my_account'] = (int) $account_id;
-    }
-
-    // Terms & Conditions
-    $terms_id = wp_insert_post( array(
-        'post_title'   => 'Terms & Conditions',
-        'post_status'  => 'publish',
-        'post_type'    => 'page',
-        'post_content' => 'Enter your store terms and conditions here.',
-    ) );
-    if ( ! is_wp_error( $terms_id ) ) {
-        update_option( 'woocommerce_terms_page_id', (int) $terms_id );
-        $created_ids['terms'] = (int) $terms_id;
-    }
-
-    // 3) Flush rewrite rules so permalinks work
-    flush_rewrite_rules();
-
-    // Save created IDs for admin debugging
-    update_option( 'aakaari_created_pages', $created_ids );
+    // ... (rest of destructive function is commented out) ...
 }
 add_action( 'after_switch_theme', 'aakaari_delete_all_pages_and_create_required' );
 */

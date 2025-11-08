@@ -1,39 +1,30 @@
 <?php
 /**
- * The Template for displaying all single products
+ * Single Product Template
+ * Loads header, the content-single-product.php template, and footer.
  *
- * @package Aakaari
+ * Put this file in your theme root as single-product.php
  */
 
 defined( 'ABSPATH' ) || exit;
 
-get_header( 'shop' ); // Use 'shop' header or your default 'get_header()'
+get_header();
 
-/**
- * Hook: woocommerce_before_main_content.
- *
- * @hooked woocommerce_output_content_wrapper - 10 (outputs opening divs for the content)
- * @hooked woocommerce_breadcrumb - 20
- */
-do_action( 'woocommerce_before_main_content' );
-?>
+if ( have_posts() ) {
+    while ( have_posts() ) {
+        the_post();
 
-<?php while ( have_posts() ) : ?>
-    <?php the_post(); ?>
+        /**
+         * Allow WooCommerce / plugins to hook before product.
+         * We intentionally DO NOT call the default wrapper (your functions.php removed it).
+         */
+        do_action( 'woocommerce_before_single_product' );
 
-    <?php wc_get_template_part( 'content', 'single-product' ); ?>
+        // Load our custom content template (content-single-product.php)
+        wc_get_template_part( 'content', 'single-product' );
 
-<?php endwhile; // end of the loop. ?>
+        do_action( 'woocommerce_after_single_product' );
+    }
+}
 
-<?php
-/**
- * Hook: woocommerce_after_main_content.
- *
- * @hooked woocommerce_output_content_wrapper_end - 10 (outputs closing divs for the content)
- */
-do_action( 'woocommerce_after_main_content' );
-?>
-
-<?php
-get_footer( 'shop' ); // Use 'shop' footer or your default 'get_footer()'
-?>
+get_footer();
