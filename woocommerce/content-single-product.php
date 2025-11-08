@@ -91,15 +91,15 @@ foreach ( $attributes as $attr ) {
                 // Attempt to read color hex from term meta (common keys used by color plugins)
                 $color_hex = '';
                 if ( $is_color ) {
-                    $maybe_keys = array( 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color' );
+                    $maybe_keys = array( 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color', 'term_color' );
                     foreach ( $maybe_keys as $k ) {
                         $meta = get_term_meta( $term->term_id, $k, true );
                         if ( ! empty( $meta ) ) {
-                            $color_hex = $meta;
+                            $color_hex = trim( $meta );
                             break;
                         }
                     }
-                    // Normalize hex format (add # if missing)
+                    // Normalize hex format (add # if 6-digit hex without #, allow CSS named colors)
                     if ( $color_hex && preg_match( '/^[0-9A-Fa-f]{6}$/', $color_hex ) ) {
                         $color_hex = '#' . $color_hex;
                     }
@@ -123,11 +123,11 @@ foreach ( $attributes as $attr ) {
                 // Try to get color hex from term meta if color attribute
                 $color_hex = '';
                 if ( $is_color && $term ) {
-                    $maybe_keys = array( 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color' );
+                    $maybe_keys = array( 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color', 'term_color' );
                     foreach ( $maybe_keys as $k ) {
                         $meta = get_term_meta( $term->term_id, $k, true );
                         if ( ! empty( $meta ) ) {
-                            $color_hex = $meta;
+                            $color_hex = trim( $meta );
                             break;
                         }
                     }
