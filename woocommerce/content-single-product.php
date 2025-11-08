@@ -62,10 +62,12 @@ foreach ( $attributes as $attr ) {
     $raw_name = $attr->get_name(); // e.g. pa_color or custom
     $display_label = wc_attribute_label( $raw_name );
 
-    // Normalize UI label for consistency
+    // Normalize UI label for consistency and detect color attributes
     $ui_label = $display_label;
-    if ( stripos( $display_label, 'color' ) !== false ) {
+    $is_color = false;
+    if ( stripos( $display_label, 'color' ) !== false || stripos( $display_label, 'colour' ) !== false || stripos( $raw_name, 'color' ) !== false ) {
         $ui_label = 'Colors';
+        $is_color = true;
     } elseif ( stripos( $display_label, 'size' ) !== false ) {
         $ui_label = 'size';
     }
@@ -86,11 +88,30 @@ foreach ( $attributes as $attr ) {
 
         if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
             foreach ( $terms as $term ) {
-                // Emit both slug (canonical) and id
+                // Attempt to read color hex from term meta (common keys used by color plugins)
+                $color_hex = '';
+                if ( $is_color ) {
+                    $maybe_keys = array( 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color' );
+                    foreach ( $maybe_keys as $k ) {
+                        $meta = get_term_meta( $term->term_id, $k, true );
+                        if ( ! empty( $meta ) ) {
+                            $color_hex = $meta;
+                            break;
+                        }
+                    }
+                    // Normalize hex format (add # if missing)
+                    if ( $color_hex && preg_match( '/^[0-9A-Fa-f]{6}$/', $color_hex ) ) {
+                        $color_hex = '#' . $color_hex;
+                    }
+                }
+
+                // Emit slug (canonical), id, hex, and backward-compatible value
                 $opts[] = array(
                     'label'      => $term->name,
                     'value_slug' => $term->slug,    // canonical string for matching & form submission
-                    'value_id'   => (int) $term->term_id
+                    'value'      => $term->slug,    // backward compatibility
+                    'value_id'   => (int) $term->term_id,
+                    'value_hex'  => $color_hex
                 );
             }
         } else {
@@ -98,23 +119,45 @@ foreach ( $attributes as $attr ) {
             $options = $attr->get_options();
             foreach ( $options as $opt ) {
                 $term = get_term_by( 'slug', $opt, $raw_name );
+
+                // Try to get color hex from term meta if color attribute
+                $color_hex = '';
+                if ( $is_color && $term ) {
+                    $maybe_keys = array( 'color', 'hex', 'swatch_color', 'swatch', 'product_attribute_color' );
+                    foreach ( $maybe_keys as $k ) {
+                        $meta = get_term_meta( $term->term_id, $k, true );
+                        if ( ! empty( $meta ) ) {
+                            $color_hex = $meta;
+                            break;
+                        }
+                    }
+                    if ( $color_hex && preg_match( '/^[0-9A-Fa-f]{6}$/', $color_hex ) ) {
+                        $color_hex = '#' . $color_hex;
+                    }
+                }
+
                 $opts[] = array(
                     'label'      => $term ? $term->name : $opt,
                     'value_slug' => $opt,
-                    'value_id'   => $term ? (int) $term->term_id : 0
+                    'value'      => $opt,    // backward compatibility
+                    'value_id'   => $term ? (int) $term->term_id : 0,
+                    'value_hex'  => $color_hex
                 );
             }
         }
     } else {
-        // Custom attribute (non-taxonomy)
-        $input_key = 'attribute_' . sanitize_title( $raw_name );
+        // Custom attribute (non-taxonomy) - use sanitize_key for consistency
+        $input_key = 'attribute_' . sanitize_key( $raw_name );
         $options = $attr->get_options();
         $opts = array();
         foreach ( $options as $opt ) {
+            $slug = sanitize_title( $opt );
             $opts[] = array(
                 'label'      => $opt,
-                'value_slug' => sanitize_title( $opt ), // normalize to slug
-                'value_id'   => 0
+                'value_slug' => $slug,       // normalize to slug
+                'value'      => $slug,       // backward compatibility
+                'value_id'   => 0,
+                'value_hex'  => ''           // empty unless custom mapping needed
             );
         }
     }
@@ -123,7 +166,8 @@ foreach ( $attributes as $attr ) {
         $attributes_meta[ $key_label ] = array(
             'ui_label'   => $ui_label,     // human text to show
             'input_key'  => $input_key,    // attribute_pa_color (for form)
-            'options'    => $opts          // [{label, value_slug, value_id}]
+            'is_color'   => $is_color,     // flag for color rendering
+            'options'    => $opts          // [{label, value_slug, value, value_id, value_hex}]
         );
         $attribute_map[ $key_label ] = $input_key;
     }
@@ -168,6 +212,16 @@ if ( $product->is_type( 'variable' ) ) {
                 } else {
                     // Custom attribute - normalize to slug
                     $normalized_value = sanitize_title( $attr_val );
+                }
+
+                // Defensive logging: warn if normalization failed
+                if ( '' === $normalized_value && WP_DEBUG ) {
+                    error_log( sprintf(
+                        'WC Variation normalization warning: variation_id=%d, attr_key=%s, attr_val=%s could not be normalized',
+                        $variation_id,
+                        $attr_key,
+                        print_r( $attr_val, true )
+                    ) );
                 }
 
                 $norm_attrs[ $attr_key ] = $normalized_value;
