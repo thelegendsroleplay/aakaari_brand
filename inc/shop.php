@@ -273,28 +273,6 @@ function aakaari_render_product_card( $product ) {
       <div class="product-price price"><?php echo $product->get_price_html(); ?></div>
     </div>
   </article>
-  <script>
-  // Product card click handling - moved from inline to proper event delegation
-  (function() {
-    const cards = document.querySelectorAll('.product-card[data-product-url]');
-    cards.forEach(function(card) {
-      // Only add listener if it hasn't been added yet
-      if (!card.dataset.clickHandlerAdded) {
-        card.dataset.clickHandlerAdded = 'true';
-        card.addEventListener('click', function(e) {
-          // Don't navigate if clicking on buttons/links
-          if (!e.target.closest('a, button, .product-wishlist-btn, .product-add-to-cart-btn')) {
-            const url = card.getAttribute('data-product-url');
-            if (url) {
-              window.location.href = url;
-            }
-          }
-        });
-        card.style.cursor = 'pointer';
-      }
-    });
-  })();
-  </script>
   <?php
   return ob_get_clean();
 }
