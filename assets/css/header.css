@@ -2,6 +2,16 @@
    HEADER - E-COMMERCE NAVIGATION
    ============================================ */
 
+/* Reset all link colors in header to black */
+.header-main a,
+.header-main a:link,
+.header-main a:visited,
+.header-main a:hover,
+.header-main a:active {
+  color: #000000;
+  text-decoration: none !important;
+}
+
 .header-main {
   position: sticky;
   top: 0;
