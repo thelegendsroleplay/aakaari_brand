@@ -25,6 +25,7 @@ function aakaari_include_files() {
         '/inc/woocommerce-functions.php', // WooCommerce specific functions
         '/inc/customizer.php',            // Theme customizer settings
         '/inc/header-functions.php',      // Header functions and walkers
+        '/inc/shop-functions.php',        // Shop page functions and filters
         // Add more inc files here as you create them
     );
 
