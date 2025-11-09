@@ -312,6 +312,7 @@
   gap: 4px;
 }
 
+.header-mobile-nav .menu-item > a,
 .header-mobile-menu-item {
   text-align: left;
   padding: 10px 16px;
@@ -326,11 +327,14 @@
   text-decoration: none !important;
 }
 
+.header-mobile-nav .menu-item > a:hover,
 .header-mobile-menu-item:hover {
   background: #f8f9fa;
   text-decoration: none !important;
 }
 
+.header-mobile-nav .current-menu-item > a,
+.header-mobile-nav .current_page_item > a,
 .header-mobile-menu-item-active {
   background: #000000;
   color: #ffffff !important;
