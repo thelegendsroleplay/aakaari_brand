@@ -253,26 +253,48 @@
      * Setup quantity controls in order summary
      */
     function setupQuantityControls() {
-        // Handle quantity button clicks
-        document.addEventListener('click', function(e) {
-            // Check if clicked element or its parent is a quantity button
-            const target = e.target.closest('.qty-btn');
+        // Use event delegation on the order summary container
+        const orderSummary = document.querySelector('.order-summary');
 
-            if (!target) return;
+        if (!orderSummary) {
+            console.warn('Order summary not found for quantity controls');
+            return;
+        }
+
+        // Handle quantity button clicks
+        orderSummary.addEventListener('click', function(e) {
+            // Check if clicked element is or contains a quantity button
+            let target = e.target;
+
+            // If clicked on something inside button, get the button
+            if (!target.classList.contains('qty-btn')) {
+                target = target.closest('.qty-btn');
+            }
+
+            if (!target || !target.classList.contains('qty-btn')) return;
 
             e.preventDefault();
             e.stopPropagation();
 
-            const cartKey = target.dataset.cartKey;
+            const cartKey = target.getAttribute('data-cart-key');
             const qtyInput = document.querySelector(`.qty-value[data-cart-key="${cartKey}"]`);
 
-            if (!qtyInput) return;
+            if (!qtyInput) {
+                console.error('Quantity input not found for cart key:', cartKey);
+                return;
+            }
 
             const currentQty = parseInt(qtyInput.value) || 1;
 
+            console.log('Quantity button clicked:', {
+                action: target.classList.contains('increase') ? 'increase' : 'decrease',
+                cartKey: cartKey,
+                currentQty: currentQty
+            });
+
             // Increase quantity
             if (target.classList.contains('increase')) {
-                const maxQty = parseInt(qtyInput.max) || 999;
+                const maxQty = parseInt(qtyInput.getAttribute('max')) || 999;
 
                 if (currentQty < maxQty) {
                     qtyInput.value = currentQty + 1;
