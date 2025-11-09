@@ -251,9 +251,9 @@ function aakaari_enqueue_scripts() {
     );
 
     // Localize script for AJAX (live chat needs it)
-    wp_localize_script('aakaari-live-chat', 'liveChatAjax', array(
-        'ajaxUrl' => admin_url('admin-ajax.php'),
-        'nonce'   => wp_create_nonce('live-chat-nonce'),
+    wp_localize_script('aakaari-live-chat', 'aakaari_chat', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('aakaari_chat_nonce'),
     ));
 
     // Comment reply script
