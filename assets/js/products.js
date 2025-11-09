@@ -146,6 +146,220 @@
         if (data && data.success) {
           renderProductsHtml(data.data.html || '', data.data.count || 0);
         } else {
+          renderProductsHtml('<div style="grid-column:1/-1;padding:2rem;text-align:center;color:#666">No products found</div>');
+          updateCount(0);
+        }
+      }).catch(err=>{
+        console.error(err);
+        renderProductsHtml('<div style="grid-column:1/-1;padding:2rem;text-align:center;color:#666">Error loading products</div>');
+        updateCount(0);
+      });
+  }
+
+  // Initialize wishlist button states based on saved wishlist data
+  function initializeWishlistStates() {
+    if (typeof aakaari_wishlist !== 'undefined' && aakaari_wishlist.product_ids) {
+      const wishlistIds = aakaari_wishlist.product_ids;
+      $all('.favorite').forEach(btn => {
+        const productId = btn.dataset.productId;
+        if (productId && wishlistIds.includes(parseInt(productId))) {
+          btn.classList.add('active');
+          btn.textContent = '♥';
+        }
+      });
+    }
+  }
+
+  /* UI wiring */
+  document.addEventListener('click', function(e){
+    // color swatch toggle
+    if(e.target.closest('.color-swatch')){
+      const btn = e.target.closest('.color-swatch');
+      btn.classList.toggle('selected');
+      fetchProducts();
+    }
+
+    // wishlist
+    if(e.target.closest('.favorite')){
+      e.preventDefault();
+      e.stopPropagation();
+      const btn = e.target.closest('.favorite');
+      const card = btn.closest('.product-card');
+      const productId = btn.dataset.productId || card.querySelector('.add-btn')?.dataset.id;
+
+      if (!productId) return;
+
+      // Get product details for toast
+      const productName = card.querySelector('.product-title')?.textContent || 'Product';
+      const productPrice = card.querySelector('.price')?.textContent || '';
+      const productImage = card.querySelector('.product-media img')?.src || '';
+
+      // Toggle wishlist state
+      const isInWishlist = btn.classList.contains('active');
+
+      if (!isInWishlist) {
+        // Add to wishlist
+        const formData = new FormData();
+        formData.append('action', 'aakaari_add_to_wishlist');
+        formData.append('nonce', aakaari_ajax.nonce);
+        formData.append('product_id', productId);
+
+        fetch(aakaari_ajax.ajax_url, {
+          method: 'POST',
+          body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            btn.classList.add('active');
+            btn.textContent = '♥';
+
+            if (typeof window.showWishlistToast === 'function') {
+              window.showWishlistToast({
+                name: productName,
+                price: productPrice,
+                image: productImage
+              });
+            }
+          } else {
+            if (typeof window.showMessageToast === 'function') {
+              window.showMessageToast('Login Required', data.data.message || 'Please login to add to wishlist', 'info');
+            }
+          }
+        })
+        .catch(err => {
+          console.error('Wishlist error:', err);
+          if (typeof window.showMessageToast === 'function') {
+            window.showMessageToast('Error', 'Could not add to wishlist', 'info');
+          }
+        });
+      } else {
+        // Remove from wishlist
+        const formData = new FormData();
+        formData.append('action', 'aakaari_remove_from_wishlist');
+        formData.append('nonce', aakaari_ajax.nonce);
+        formData.append('product_id', productId);
+
+        fetch(aakaari_ajax.ajax_url, {
+          method: 'POST',
+          body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            btn.classList.remove('active');
+            btn.textContent = '♡';
+
+            if (typeof window.showMessageToast === 'function') {
+              window.showMessageToast('Removed from Wishlist', 'Item removed', 'info');
+            }
+          }
+        })
+        .catch(err => console.error('Wishlist error:', err));
+      }
+    }
+
+    // add to cart (in overlay)
+    if(e.target.closest('.product-add-to-cart-btn')){
+      e.preventDefault();
+      e.stopPropagation();
+      const btn = e.target.closest('.product-add-to-cart-btn');
+      const id = btn.dataset.product_id || btn.dataset.productId || btn.dataset.id;
+      const card = btn.closest('.product-card');
+
+      // Get product details for toast
+      const productName = card.querySelector('.product-title')?.textContent || 'Product';
+      const productPrice = card.querySelector('.price')?.textContent || '';
+      const productImage = card.querySelector('.product-media img')?.src || '';
+
+      // Check if product is variable (has variations)
+      const isVariable = btn.dataset.productType === 'variable' || btn.classList.contains('product_type_variable');
+
+      // If variable product, redirect to product page instead
+      if (isVariable) {
+        const productLink = card.querySelector('.product-title a, a.product-title');
+        if (productLink) {
+          window.location.href = productLink.href;
+          return;
+        }
+      }
+
+      // Disable button while adding
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
+
+      // Use WooCommerce AJAX add to cart
+      const data = {
+        product_id: id,
+        quantity: 1
+      };
+
+      fetch('/?wc-ajax=add_to_cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(data)
+      })
+      .then(r => {
+        if (!r.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return r.json();
+      })
+      .then(response => {
+        // Re-enable button
+        btn.disabled = false;
+        btn.textContent = 'Add to Cart';
+
+        console.log('Add to cart response:', response);
+
+        // Check for various error conditions
+        if (response.error || response.error_message) {
+          const errorMsg = response.error_message || 'This product has options. Please select them on the product page.';
+          console.error('Add to cart failed:', errorMsg);
+
+          // If product has variations, redirect to product page
+          if (response.product_url) {
+            if (typeof window.showMessageToast === 'function') {
+              window.showMessageToast('Product Options Required', 'Redirecting to product page...', 'info');
+            }
+            setTimeout(() => {
+              window.location.href = response.product_url;
+            }, 1000);
+          } else if (typeof window.showMessageToast === 'function') {
+            window.showMessageToast('Error', errorMsg, 'error');
+          }
+        } else if (response.fragments) {
+          // Success! Update cart fragments
+          // Update cart count in header
+          jQuery.each(response.fragments, function(key, value) {
+            jQuery(key).replaceWith(value);
+          });
+
+          // Trigger WooCommerce cart update event
+          jQuery(document.body).trigger('wc_fragment_refresh');
+          jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, btn]);
+
+          // Store the cart item key for undo functionality
+          const cartItemKey = response.cart_item_key || null;
+
+          // Show beautiful toast notification with Undo button
+          if (typeof window.showCartToast === 'function') {
+            window.showCartToast({
+              name: productName,
+              price: productPrice,
+              image: productImage
+            }, cartItemKey);
+          }
+        } else {
+          // Unexpected response format
+          console.warn('Unexpected response format:', response);
+          if (typeof window.showMessageToast === 'function') {
+            window.showMessageToast('Added to Cart', 'Item added successfully', 'success');
+          }
+          // Reload to update cart
+          setTimeout(() => window.location.reload(), 1000);
           renderProductsHtml('<div style="grid-column:1/-1;padding:2rem;text-align:center;color:#666">No products found</div>', 0);
         }
       })
@@ -175,6 +389,73 @@
     }
   }
 
+  /**
+   * Undo add to cart - removes the last added item
+   */
+  window.undoAddToCart = function(cartItemKey, toast) {
+    if (!cartItemKey) {
+      console.error('No cart item key provided for undo');
+      return;
+    }
+
+    // Show loading state
+    const undoBtn = toast.querySelector('.undo-btn');
+    if (undoBtn) {
+      undoBtn.textContent = 'Removing...';
+      undoBtn.style.pointerEvents = 'none';
+    }
+
+    // Use WooCommerce AJAX to remove cart item
+    fetch('/?wc-ajax=remove_from_cart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        cart_item_key: cartItemKey
+      })
+    })
+    .then(r => r.json())
+    .then(response => {
+      if (response.fragments) {
+        // Update cart fragments
+        jQuery.each(response.fragments, function(key, value) {
+          jQuery(key).replaceWith(value);
+        });
+
+        // Trigger cart update events
+        jQuery(document.body).trigger('wc_fragment_refresh');
+        jQuery(document.body).trigger('removed_from_cart', [response.fragments, response.cart_hash]);
+
+        // Dismiss the toast
+        if (toast && typeof toast.remove === 'function') {
+          toast.classList.add('hiding');
+          setTimeout(() => toast.remove(), 200);
+        }
+
+        // Show confirmation
+        if (typeof window.showMessageToast === 'function') {
+          window.showMessageToast('Removed', 'Item removed from cart', 'info');
+        }
+      }
+    })
+    .catch(err => {
+      console.error('Undo error:', err);
+      if (undoBtn) {
+        undoBtn.textContent = 'Undo';
+        undoBtn.style.pointerEvents = 'all';
+      }
+      if (typeof window.showMessageToast === 'function') {
+        window.showMessageToast('Error', 'Could not remove item', 'error');
+      }
+    });
+  };
+
+  // Toggle filters on mobile
+  document.addEventListener('click', function(e){
+    if(e.target.matches(selectors.toggleFilters)){
+      const sidebar = $(selectors.filtersSidebar);
+      const toggleText = $(selectors.filtersToggleText);
   /* --------------------
      Update cart fragments helper
      - Uses fragments from add-to-cart response if present
