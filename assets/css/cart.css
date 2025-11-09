@@ -352,12 +352,15 @@ body.woocommerce-cart .entry-title,
 }
 
 /* Override WooCommerce checkout button */
-.wc-proceed-to-checkout .checkout-button {
-  display: block;
+.wc-proceed-to-checkout .checkout-button,
+.wc-proceed-to-checkout .button,
+.wc-proceed-to-checkout a.checkout-button,
+.woocommerce .wc-proceed-to-checkout a.checkout-button {
+  display: block !important;
   width: 100%;
-  background: #111827;
-  color: white;
-  border: none;
+  background: #111827 !important;
+  color: white !important;
+  border: none !important;
   padding: 1rem 1.5rem;
   border-radius: 0.5rem;
   font-size: 1rem;
@@ -369,9 +372,12 @@ body.woocommerce-cart .entry-title,
   cursor: pointer;
 }
 
-.wc-proceed-to-checkout .checkout-button:hover {
-  background: #374151;
-  color: white;
+.wc-proceed-to-checkout .checkout-button:hover,
+.wc-proceed-to-checkout .button:hover,
+.wc-proceed-to-checkout a.checkout-button:hover,
+.woocommerce .wc-proceed-to-checkout a.checkout-button:hover {
+  background: #374151 !important;
+  color: white !important;
 }
 
 .payment-methods {
