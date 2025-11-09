@@ -135,6 +135,13 @@ function aakaari_enqueue_scripts() {
             AAKAARI_THEME_VERSION,
             true
         );
+
+        // Localize script for AJAX (single product needs it for add to cart)
+        wp_localize_script('aakaari-single-product', 'aakaariAjax', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('aakaari-ajax-nonce'),
+            'checkoutUrl' => wc_get_checkout_url(),
+        ));
     }
 
     // Comment reply script
