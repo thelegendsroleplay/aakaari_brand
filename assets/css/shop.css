@@ -2,6 +2,57 @@
    SHOP PAGE - PRODUCTS LISTING & FILTERS
    ============================================ */
 
+/* ============================================
+   WOOCOMMERCE CSS OVERRIDES
+   ============================================ */
+
+/* Reset WooCommerce default styles */
+.woocommerce-page,
+.woocommerce {
+    background: transparent;
+}
+
+.woocommerce ul.products,
+.woocommerce-page ul.products {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: block !important;
+}
+
+.woocommerce ul.products li.product,
+.woocommerce-page ul.products li.product {
+    float: none !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+}
+
+.woocommerce .products ul,
+.woocommerce ul.products ul {
+    margin: 0;
+    padding: 0;
+}
+
+/* Remove WooCommerce default result count and ordering */
+.woocommerce-result-count,
+.woocommerce-ordering {
+    display: none !important;
+}
+
+/* Override WooCommerce breadcrumb */
+.woocommerce-breadcrumb {
+    display: none;
+}
+
+/* Override WooCommerce notices */
+.woocommerce-notices-wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
 .products-page {
     min-height: 100vh;
     background: #f9fafb;
@@ -261,6 +312,7 @@
    ============================================ */
 
 .filters-apply-btn {
+    display: none; /* Hidden - using instant filtering instead */
     width: 100%;
     margin-top: 1.5rem;
     padding: 0.75rem 1.5rem;
