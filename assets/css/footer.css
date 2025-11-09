@@ -2,6 +2,15 @@
    FOOTER - E-COMMERCE SITE FOOTER
    ============================================ */
 
+/* Reset all link colors and remove underlines in footer */
+.footer-main a,
+.footer-main a:link,
+.footer-main a:visited,
+.footer-main a:hover,
+.footer-main a:active {
+  text-decoration: none !important;
+}
+
 .footer-main {
   background: #ffffff;
   border-top: 1px solid #f1f1f1;
@@ -85,7 +94,9 @@
   gap: 12px;
 }
 
-.footer-social-btn {
+.footer-social-btn,
+.footer-social-btn:link,
+.footer-social-btn:visited {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -96,12 +107,16 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  color: #000000 !important;
+  text-decoration: none !important;
 }
 
-.footer-social-btn:hover {
+.footer-social-btn:hover,
+.footer-social-btn:active {
   background: #000000;
-  color: #ffffff;
+  color: #ffffff !important;
   border-color: #000000;
+  text-decoration: none !important;
 }
 
 .footer-social-icon {
@@ -146,19 +161,24 @@
   gap: 8px;
 }
 
-.footer-link {
+.footer-link,
+.footer-link:link,
+.footer-link:visited {
   font-size: 14px;
-  color: #666666;
+  color: #666666 !important;
   background: transparent;
   border: none;
   padding: 0;
   text-align: left;
   cursor: pointer;
   transition: color 0.2s ease;
+  text-decoration: none !important;
 }
 
-.footer-link:hover {
-  color: #000000;
+.footer-link:hover,
+.footer-link:active {
+  color: #000000 !important;
+  text-decoration: none !important;
 }
 
 /* ============================================
