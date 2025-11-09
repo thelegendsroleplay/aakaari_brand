@@ -195,7 +195,7 @@
         // Fetch product details via AJAX
         $.ajax({
             type: 'POST',
-            url: aakaariAjax.ajaxurl,
+            url: aakaariAjax.ajaxUrl,
             data: {
                 action: 'aakaari_get_quick_view',
                 product_id: productId,
@@ -275,7 +275,7 @@
 
             $.ajax({
                 type: 'POST',
-                url: aakaariAjax.ajaxurl,
+                url: aakaariAjax.ajaxUrl,
                 data: {
                     action: 'aakaari_add_to_cart',
                     product_id: productId,
@@ -329,7 +329,7 @@
             if (productType === 'simple') {
                 $.ajax({
                     type: 'POST',
-                    url: aakaariAjax.ajaxurl,
+                    url: aakaariAjax.ajaxUrl,
                     data: {
                         action: 'aakaari_add_to_cart',
                         product_id: productId,
@@ -376,7 +376,7 @@
     function updateCartCount() {
         $.ajax({
             type: 'POST',
-            url: aakaariAjax.ajaxurl,
+            url: aakaariAjax.ajaxUrl,
             data: {
                 action: 'aakaari_get_cart_count',
                 nonce: aakaariAjax.nonce
