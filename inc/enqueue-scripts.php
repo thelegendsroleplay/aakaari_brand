@@ -53,8 +53,9 @@ function aakaari_enqueue_styles() {
         wp_enqueue_style(
             'aakaari-shop',
             AAKAARI_THEME_URI . '/assets/css/shop.css',
-            array('aakaari-main'),
-            AAKAARI_THEME_VERSION
+            array('aakaari-main', 'aakaari-home'),
+            AAKAARI_THEME_VERSION,
+            'all'
         );
     }
 
@@ -63,8 +64,9 @@ function aakaari_enqueue_styles() {
         wp_enqueue_style(
             'aakaari-single-product',
             AAKAARI_THEME_URI . '/assets/css/single-product.css',
-            array('aakaari-main'),
-            AAKAARI_THEME_VERSION
+            array('aakaari-main', 'aakaari-home'),
+            AAKAARI_THEME_VERSION,
+            'all'
         );
     }
 
@@ -88,7 +90,7 @@ function aakaari_enqueue_styles() {
         );
     }
 }
-add_action('wp_enqueue_scripts', 'aakaari_enqueue_styles');
+add_action('wp_enqueue_scripts', 'aakaari_enqueue_styles', 99);
 
 /**
  * Enqueue theme scripts
@@ -203,4 +205,4 @@ function aakaari_enqueue_scripts() {
         wp_enqueue_script('comment-reply');
     }
 }
-add_action('wp_enqueue_scripts', 'aakaari_enqueue_scripts');
+add_action('wp_enqueue_scripts', 'aakaari_enqueue_scripts', 99);
