@@ -49,13 +49,52 @@ function aakaari_ajax_add_to_cart() {
 
     $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
     $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
+    $options = isset($_POST['options']) ? $_POST['options'] : array();
 
     if ($product_id <= 0) {
         wp_send_json_error(array('message' => 'Invalid product ID'));
         return;
     }
 
-    $result = WC()->cart->add_to_cart($product_id, $quantity);
+    $product = wc_get_product($product_id);
+
+    if (!$product) {
+        wp_send_json_error(array('message' => 'Product not found'));
+        return;
+    }
+
+    $variation_id = 0;
+    $variation = array();
+
+    // Handle variable products
+    if ($product->is_type('variable')) {
+        if (empty($options)) {
+            wp_send_json_error(array('message' => 'Please select product options'));
+            return;
+        }
+
+        // Build variation attributes array
+        foreach ($options as $attribute_name => $attribute_value) {
+            // Normalize attribute name to WooCommerce format
+            $attribute_key = 'attribute_' . sanitize_title($attribute_name);
+            $variation[$attribute_key] = sanitize_title($attribute_value);
+        }
+
+        // Find matching variation ID
+        $data_store = WC_Data_Store::load('product');
+        $variation_id = $data_store->find_matching_product_variation($product, $variation);
+
+        if (!$variation_id) {
+            wp_send_json_error(array('message' => 'Selected variation not found. Please try different options.'));
+            return;
+        }
+
+        // Add variation to cart
+        $result = WC()->cart->add_to_cart($product_id, $quantity, $variation_id, $variation);
+    } else {
+        // Add simple product to cart
+        $result = WC()->cart->add_to_cart($product_id, $quantity);
+    }
 
     if ($result) {
         wp_send_json_success(array(

@@ -72,10 +72,14 @@
         const colorBtns = document.querySelectorAll('.color-btn');
         colorBtns.forEach(function(btn) {
             btn.addEventListener('click', function() {
-                // Remove active class from all color buttons
-                colorBtns.forEach(function(colorBtn) {
-                    colorBtn.classList.remove('active');
-                });
+                // Get all color buttons in the same group
+                const parent = this.closest('.color-btns');
+                if (parent) {
+                    const siblings = parent.querySelectorAll('.color-btn');
+                    siblings.forEach(function(sibling) {
+                        sibling.classList.remove('active');
+                    });
+                }
 
                 // Add active class to clicked button
                 this.classList.add('active');
@@ -179,10 +183,21 @@
             }
         });
 
-        // Get selected color
+        // Get selected color (for both variable and simple products)
         const activeColorBtn = document.querySelector('.color-btn.active');
         if (activeColorBtn) {
-            options.color = activeColorBtn.getAttribute('title') || '';
+            // Check if this is part of a variable product (inside options-section)
+            const colorBtnsParent = activeColorBtn.closest('.color-btns');
+            if (colorBtnsParent) {
+                const attribute = colorBtnsParent.getAttribute('data-attribute');
+                const value = activeColorBtn.getAttribute('data-value') || activeColorBtn.getAttribute('title') || '';
+                if (attribute) {
+                    options[attribute] = value;
+                } else {
+                    // For simple products, just use 'color' as key
+                    options.color = value;
+                }
+            }
         }
 
         return options;

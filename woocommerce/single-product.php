@@ -152,9 +152,16 @@ while (have_posts()) :
                                     </div>
                                 <?php else : ?>
                                     <div class="option-btns" data-attribute="<?php echo esc_attr($attribute_slug); ?>">
-                                        <?php foreach ($options as $option) : ?>
+                                        <?php foreach ($options as $option) :
+                                            // Get term object to retrieve proper name
+                                            $term = get_term_by('slug', sanitize_title($option), $attribute_name);
+                                            if (!$term) {
+                                                $term = get_term_by('name', $option, $attribute_name);
+                                            }
+                                            $display_name = $term ? $term->name : $option;
+                                        ?>
                                             <button type="button" class="option-btn" data-value="<?php echo esc_attr($option); ?>">
-                                                <?php echo esc_html($option); ?>
+                                                <?php echo esc_html($display_name); ?>
                                             </button>
                                         <?php endforeach; ?>
                                     </div>
