@@ -1,46 +1,45 @@
 <?php
 /**
- * The main template file
+ * The main template file (Fallback)
  *
- * @package Aakaari_Brand
+ * This is the template that is used by default if no more specific template exists.
+ *
+ * @package Aakaari Brand
+ * @since 1.0.0
  */
 
-get_header();
+get_header(); // Loads header.php
 ?>
 
-<main id="main" class="site-main">
-    <div class="container">
+<div id="primary" class="content-area">
+    <main id="main" class="site-main">
+
         <?php
-        if (have_posts()) :
-            while (have_posts()) :
+        if ( have_posts() ) :
+            // Start the Loop.
+            while ( have_posts() ) :
                 the_post();
+
+                // Simple fallback content display
                 ?>
                 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
                     <header class="entry-header">
-                        <h1 class="entry-title">
-                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                        </h1>
+                        <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
                     </header>
-
                     <div class="entry-content">
                         <?php the_content(); ?>
                     </div>
                 </article>
                 <?php
+
             endwhile;
 
-            // Pagination
-            the_posts_pagination(array(
-                'mid_size' => 2,
-                'prev_text' => __('&laquo; Previous', 'aakaari-brand'),
-                'next_text' => __('Next &raquo;', 'aakaari-brand'),
-            ));
         else :
-            ?>
-            <p><?php _e('No content found.', 'aakaari-brand'); ?></p>
-        <?php endif; ?>
-    </div>
-</main>
 
-<?php
-get_footer();
+            echo '<p>No content found.</p>';
+
+        endif;
+        ?>
+
+    </main></div><?php
+get_footer(); // Loads footer.php
