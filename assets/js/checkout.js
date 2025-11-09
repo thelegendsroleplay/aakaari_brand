@@ -295,7 +295,11 @@
             // Increase quantity
             if (target.classList.contains('increase')) {
                 console.log('Increase logic triggered');
-                const maxQty = parseInt(qtyInput.getAttribute('max')) || 999;
+                let maxQty = parseInt(qtyInput.getAttribute('max')) || 999;
+                // WooCommerce uses -1 for unlimited, treat as 999
+                if (maxQty < 0) {
+                    maxQty = 999;
+                }
                 console.log('Max qty:', maxQty, 'Current qty:', currentQty, 'Can increase:', currentQty < maxQty);
 
                 if (currentQty < maxQty) {
