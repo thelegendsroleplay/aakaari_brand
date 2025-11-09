@@ -1,31 +1,13 @@
 <?php
 /**
- * Cart Page - DEBUG VERSION
+ * Cart Page
  *
- * Place at: wp-content/themes/your-theme/woocommerce/cart/cart.php
- *
- * Purpose:
- *  - Defensive checks for WooCommerce and WC()->cart
- *  - Safe iteration of cart items
- *  - Fall back to empty state gracefully
- *  - Preserve existing hooks for compatibility
+ * This template displays the shopping cart.
  *
  * @package Aakaari_Brand
  */
 
 defined('ABSPATH') || exit;
-
-// DEBUG: Output to check if template is loading
-echo '<!-- CART TEMPLATE LOADING -->';
-echo '<div style="background: yellow; padding: 20px; margin: 20px; border: 3px solid red;">';
-echo 'DEBUG: Cart template is loading!<br>';
-echo 'WooCommerce Active: ' . (class_exists('WooCommerce') ? 'YES' : 'NO') . '<br>';
-echo 'Cart Exists: ' . (WC()->cart ? 'YES' : 'NO') . '<br>';
-if (WC()->cart) {
-    echo 'Cart Empty: ' . (WC()->cart->is_empty() ? 'YES' : 'NO') . '<br>';
-    echo 'Cart Count: ' . WC()->cart->get_cart_contents_count() . '<br>';
-}
-echo '</div>';
 
 do_action('woocommerce_before_cart');
 
