@@ -8,6 +8,11 @@ body.woocommerce-checkout .entry-title,
   display: none !important;
 }
 
+/* Hide WooCommerce notices wrapper (we have coupon in order summary) */
+.woocommerce-notices-wrapper {
+  display: none !important;
+}
+
 .checkout-page {
   min-height: 100vh;
   background: #f9fafb;
@@ -690,6 +695,12 @@ button[type="submit"]#place_order:hover {
 
 /* Hide WooCommerce default order review table */
 .woocommerce-checkout-review-order-table {
+  display: none !important;
+}
+
+/* Hide WooCommerce place order button in payment section (step 2) */
+.payment-section #place_order,
+.payment-section .woocommerce-checkout-payment #place_order {
   display: none !important;
 }
 
