@@ -11,39 +11,54 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Dequeue conflicting WordPress/WooCommerce styles
+ */
+function aakaari_dequeue_styles() {
+    // Dequeue WordPress default block styles that might conflict
+    wp_dequeue_style('wp-block-library');
+    wp_dequeue_style('wp-block-library-theme');
+    wp_dequeue_style('global-styles');
+}
+add_action('wp_enqueue_scripts', 'aakaari_dequeue_styles', 100);
+
+/**
  * Enqueue theme styles
  */
 function aakaari_enqueue_styles() {
-    // Custom CSS file - load first
+    // Custom CSS file - load first (no dependencies)
     wp_enqueue_style(
         'aakaari-main',
         AAKAARI_THEME_URI . '/assets/css/main.css',
         array(),
-        AAKAARI_THEME_VERSION
+        AAKAARI_THEME_VERSION,
+        'all'
     );
 
-    // Header styles - depends on main
+    // Header styles - completely independent, load with high priority
     wp_enqueue_style(
         'aakaari-header',
         AAKAARI_THEME_URI . '/assets/css/header.css',
-        array('aakaari-main'),
-        AAKAARI_THEME_VERSION
+        array(),
+        AAKAARI_THEME_VERSION,
+        'all'
     );
 
-    // Footer styles - depends on main
+    // Footer styles - completely independent, load with high priority
     wp_enqueue_style(
         'aakaari-footer',
         AAKAARI_THEME_URI . '/assets/css/footer.css',
-        array('aakaari-main'),
-        AAKAARI_THEME_VERSION
+        array(),
+        AAKAARI_THEME_VERSION,
+        'all'
     );
 
     // Main theme stylesheet - load last to allow overrides
     wp_enqueue_style(
         'aakaari-style',
         get_stylesheet_uri(),
-        array('aakaari-header', 'aakaari-footer'),
-        AAKAARI_THEME_VERSION
+        array('aakaari-main', 'aakaari-header', 'aakaari-footer'),
+        AAKAARI_THEME_VERSION,
+        'all'
     );
 
     // Home page styles (also needed for quick view modal and product cards on single product page)
