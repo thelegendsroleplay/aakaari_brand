@@ -244,3 +244,65 @@ function aakaari_ajax_get_quick_view() {
 }
 add_action('wp_ajax_aakaari_get_quick_view', 'aakaari_ajax_get_quick_view');
 add_action('wp_ajax_nopriv_aakaari_get_quick_view', 'aakaari_ajax_get_quick_view');
+
+/**
+ * AJAX handler for submitting product reviews
+ */
+function aakaari_ajax_submit_review() {
+    check_ajax_referer('aakaari-ajax-nonce', 'nonce');
+
+    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+    $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+    $rating = isset($_POST['rating']) ? intval($_POST['rating']) : 0;
+    $comment = isset($_POST['comment']) ? sanitize_textarea_field($_POST['comment']) : '';
+
+    // Validate inputs
+    if (!$product_id || !$name || !$email || !$rating || !$comment) {
+        wp_send_json_error(array('message' => 'Please fill in all required fields'));
+        return;
+    }
+
+    if ($rating < 1 || $rating > 5) {
+        wp_send_json_error(array('message' => 'Invalid rating value'));
+        return;
+    }
+
+    if (!is_email($email)) {
+        wp_send_json_error(array('message' => 'Invalid email address'));
+        return;
+    }
+
+    // Check if product exists
+    $product = wc_get_product($product_id);
+    if (!$product) {
+        wp_send_json_error(array('message' => 'Product not found'));
+        return;
+    }
+
+    // Prepare comment data
+    $comment_data = array(
+        'comment_post_ID'      => $product_id,
+        'comment_author'       => $name,
+        'comment_author_email' => $email,
+        'comment_content'      => $comment,
+        'comment_type'         => 'review',
+        'comment_parent'       => 0,
+        'user_id'              => get_current_user_id(),
+        'comment_approved'     => 0, // Set to pending for moderation
+    );
+
+    // Insert comment
+    $comment_id = wp_insert_comment($comment_data);
+
+    if ($comment_id) {
+        // Add rating meta
+        update_comment_meta($comment_id, 'rating', $rating);
+
+        wp_send_json_success(array('message' => 'Review submitted successfully!'));
+    } else {
+        wp_send_json_error(array('message' => 'Failed to submit review'));
+    }
+}
+add_action('wp_ajax_aakaari_submit_review', 'aakaari_ajax_submit_review');
+add_action('wp_ajax_nopriv_aakaari_submit_review', 'aakaari_ajax_submit_review');

@@ -555,26 +555,108 @@
 }
 
 /* ============================================
-   REVIEWS SECTION
+   TABS SECTION
    ============================================ */
 
-.reviews-section {
+.product-tabs-section {
     background: white;
-    padding: 2rem;
     border-radius: 8px;
     margin-bottom: 2rem;
+    overflow: hidden;
 }
 
-.reviews-section h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0 0 1.5rem;
+.tabs-header {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #eee;
+    background: #f9f9f9;
 }
+
+.tab-btn {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border: none;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.tab-btn:hover {
+    background: #f5f5f5;
+    color: #000;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #000;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #000;
+}
+
+.tabs-content {
+    padding: 2rem;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Description Tab */
+.description-content {
+    color: #555;
+    line-height: 1.8;
+}
+
+.description-content p {
+    margin: 0 0 1rem;
+}
+
+.description-content p:last-child {
+    margin-bottom: 0;
+}
+
+.description-content h3,
+.description-content h4 {
+    margin: 1.5rem 0 0.75rem;
+    color: #333;
+}
+
+.description-content ul,
+.description-content ol {
+    margin: 0 0 1rem;
+    padding-left: 1.5rem;
+}
+
+.description-content li {
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+/* ============================================
+   REVIEWS TAB
+   ============================================ */
 
 .reviews-list {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .review-item {
@@ -597,17 +679,192 @@
 .review-author {
     color: #666;
     font-size: 0.875rem;
+    font-weight: 600;
 }
 
-.review-item h4 {
-    margin: 0 0 0.5rem;
-    font-weight: 600;
+.review-date {
+    color: #999;
+    font-size: 0.8125rem;
 }
 
 .review-item p {
     color: #555;
     line-height: 1.6;
     margin: 0;
+}
+
+.no-reviews {
+    color: #999;
+    font-style: italic;
+    margin: 0 0 2rem;
+    text-align: center;
+    padding: 2rem 0;
+}
+
+/* Review Form */
+.review-form-wrapper {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #eee;
+}
+
+.review-form-wrapper h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem;
+    color: #333;
+}
+
+.review-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9375rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #000;
+}
+
+.form-group input[readonly] {
+    background: #f9f9f9;
+    cursor: not-allowed;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Star Rating Input */
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.25rem;
+}
+
+.rating-input input[type="radio"] {
+    display: none;
+}
+
+.rating-input label {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rating-input label svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: none;
+    stroke: #d1d5db;
+    transition: all 0.2s;
+}
+
+.rating-input input[type="radio"]:checked ~ label svg,
+.rating-input label:hover svg,
+.rating-input label:hover ~ label svg {
+    fill: #fbbf24;
+    stroke: #fbbf24;
+}
+
+.submit-review-btn {
+    background: #000;
+    color: white;
+    border: none;
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    align-self: flex-start;
+}
+
+.submit-review-btn:hover {
+    background: #333;
+}
+
+/* ============================================
+   SIZE CHART TAB
+   ============================================ */
+
+.size-chart-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem;
+    color: #333;
+}
+
+.size-chart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+
+.size-chart-table thead {
+    background: #f9f9f9;
+}
+
+.size-chart-table th {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #333;
+    border-bottom: 2px solid #eee;
+}
+
+.size-chart-table td {
+    padding: 0.875rem 1rem;
+    color: #555;
+    font-size: 0.9375rem;
+    border-bottom: 1px solid #eee;
+}
+
+.size-chart-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.size-chart-table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+.size-chart-note {
+    color: #666;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin: 0;
+    font-style: italic;
 }
 
 /* ============================================
@@ -869,6 +1126,41 @@
     .related-section .product-carousel .product-card {
         flex: 0 0 220px;
     }
+
+    /* Tabs responsive */
+    .tab-btn {
+        font-size: 0.875rem;
+        padding: 0.875rem 1rem;
+    }
+
+    .tabs-content {
+        padding: 1.25rem;
+    }
+
+    /* Review form responsive */
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .review-form-wrapper h3 {
+        font-size: 1.125rem;
+    }
+
+    .rating-input label svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    /* Size chart responsive */
+    .size-chart-table {
+        font-size: 0.875rem;
+    }
+
+    .size-chart-table th,
+    .size-chart-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -999,5 +1291,67 @@
 
     .related-section .product-carousel .product-card {
         flex: 0 0 180px;
+    }
+
+    /* Tabs responsive */
+    .tab-btn {
+        font-size: 0.8125rem;
+        padding: 0.75rem 0.625rem;
+    }
+
+    .tabs-content {
+        padding: 1rem;
+    }
+
+    /* Review form responsive */
+    .review-form-wrapper {
+        padding-top: 1.5rem;
+    }
+
+    .review-form-wrapper h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        font-size: 0.875rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+    }
+
+    .rating-input label svg {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+
+    .submit-review-btn {
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9375rem;
+    }
+
+    /* Size chart responsive */
+    .size-chart-content h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .size-chart-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .size-chart-table th,
+    .size-chart-table td {
+        padding: 0.625rem 0.5rem;
+        font-size: 0.8125rem;
+    }
+
+    .size-chart-note {
+        font-size: 0.8125rem;
     }
 }
