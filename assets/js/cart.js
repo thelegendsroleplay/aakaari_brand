@@ -1,134 +1,190 @@
 /**
- * Cart functionality - Quantity controls, remove items, clear cart
+ * Cart Page JavaScript
+ *
+ * @package Aakaari Brand
  */
-(function() {
+
+(function($) {
     'use strict';
 
-    // Helper to get cart form
-    function getCartForm() {
-        return document.querySelector('.woocommerce-cart-form');
+    console.log('Cart Page Loaded');
+
+    /**
+     * Initialize Cart Functionality
+     */
+    function initCart() {
+        // Remove item from cart
+        initRemoveItem();
+
+        // Clear entire cart
+        initClearCart();
+
+        // Update quantity
+        initQuantityUpdate();
     }
 
-    // Helper to update cart via AJAX
-    function updateCart() {
-        const form = getCartForm();
-        if (!form) return;
-
-        const formData = new FormData(form);
-        formData.append('update_cart', '1');
-
-        // Show loading state
-        const cartItems = document.querySelector('.cart-items');
-        if (cartItems) {
-            cartItems.style.opacity = '0.6';
-            cartItems.style.pointerEvents = 'none';
-        }
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(html => {
-            // Reload the page to show updated cart
-            window.location.reload();
-        })
-        .catch(error => {
-            console.error('Cart update error:', error);
-            if (cartItems) {
-                cartItems.style.opacity = '1';
-                cartItems.style.pointerEvents = 'auto';
-            }
-            alert('Could not update cart. Please try again.');
-        });
-    }
-
-    // Quantity increase/decrease buttons
-    document.addEventListener('click', function(e) {
-        // Increase quantity
-        if (e.target.classList.contains('increase') || e.target.closest('.increase')) {
+    /**
+     * Remove Single Item from Cart
+     */
+    function initRemoveItem() {
+        $(document).on('click', '.item-remove', function(e) {
             e.preventDefault();
-            const btn = e.target.classList.contains('increase') ? e.target : e.target.closest('.increase');
-            const qtyInput = btn.parentElement.querySelector('.qty-value');
-            const max = parseInt(btn.dataset.max) || 999;
-            const currentQty = parseInt(qtyInput.value) || 1;
 
-            if (currentQty < max) {
-                qtyInput.value = currentQty + 1;
-                updateCart();
-            }
-        }
+            const button = $(this);
+            const cartItemKey = button.data('cart-item-key');
+            const cartItem = button.closest('.cart-item');
 
-        // Decrease quantity
-        if (e.target.classList.contains('decrease') || e.target.closest('.decrease')) {
-            e.preventDefault();
-            const btn = e.target.classList.contains('decrease') ? e.target : e.target.closest('.decrease');
-            const qtyInput = btn.parentElement.querySelector('.qty-value');
-            const currentQty = parseInt(qtyInput.value) || 1;
-
-            if (currentQty > 1) {
-                qtyInput.value = currentQty - 1;
-                updateCart();
-            }
-        }
-
-        // Remove item
-        if (e.target.classList.contains('item-remove') || e.target.closest('.item-remove')) {
-            e.preventDefault();
-            const btn = e.target.classList.contains('item-remove') ? e.target : e.target.closest('.item-remove');
-            const cartItemKey = btn.dataset.key;
-
-            if (!confirm('Remove this item from cart?')) {
+            // Confirm removal
+            if (!confirm('Are you sure you want to remove this item from your cart?')) {
                 return;
             }
 
-            // Remove item by setting quantity to 0
-            const cartItem = btn.closest('.cart-item');
-            const qtyInput = cartItem.querySelector('.qty-value');
-            if (qtyInput) {
-                qtyInput.value = 0;
-                updateCart();
-            }
-        }
+            // Show loading state
+            button.prop('disabled', true);
+            cartItem.css('opacity', '0.5');
 
-        // Clear cart
-        if (e.target.id === 'clear-cart-btn' || e.target.closest('#clear-cart-btn')) {
-            e.preventDefault();
-
-            if (!confirm('Are you sure you want to clear your cart?')) {
-                return;
-            }
-
-            // Set all quantities to 0
-            const qtyInputs = document.querySelectorAll('.qty-value');
-            qtyInputs.forEach(input => {
-                input.value = 0;
+            // Remove item via AJAX
+            $.ajax({
+                url: aakaariAjax.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'remove_cart_item',
+                    cart_item_key: cartItemKey,
+                    nonce: aakaariAjax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Reload page to update cart
+                        window.location.reload();
+                    } else {
+                        alert('Failed to remove item. Please try again.');
+                        button.prop('disabled', false);
+                        cartItem.css('opacity', '1');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred. Please try again.');
+                    button.prop('disabled', false);
+                    cartItem.css('opacity', '1');
+                }
             });
-            updateCart();
-        }
-    });
+        });
+    }
 
-    // Update item count in header dynamically
-    function updateItemCount() {
-        const itemsCount = document.getElementById('items-count');
-        if (!itemsCount) return;
+    /**
+     * Clear Entire Cart
+     */
+    function initClearCart() {
+        $(document).on('click', '.clear-cart-btn', function(e) {
+            e.preventDefault();
 
-        const cartItems = document.querySelectorAll('.cart-item');
-        let totalItems = 0;
+            // Confirm clear
+            if (!confirm('Are you sure you want to clear your entire cart?')) {
+                return;
+            }
 
-        cartItems.forEach(item => {
-            const qtyInput = item.querySelector('.qty-value');
-            if (qtyInput) {
-                totalItems += parseInt(qtyInput.value) || 0;
+            const button = $(this);
+            button.prop('disabled', true).text('Clearing...');
+
+            // Clear cart via AJAX
+            $.ajax({
+                url: aakaariAjax.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'clear_cart',
+                    nonce: aakaariAjax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Reload page to show empty cart
+                        window.location.reload();
+                    } else {
+                        alert('Failed to clear cart. Please try again.');
+                        button.prop('disabled', false).text('Clear Cart');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred. Please try again.');
+                    button.prop('disabled', false).text('Clear Cart');
+                }
+            });
+        });
+    }
+
+    /**
+     * Update Quantity
+     */
+    function initQuantityUpdate() {
+        let updateTimeout;
+
+        // Handle quantity input changes
+        $(document).on('change', '.item-quantity input[type="number"]', function() {
+            const input = $(this);
+            const cartItem = input.closest('.cart-item');
+
+            // Clear existing timeout
+            clearTimeout(updateTimeout);
+
+            // Set new timeout to update cart
+            updateTimeout = setTimeout(function() {
+                updateCartQuantities();
+            }, 500);
+        });
+
+        // Handle plus/minus buttons
+        $(document).on('click', '.item-quantity input[type="button"]', function() {
+            // Clear existing timeout
+            clearTimeout(updateTimeout);
+
+            // Set new timeout to update cart
+            updateTimeout = setTimeout(function() {
+                updateCartQuantities();
+            }, 500);
+        });
+    }
+
+    /**
+     * Update Cart Quantities via Form Submission
+     */
+    function updateCartQuantities() {
+        // WooCommerce handles quantity updates through form submission
+        // We'll trigger a page reload to update totals
+        const quantities = {};
+        let hasChanges = false;
+
+        $('.item-quantity input[type="number"]').each(function() {
+            const input = $(this);
+            const name = input.attr('name');
+            const value = input.val();
+
+            if (name && value) {
+                quantities[name] = value;
+                hasChanges = true;
             }
         });
 
-        itemsCount.textContent = `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`;
+        if (hasChanges) {
+            // Submit to WooCommerce cart update
+            $.ajax({
+                url: window.location.href,
+                type: 'POST',
+                data: {
+                    update_cart: 1,
+                    ...quantities
+                },
+                success: function() {
+                    // Reload to show updated cart
+                    window.location.reload();
+                }
+            });
+        }
     }
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-        updateItemCount();
+    /**
+     * Initialize on Document Ready
+     */
+    $(document).ready(function() {
+        initCart();
     });
 
-})();
+})(jQuery);

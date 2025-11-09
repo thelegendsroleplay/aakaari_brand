@@ -53,9 +53,8 @@ function aakaari_enqueue_styles() {
         wp_enqueue_style(
             'aakaari-shop',
             AAKAARI_THEME_URI . '/assets/css/shop.css',
-            array('aakaari-main', 'aakaari-home'),
-            AAKAARI_THEME_VERSION,
-            'all'
+            array('aakaari-main'),
+            AAKAARI_THEME_VERSION
         );
     }
 
@@ -64,9 +63,8 @@ function aakaari_enqueue_styles() {
         wp_enqueue_style(
             'aakaari-single-product',
             AAKAARI_THEME_URI . '/assets/css/single-product.css',
-            array('aakaari-main', 'aakaari-home'),
-            AAKAARI_THEME_VERSION,
-            'all'
+            array('aakaari-main'),
+            AAKAARI_THEME_VERSION
         );
     }
 
@@ -79,18 +77,8 @@ function aakaari_enqueue_styles() {
             AAKAARI_THEME_VERSION
         );
     }
-
-    // Checkout page styles
-    if (is_checkout()) {
-        wp_enqueue_style(
-            'aakaari-checkout',
-            AAKAARI_THEME_URI . '/assets/css/checkout.css',
-            array('aakaari-main'),
-            AAKAARI_THEME_VERSION
-        );
-    }
 }
-add_action('wp_enqueue_scripts', 'aakaari_enqueue_styles', 99);
+add_action('wp_enqueue_scripts', 'aakaari_enqueue_styles');
 
 /**
  * Enqueue theme scripts
@@ -183,26 +171,9 @@ function aakaari_enqueue_scripts() {
         ));
     }
 
-    // Checkout page scripts
-    if (is_checkout()) {
-        wp_enqueue_script(
-            'aakaari-checkout',
-            AAKAARI_THEME_URI . '/assets/js/checkout.js',
-            array('jquery'),
-            AAKAARI_THEME_VERSION,
-            true
-        );
-
-        // Localize script for AJAX (checkout needs WooCommerce params)
-        wp_localize_script('aakaari-checkout', 'aakaariAjax', array(
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce'   => wp_create_nonce('aakaari-ajax-nonce'),
-        ));
-    }
-
     // Comment reply script
     if (is_singular() && comments_open() && get_option('thread_comments')) {
         wp_enqueue_script('comment-reply');
     }
 }
-add_action('wp_enqueue_scripts', 'aakaari_enqueue_scripts', 99);
+add_action('wp_enqueue_scripts', 'aakaari_enqueue_scripts');

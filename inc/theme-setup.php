@@ -61,8 +61,3 @@ function aakaari_content_width() {
     $GLOBALS['content_width'] = apply_filters('aakaari_content_width', 1200);
 }
 add_action('after_setup_theme', 'aakaari_content_width', 0);
-
-/**
- * Disable WooCommerce default styles (we use custom styles)
- */
-add_filter('woocommerce_enqueue_styles', '__return_empty_array');
