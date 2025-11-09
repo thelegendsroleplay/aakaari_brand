@@ -725,12 +725,15 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
+    width: 100%;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
+    min-width: 0; /* Ensures grid items don't overflow */
 }
 
 .form-group label {
@@ -747,6 +750,8 @@
     font-size: 0.9375rem;
     font-family: inherit;
     transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .form-group input:focus,
@@ -1138,11 +1143,6 @@
         padding: 1.25rem;
     }
 
-    /* Review form responsive */
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
     .review-form-wrapper h3 {
         font-size: 1.125rem;
     }
@@ -1306,6 +1306,11 @@
     }
 
     /* Review form responsive */
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
     .review-form-wrapper {
         padding-top: 1.5rem;
     }
