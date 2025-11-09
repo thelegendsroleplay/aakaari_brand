@@ -110,7 +110,7 @@ while (have_posts()) :
                     <span class="price"><?php echo $product->get_price_html(); ?></span>
                 </div>
 
-                <!-- Description -->
+                <!-- Short Description -->
                 <?php if ($product->get_short_description()) : ?>
                     <div class="description">
                         <?php echo wpautop($product->get_short_description()); ?>
@@ -249,41 +249,165 @@ while (have_posts()) :
             </div>
         </div>
 
-        <!-- Reviews Section -->
-        <?php
-        $reviews = get_comments(array(
-            'post_id' => $product->get_id(),
-            'status' => 'approve',
-            'type' => 'review'
-        ));
-        if (!empty($reviews)) :
-        ?>
-            <div class="reviews-section">
-                <h2>Customer Reviews</h2>
-                <div class="reviews-list">
-                    <?php foreach ($reviews as $review) :
-                        $rating = get_comment_meta($review->comment_ID, 'rating', true);
+        <!-- Tabs Section -->
+        <div class="product-tabs-section">
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="description">Product Description</button>
+                <button class="tab-btn" data-tab="reviews">Reviews</button>
+                <button class="tab-btn" data-tab="size-chart">Size Chart</button>
+            </div>
+
+            <div class="tabs-content">
+                <!-- Description Tab -->
+                <div class="tab-content active" id="tab-description">
+                    <div class="description-content">
+                        <?php
+                        if ($product->get_description()) {
+                            echo wpautop($product->get_description());
+                        } else {
+                            echo '<p>No product description available.</p>';
+                        }
+                        ?>
+                    </div>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div class="tab-content" id="tab-reviews">
+                    <?php
+                    $reviews = get_comments(array(
+                        'post_id' => $product->get_id(),
+                        'status' => 'approve',
+                        'type' => 'review'
+                    ));
                     ?>
-                        <div class="review-item">
-                            <div class="review-header">
-                                <div class="stars">
-                                    <?php for ($i = 1; $i <= 5; $i++) {
-                                        if ($i <= $rating) {
-                                            echo '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24" stroke-width="2" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-                                        } else {
-                                            echo '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2" class="star-empty"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-                                        }
-                                    } ?>
+
+                    <?php if (!empty($reviews)) : ?>
+                        <div class="reviews-list">
+                            <?php foreach ($reviews as $review) :
+                                $rating = get_comment_meta($review->comment_ID, 'rating', true);
+                            ?>
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <div class="stars">
+                                            <?php for ($i = 1; $i <= 5; $i++) {
+                                                if ($i <= $rating) {
+                                                    echo '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24" stroke-width="2" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+                                                } else {
+                                                    echo '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2" class="star-empty"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+                                                }
+                                            } ?>
+                                        </div>
+                                        <span class="review-author"><?php echo esc_html($review->comment_author); ?></span>
+                                        <span class="review-date"><?php echo esc_html(date('F j, Y', strtotime($review->comment_date))); ?></span>
+                                    </div>
+                                    <p><?php echo esc_html($review->comment_content); ?></p>
                                 </div>
-                                <span class="review-author"><?php echo esc_html($review->comment_author); ?></span>
-                            </div>
-                            <h4><?php echo esc_html(get_comment_meta($review->comment_ID, 'review_title', true)); ?></h4>
-                            <p><?php echo esc_html($review->comment_content); ?></p>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
+                    <?php else : ?>
+                        <p class="no-reviews">No reviews yet. Be the first to review this product!</p>
+                    <?php endif; ?>
+
+                    <!-- Add Review Form -->
+                    <?php if (comments_open()) : ?>
+                        <div class="review-form-wrapper">
+                            <h3>Add Your Review</h3>
+                            <form class="review-form" id="reviewForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="review-name">Name *</label>
+                                        <input type="text" id="review-name" name="name" required <?php if (is_user_logged_in()) : ?>value="<?php echo esc_attr(wp_get_current_user()->display_name); ?>" readonly<?php endif; ?>>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="review-email">Email *</label>
+                                        <input type="email" id="review-email" name="email" required <?php if (is_user_logged_in()) : ?>value="<?php echo esc_attr(wp_get_current_user()->user_email); ?>" readonly<?php endif; ?>>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Your Rating *</label>
+                                    <div class="rating-input">
+                                        <?php for ($i = 5; $i >= 1; $i--) : ?>
+                                            <input type="radio" id="star<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" required>
+                                            <label for="star<?php echo $i; ?>">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                </svg>
+                                            </label>
+                                        <?php endfor; ?>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="review-comment">Your Review *</label>
+                                    <textarea id="review-comment" name="comment" rows="5" required></textarea>
+                                </div>
+
+                                <input type="hidden" name="product_id" value="<?php echo esc_attr($product->get_id()); ?>">
+
+                                <button type="submit" class="submit-review-btn">Submit Review</button>
+                            </form>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Size Chart Tab -->
+                <div class="tab-content" id="tab-size-chart">
+                    <div class="size-chart-content">
+                        <h3>Size Guide</h3>
+                        <table class="size-chart-table">
+                            <thead>
+                                <tr>
+                                    <th>Size</th>
+                                    <th>Chest (inches)</th>
+                                    <th>Waist (inches)</th>
+                                    <th>Hips (inches)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>XS</td>
+                                    <td>32-34</td>
+                                    <td>24-26</td>
+                                    <td>34-36</td>
+                                </tr>
+                                <tr>
+                                    <td>S</td>
+                                    <td>34-36</td>
+                                    <td>26-28</td>
+                                    <td>36-38</td>
+                                </tr>
+                                <tr>
+                                    <td>M</td>
+                                    <td>36-38</td>
+                                    <td>28-30</td>
+                                    <td>38-40</td>
+                                </tr>
+                                <tr>
+                                    <td>L</td>
+                                    <td>38-40</td>
+                                    <td>30-32</td>
+                                    <td>40-42</td>
+                                </tr>
+                                <tr>
+                                    <td>XL</td>
+                                    <td>40-42</td>
+                                    <td>32-34</td>
+                                    <td>42-44</td>
+                                </tr>
+                                <tr>
+                                    <td>XXL</td>
+                                    <td>42-44</td>
+                                    <td>34-36</td>
+                                    <td>44-46</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="size-chart-note">All measurements are approximate. For the best fit, we recommend measuring yourself and comparing to the size chart above.</p>
+                    </div>
                 </div>
             </div>
-        <?php endif; ?>
+        </div>
 
         <!-- Related Products -->
         <?php
@@ -297,9 +421,10 @@ while (have_posts()) :
                     foreach ($related_products as $related_product_id) {
                         $related_product = wc_get_product($related_product_id);
                         if ($related_product) {
-                            global $product;
+                            $old_product = $product;
                             $product = $related_product;
                             wc_get_template_part('content', 'product-card');
+                            $product = $old_product;
                         }
                     }
                     ?>

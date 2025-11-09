@@ -11,6 +11,8 @@
         initOptions();
         initQuantityControls();
         initAddToCart();
+        initTabs();
+        initReviewForm();
         initRelatedProductsCarousel();
     });
 
@@ -267,6 +269,112 @@
                 $(this).remove();
             });
         }, 3000);
+    }
+
+    /**
+     * Initialize tabs functionality
+     */
+    function initTabs() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        if (tabBtns.length === 0) {
+            return;
+        }
+
+        tabBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+
+                // Remove active class from all tabs and contents
+                tabBtns.forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                tabContents.forEach(function(content) {
+                    content.classList.remove('active');
+                });
+
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                const targetContent = document.getElementById('tab-' + tabName);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+    }
+
+    /**
+     * Initialize review form submission
+     */
+    function initReviewForm() {
+        const reviewForm = document.getElementById('reviewForm');
+
+        if (!reviewForm) {
+            return;
+        }
+
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (typeof aakaariAjax === 'undefined') {
+                console.error('aakaariAjax is not defined');
+                alert('Unable to submit review. Please refresh the page.');
+                return;
+            }
+
+            // Get form data
+            const formData = new FormData(this);
+            const name = formData.get('name');
+            const email = formData.get('email');
+            const rating = formData.get('rating');
+            const comment = formData.get('comment');
+            const productId = formData.get('product_id');
+
+            // Validate rating
+            if (!rating) {
+                showNotification('Please select a rating', 'error');
+                return;
+            }
+
+            // Submit via AJAX
+            $.ajax({
+                type: 'POST',
+                url: aakaariAjax.ajaxUrl,
+                data: {
+                    action: 'aakaari_submit_review',
+                    product_id: productId,
+                    name: name,
+                    email: email,
+                    rating: rating,
+                    comment: comment,
+                    nonce: aakaariAjax.nonce
+                },
+                beforeSend: function() {
+                    $('.submit-review-btn').prop('disabled', true).text('Submitting...');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Review submitted successfully! It will appear after approval.', 'success');
+                        reviewForm.reset();
+
+                        // Uncheck all rating stars
+                        const ratingInputs = document.querySelectorAll('.rating-input input[type="radio"]');
+                        ratingInputs.forEach(function(input) {
+                            input.checked = false;
+                        });
+                    } else {
+                        showNotification(response.data.message || 'Failed to submit review', 'error');
+                    }
+                },
+                error: function() {
+                    showNotification('Failed to submit review. Please try again.', 'error');
+                },
+                complete: function() {
+                    $('.submit-review-btn').prop('disabled', false).text('Submit Review');
+                }
+            });
+        });
     }
 
     /**
