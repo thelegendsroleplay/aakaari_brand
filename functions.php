@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define theme constants
-define('AAKAARI_THEME_VERSION', '1.2.0');
+define('AAKAARI_THEME_VERSION', '1.2.1');
 define('AAKAARI_THEME_DIR', get_template_directory());
 define('AAKAARI_THEME_URI', get_template_directory_uri());
 
@@ -26,6 +26,7 @@ function aakaari_include_files() {
         '/inc/customizer.php',            // Theme customizer settings
         '/inc/header-functions.php',      // Header functions and walkers
         '/inc/shop-functions.php',        // Shop page functions and filters
+        '/inc/wc-color-attributes.php',   // WooCommerce color attributes
         '/inc/wishlist.php',              // Wishlist functionality
         '/inc/live-chat-system.php',      // Live chat system
         // Add more inc files here as you create them
