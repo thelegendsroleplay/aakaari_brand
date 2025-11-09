@@ -108,10 +108,11 @@ get_header();
                         $featured_args = array(
                             'post_type'      => 'product',
                             'posts_per_page' => 8,
-                            'meta_query'     => array(
+                            'tax_query'      => array(
                                 array(
-                                    'key'   => '_featured',
-                                    'value' => 'yes',
+                                    'taxonomy' => 'product_visibility',
+                                    'field'    => 'name',
+                                    'terms'    => 'featured',
                                 ),
                             ),
                         );
@@ -123,6 +124,19 @@ get_header();
                                 wc_get_template_part('content', 'product-card');
                             endwhile;
                             wp_reset_postdata();
+                        else :
+                            // Fallback: show regular products if no featured products
+                            $fallback_args = array(
+                                'post_type'      => 'product',
+                                'posts_per_page' => 8,
+                            );
+                            $fallback_products = new WP_Query($fallback_args);
+                            if ($fallback_products->have_posts()) :
+                                while ($fallback_products->have_posts()) : $fallback_products->the_post();
+                                    wc_get_template_part('content', 'product-card');
+                                endwhile;
+                                wp_reset_postdata();
+                            endif;
                         endif;
                         ?>
                     </div>

@@ -1144,10 +1144,15 @@
         font-size: 14px;
     }
 
-    /* Product Carousel */
+    /* Product Carousel - Show 2 products at a time on mobile */
     .product-carousel .product-card {
-        flex: 0 0 calc(100% - 40px);
-        min-width: 260px;
+        flex: 0 0 calc(50% - 16px);
+        min-width: 150px;
+    }
+
+    .product-carousel {
+        gap: 12px;
+        padding: 0 8px 20px 8px;
     }
 
     /* Promo Card */
