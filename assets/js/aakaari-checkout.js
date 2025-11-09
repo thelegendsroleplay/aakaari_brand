@@ -156,4 +156,43 @@
     syncSummaryFromReview();
     showStep(1);
   });
+  document.addEventListener('DOMContentLoaded', function() {
+    const methods = document.querySelectorAll('.wc_payment_method');
+    const placeBtn = document.querySelector('#place_order');
+    const termsCheckbox = document.querySelector('.woocommerce-terms-and-conditions-wrapper input[type="checkbox"]');
+  
+    // helper: update payment_box visibility
+    function updateBoxes() {
+      methods.forEach(li => {
+        const radio = li.querySelector('.pm-radio');
+        const box = li.querySelector('.payment_box');
+        if (!radio || !box) return;
+        if (radio.checked) {
+          box.style.display = 'block';
+          box.setAttribute('aria-hidden','false');
+          radio.setAttribute('aria-checked','true');
+        } else {
+          box.style.display = 'none';
+          box.setAttribute('aria-hidden','true');
+          radio.setAttribute('aria-checked','false');
+        }
+      });
+      updatePlaceEnabled();
+    }
+  
+    function updatePlaceEnabled(){
+      const checked = document.querySelector('.pm-radio:checked');
+      const termsOk = termsCheckbox ? termsCheckbox.checked : true;
+      if (placeBtn) placeBtn.disabled = !(checked && termsOk);
+    }
+  
+    // attach handlers
+    document.querySelectorAll('.pm-radio').forEach(radio =>
+      radio.addEventListener('change', updateBoxes)
+    );
+    if (termsCheckbox) termsCheckbox.addEventListener('change', updateBoxes);
+  
+    // init on page load
+    updateBoxes();
+  });
 })(jQuery);

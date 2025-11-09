@@ -191,16 +191,21 @@ get_header();
 
 												<!-- Add to Cart -->
 												<?php if ( $product->is_type( 'simple' ) && $product->is_purchasable() && $product->is_in_stock() ) : ?>
-													<div class="product-cart-overlay">
-														<a href="<?php echo esc_url( $product->add_to_cart_url() ); ?>" class="product-add-to-cart-btn ajax_add_to_cart add_to_cart_button" data-product_id="<?php echo esc_attr( $product_id ); ?>" onclick="event.stopPropagation();" rel="nofollow">
-															<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-																<circle cx="8" cy="21" r="1"></circle>
-																<circle cx="19" cy="21" r="1"></circle>
-																<path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-															</svg>
-															Add to Cart
-														</a>
-													</div>
+<!-- Replace overlay add to cart anchor with this button -->
+<div class="product-cart-overlay">
+  <button
+    type="button"
+    class="product-add-to-cart-btn ajax_add_to_cart add-btn"
+    data-id="<?php echo esc_attr( $id ); ?>"
+    data-product_type="<?php echo esc_attr( $product->get_type() ); ?>"
+    aria-label="<?php echo esc_attr( 'Add ' . $title . ' to cart' ); ?>"
+  >
+    <!-- svg + text -->
+    <svg ...></svg>
+    Add to Cart
+  </button>
+</div>
+
 												<?php endif; ?>
 											</div>
 
@@ -370,16 +375,21 @@ get_header();
 
 												<!-- Add to Cart -->
 												<?php if ( $product->is_type( 'simple' ) && $product->is_purchasable() && $product->is_in_stock() ) : ?>
-													<div class="product-cart-overlay">
-														<a href="<?php echo esc_url( $product->add_to_cart_url() ); ?>" class="product-add-to-cart-btn ajax_add_to_cart add_to_cart_button" data-product_id="<?php echo esc_attr( $product_id ); ?>" onclick="event.stopPropagation();" rel="nofollow">
-															<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-																<circle cx="8" cy="21" r="1"></circle>
-																<circle cx="19" cy="21" r="1"></circle>
-																<path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-															</svg>
-															Add to Cart
-														</a>
-													</div>
+<!-- Replace overlay add to cart anchor with this button -->
+<div class="product-cart-overlay">
+  <button
+    type="button"
+    class="product-add-to-cart-btn ajax_add_to_cart add-btn"
+    data-id="<?php echo esc_attr( $id ); ?>"
+    data-product_type="<?php echo esc_attr( $product->get_type() ); ?>"
+    aria-label="<?php echo esc_attr( 'Add ' . $title . ' to cart' ); ?>"
+  >
+    <!-- svg + text -->
+    <svg ...></svg>
+    Add to Cart
+  </button>
+</div>
+
 												<?php endif; ?>
 											</div>
 

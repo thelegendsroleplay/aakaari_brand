@@ -999,237 +999,220 @@ body.woocommerce-checkout .entry-title,
    PAYMENT SECTION IN SIDEBAR - COMPLETELY CUSTOM DESIGN
    ===================================================== */
 
+/* Minimal Payment Section — Mobile-first */
 .checkout-payment-section {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 2px solid #e5e7eb;
-}
-
-.payment-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin: 0 0 1.25rem;
-    color: #111827;
+    margin-top: 1.25rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #eef2f7;
+    box-shadow: none;
+  }
+  
+  /* Title */
+  .payment-title {
     display: flex;
     align-items: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.85rem;
+  }
+  
+  /* Payment method list (vertical stack) */
+  .wc_payment_methods {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
-}
-
-.payment-title::before {
-    content: "💳";
-    font-size: 1.25rem;
-}
-
-/* CUSTOM PAYMENT METHODS - NO WOOCOMMERCE DEFAULT LOOK */
-.checkout-payment-section .woocommerce-checkout-payment {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.checkout-payment-section .wc_payment_methods {
-    list-style: none !important;
-    padding: 0 !important;
-    margin: 0 0 1.5rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.75rem !important;
-}
-
-.checkout-payment-section .wc_payment_method {
-    background: #ffffff !important;
-    border: 2px solid #e5e7eb !important;
-    border-radius: 12px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    cursor: pointer !important;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    overflow: hidden !important;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
-}
-
-.checkout-payment-section .wc_payment_method:hover {
-    border-color: #cbd5e1 !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08) !important;
-    transform: translateY(-1px) !important;
-}
-
-.checkout-payment-section .wc_payment_method.active,
-.checkout-payment-section .wc_payment_method input[type="radio"]:checked + label {
-    border-color: #000 !important;
-    background: #fafafa !important;
-    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.12) !important;
-}
-
-/* Custom radio button styling */
-.checkout-payment-section .wc_payment_method input[type="radio"] {
+  }
+  
+  /* Each method container */
+  .wc_payment_method {
+    position: relative;
+  }
+  
+  /* Hide native radio visually but keep for accessibility */
+  .pm-radio {
     position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.checkout-payment-section .wc_payment_method label {
-    display: flex !important;
-    align-items: center !important;
-    padding: 1.25rem 1.25rem !important;
-    margin: 0 !important;
-    cursor: pointer !important;
-    font-size: 0.9375rem !important;
-    font-weight: 600 !important;
-    color: #111827 !important;
-    gap: 1rem !important;
-    position: relative !important;
-    transition: all 0.2s !important;
-}
-
-.checkout-payment-section .wc_payment_method label::before {
-    content: "";
-    width: 20px;
-    height: 20px;
-    border: 2px solid #cbd5e1;
-    border-radius: 50%;
-    flex-shrink: 0;
-    transition: all 0.2s;
-    background: white;
-}
-
-.checkout-payment-section .wc_payment_method input[type="radio"]:checked + label::before {
-    border-color: #000;
-    border-width: 6px;
-}
-
-.checkout-payment-section .wc_payment_method label img {
-    max-height: 24px;
-    width: auto;
-    object-fit: contain;
-}
-
-/* Payment method description/box */
-.checkout-payment-section .payment_box {
-    background: #f8fafc !important;
-    border: none !important;
-    border-top: 1px solid #e5e7eb !important;
-    padding: 1.25rem !important;
-    margin: 0 !important;
-    font-size: 0.875rem !important;
-    color: #6b7280 !important;
-    line-height: 1.6 !important;
-    display: none !important;
-}
-
-.checkout-payment-section .wc_payment_method input[type="radio"]:checked ~ .payment_box {
-    display: block !important;
-}
-
-.checkout-payment-section .payment_box p {
-    margin: 0 0 0.5rem !important;
-    color: #6b7280 !important;
-}
-
-.checkout-payment-section .payment_box p:last-child {
-    margin-bottom: 0 !important;
-}
-
-/* Place Order Button - Custom Design */
-.checkout-payment-section #place_order,
-.checkout-payment-section button[type="submit"] {
-    width: 100% !important;
-    padding: 1.125rem 1.5rem !important;
-    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%) !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: 12px !important;
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-    cursor: pointer !important;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.25) !important;
-    margin-top: 1rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.75rem !important;
-}
-
-.checkout-payment-section #place_order::after {
-    content: "→";
-    font-size: 1.25rem;
-    font-weight: 400;
-    transition: transform 0.25s;
-}
-
-.checkout-payment-section #place_order:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.3) !important;
-}
-
-.checkout-payment-section #place_order:hover::after {
-    transform: translateX(4px);
-}
-
-.checkout-payment-section #place_order:active {
-    transform: translateY(0) !important;
-    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2) !important;
-}
-
-.checkout-payment-section #place_order:disabled {
-    background: #cbd5e1 !important;
-    cursor: not-allowed !important;
-    transform: none !important;
-    box-shadow: none !important;
-    opacity: 0.6 !important;
-}
-
-.checkout-payment-section #place_order:disabled::after {
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+  }
+  
+  /* Label acts as the touch target */
+  .pm-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    background: #fafafa;
+    border: 1px solid #e6edf3;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, transform .12s ease;
+    user-select: none;
+  }
+  
+  /* Left block with name + subtitle */
+  .pm-left { display:flex; flex-direction:column; gap:0.15rem; min-width:0; }
+  .pm-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pm-sub {
+    font-size: 0.82rem;
+    color: #6b7280;
+    line-height: 1.2;
+  }
+  
+  /* Right check icon container */
+  .pm-right { display:flex; align-items:center; justify-content:center; min-width:28px; }
+  .pm-check { color: transparent; opacity: 0; transition: color .12s ease, opacity .12s ease; }
+  
+  /* Default (not selected) */
+  .pm-label:hover {
+    border-color: #d6e3ef;
+    transform: translateY(-1px);
+  }
+  
+  /* Selected state (radio checked) */
+  .wc_payment_method .pm-radio:checked + .pm-label {
+    background: #fff;
+    border: 1.5px solid #111827;
+    box-shadow: 0 6px 18px rgba(17,24,39,0.06);
+    transform: translateY(-2px);
+  }
+  .wc_payment_method .pm-radio:checked + .pm-label .pm-check {
+    color: #10b981;
+    opacity: 1;
+  }
+  
+  /* Payment description box (collapsible, compact) */
+  .payment_box {
     display: none;
+    margin-top: 0.6rem;
+    margin-left: 0.5rem;
+    padding: 0.75rem 0.9rem;
+    border-left: 3px solid #eef6f1;
+    background: #fbfdfc;
+    color: #475569;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+  
+  /* Show when the related radio is checked — uses adjacent selector pattern in JS fallback if not supported */
+  .wc_payment_method .pm-radio:checked ~ .payment_box {
+    display: block;
+  }
+  
+  /* Terms/checkbox container */
+  .woocommerce-terms-and-conditions-wrapper {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: #fafafa;
+    border: 1px solid #eef2f7;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #475569;
+  }
+  
+  /* Checkbox label */
+  .checkbox-label { display:flex; gap:0.6rem; align-items:flex-start; }
+  .checkbox-label input[type="checkbox"] {
+    width: 18px; height:18px; margin-top:3px; accent-color: #111827;
+  }
+  
+  /* Place order button */
+  .place-order { margin-top: 1rem; }
+  #place_order, .place-order .button {
+    width: 100%;
+    padding: 0.95rem;
+    border-radius: 10px;
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  #place_order:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Focus states for keyboard users */
+  .pm-label:focus-within,
+  .pm-label:focus {
+    outline: 3px solid rgba(17,24,39,0.06);
+    outline-offset: 2px;
+  }
+  
+  /* Small screens adjustments (mobile-first) */
+  @media (max-width: 480px) {
+    .pm-label { padding: 0.95rem; border-radius: 12px; }
+    .pm-name { font-size: 0.98rem; }
+    .pm-sub { font-size: 0.82rem; }
+    .payment_box { margin-left:0; padding:0.65rem }
+  }
+  /* Hide UPI / Wallet method visually (CSS only) */
+.wc_payment_methods li[data-method*="upi"],
+.wc_payment_methods li[data-method*="wallet"],
+.wc_payment_methods li[id*="payment_upi"],
+.wc_payment_methods li[id*="payment_wallet"],
+.wc_payment_methods input[value*="upi"] ~ label,
+.wc_payment_methods input[value*="wallet"] ~ label {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
 }
 
-/* Privacy/Terms checkbox */
-.checkout-payment-section .woocommerce-terms-and-conditions-wrapper {
-    background: #f8fafc !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 8px !important;
-    padding: 1rem !important;
-    margin: 1rem 0 !important;
+/* Remove any visible check/tick icons (global) */
+.checkout-payment-section .pm-check,
+.checkout-payment-section .pm-check * {
+  color: transparent !important;
+  opacity: 0 !important;
+  display: none !important;
 }
 
-.checkout-payment-section .woocommerce-form__label-for-checkbox {
-    display: flex !important;
-    align-items: flex-start !important;
-    gap: 0.75rem !important;
-    font-size: 0.8125rem !important;
-    color: #6b7280 !important;
-    line-height: 1.5 !important;
+/* If your theme uses a 'Selected' badge, hide that too */
+.checkout-payment-section .pm-label::after,
+.checkout-payment-section .wc_payment_method label .selected-badge,
+.checkout-payment-section .wc_payment_method .selected {
+  display: none !important;
 }
 
-.checkout-payment-section .woocommerce-form__input-checkbox {
-    width: 18px !important;
-    height: 18px !important;
-    margin: 0.125rem 0 0 0 !important;
-    flex-shrink: 0 !important;
-    cursor: pointer !important;
+/* Force no green border/green accents on checked labels */
+.wc_payment_method .pm-radio:checked + .pm-label,
+.wc_payment_methods .wc_payment_method input:checked + label {
+  border-color: #111827 !important; /* keep dark border, remove green */
+  box-shadow: none !important;
 }
 
-/* Mobile optimization */
-@media (max-width: 768px) {
-    .checkout-payment-section .wc_payment_method label {
-        padding: 1rem !important;
-        font-size: 0.875rem !important;
-    }
-
-    .checkout-payment-section #place_order {
-        padding: 1.25rem 1.5rem !important;
-        font-size: 1.0625rem !important;
-        border-radius: 10px !important;
-    }
-
-    .payment-title {
-        font-size: 1rem;
-    }
+/* Also hide any tick inside .payment_box area */
+.checkout-payment-section .payment_box svg,
+.checkout-payment-section .payment_box .tick {
+  display: none !important;
 }
+
 
 /* =====================================================
    ENHANCED WOOCOMMERCE NOTIFICATIONS (SITE-WIDE)

@@ -198,14 +198,57 @@ $checkout = WC()->checkout();
                                 </div>
 
                                 <!-- Payment Methods -->
-                                <div class="checkout-payment-section">
-                                    <?php if ( WC()->cart->needs_payment() ) : ?>
-                                        <h4 class="payment-title"><?php esc_html_e( 'Payment Method', 'woocommerce' ); ?></h4>
-                                        <?php woocommerce_checkout_payment(); ?>
-                                    <?php else : ?>
-                                        <button type="submit" class="btn btn-primary btn-full" name="woocommerce_checkout_place_order" id="place_order" value="<?php esc_attr_e( 'Place order', 'woocommerce' ); ?>"><?php esc_html_e( 'Place Order', 'woocommerce' ); ?></button>
-                                    <?php endif; ?>
-                                </div>
+                                <section class="checkout-payment-section" aria-labelledby="payment-heading">
+  <h3 id="payment-heading" class="payment-title">Payment</h3>
+
+  <ul class="wc_payment_methods" role="radiogroup" aria-label="Payment methods">
+    <li class="wc_payment_method" data-method="cod">
+      <input id="pm-cod" class="pm-radio" name="payment_method" type="radio" value="cod" />
+      <label for="pm-cod" class="pm-label">
+        <div class="pm-left">
+          <strong class="pm-name">Cash on delivery</strong>
+          <span class="pm-sub">Pay with cash upon delivery</span>
+        </div>
+        <div class="pm-right" aria-hidden="true">
+          <svg class="pm-check" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </label>
+      <div class="payment_box" id="box-cod" aria-hidden="true">
+        <p>Deliveries currently accepted in your area. No extra fee.</p>
+      </div>
+    </li>
+
+    <li class="wc_payment_method" data-method="upi">
+      <input id="pm-upi" class="pm-radio" name="payment_method" type="radio" value="upi" />
+      <label for="pm-upi" class="pm-label">
+        <div class="pm-left">
+          <strong class="pm-name">UPI / Wallet</strong>
+          <span class="pm-sub">Fast & secure payments</span>
+        </div>
+        <div class="pm-right" aria-hidden="true">
+          <svg class="pm-check" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </label>
+      <div class="payment_box" id="box-upi" aria-hidden="true">
+        <p>Select your UPI app after placing order. Instant confirmation.</p>
+      </div>
+    </li>
+  </ul>
+
+  <div class="woocommerce-terms-and-conditions-wrapper">
+    <label class="checkbox-label">
+      <input type="checkbox" id="terms" />
+      I have read and agree to the website terms and conditions
+    </label>
+  </div>
+
+  <div class="place-order">
+    <button id="place_order" type="submit" class="btn-primary" disabled>Place order</button>
+  </div>
+</section>
+
 
                             </div>
                         </div>
