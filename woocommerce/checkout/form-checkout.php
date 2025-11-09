@@ -234,8 +234,43 @@ $is_user_logged_in = is_user_logged_in();
 
 						<?php if ( WC()->cart->needs_payment() ) : ?>
 							<div id="payment" class="woocommerce-checkout-payment">
-								<?php do_action( 'woocommerce_checkout_before_order_review' ); ?>
-								<?php do_action( 'woocommerce_checkout_order_review' ); ?>
+								<?php
+								if ( ! empty( $available_gateways = WC()->payment_gateways()->get_available_payment_gateways() ) ) {
+									?>
+									<ul class="wc_payment_methods payment_methods methods">
+										<?php
+										foreach ( $available_gateways as $gateway ) {
+											?>
+											<li class="wc_payment_method payment_method_<?php echo esc_attr( $gateway->id ); ?>">
+												<input
+													id="payment_method_<?php echo esc_attr( $gateway->id ); ?>"
+													type="radio"
+													class="input-radio"
+													name="payment_method"
+													value="<?php echo esc_attr( $gateway->id ); ?>"
+													<?php checked( $gateway->chosen, true ); ?>
+												/>
+												<label for="payment_method_<?php echo esc_attr( $gateway->id ); ?>">
+													<?php echo wp_kses_post( $gateway->get_title() ); ?>
+													<?php echo wp_kses_post( $gateway->get_icon() ); ?>
+												</label>
+												<?php
+												if ( $gateway->has_fields() || $gateway->get_description() ) {
+													?>
+													<div class="payment_box payment_method_<?php echo esc_attr( $gateway->id ); ?>" style="display: none;">
+														<?php $gateway->payment_fields(); ?>
+													</div>
+													<?php
+												}
+												?>
+											</li>
+											<?php
+										}
+										?>
+									</ul>
+									<?php
+								}
+								?>
 							</div>
 						<?php endif; ?>
 

@@ -9,7 +9,12 @@ body.woocommerce-checkout .entry-title,
 }
 
 /* Hide WooCommerce notices wrapper (we have coupon in order summary) */
-.woocommerce-notices-wrapper {
+.woocommerce-notices-wrapper,
+.checkout-page .woocommerce-notices-wrapper,
+body.woocommerce-checkout .woocommerce-notices-wrapper,
+.woocommerce-checkout .woocommerce-notices-wrapper,
+.woocommerce-form-coupon-toggle,
+.checkout_coupon {
   display: none !important;
 }
 
