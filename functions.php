@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define theme constants
-define('AAKAARI_THEME_VERSION', '1.0.9');
+define('AAKAARI_THEME_VERSION', '1.1.0');
 define('AAKAARI_THEME_DIR', get_template_directory());
 define('AAKAARI_THEME_URI', get_template_directory_uri());
 
