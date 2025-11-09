@@ -67,6 +67,16 @@ function aakaari_enqueue_styles() {
             AAKAARI_THEME_VERSION
         );
     }
+
+    // Cart page styles
+    if (is_cart()) {
+        wp_enqueue_style(
+            'aakaari-cart',
+            AAKAARI_THEME_URI . '/assets/css/cart.css',
+            array('aakaari-main'),
+            AAKAARI_THEME_VERSION
+        );
+    }
 }
 add_action('wp_enqueue_scripts', 'aakaari_enqueue_styles');
 
@@ -141,6 +151,23 @@ function aakaari_enqueue_scripts() {
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce('aakaari-ajax-nonce'),
             'checkoutUrl' => wc_get_checkout_url(),
+        ));
+    }
+
+    // Cart page scripts
+    if (is_cart()) {
+        wp_enqueue_script(
+            'aakaari-cart',
+            AAKAARI_THEME_URI . '/assets/js/cart.js',
+            array('jquery'),
+            AAKAARI_THEME_VERSION,
+            true
+        );
+
+        // Localize script for AJAX (cart needs it for remove/clear actions)
+        wp_localize_script('aakaari-cart', 'aakaariAjax', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('aakaari-ajax-nonce'),
         ));
     }
 
