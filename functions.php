@@ -24,6 +24,7 @@ function aakaari_include_files() {
         '/inc/enqueue-scripts.php',       // Enqueue CSS and JS files
         '/inc/woocommerce-functions.php', // WooCommerce specific functions
         '/inc/customizer.php',            // Theme customizer settings
+        '/inc/header-functions.php',      // Header functions and walkers
         // Add more inc files here as you create them
     );
 
