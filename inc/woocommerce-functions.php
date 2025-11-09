@@ -99,3 +99,148 @@ function aakaari_add_to_cart_fragment($fragments) {
     return $fragments;
 }
 add_filter('woocommerce_add_to_cart_fragments', 'aakaari_add_to_cart_fragment');
+
+/**
+ * AJAX Get Quick View Product Details
+ */
+function aakaari_ajax_get_quick_view() {
+    check_ajax_referer('aakaari-ajax-nonce', 'nonce');
+
+    if (!is_woocommerce_activated()) {
+        wp_send_json_error(array('message' => 'WooCommerce is not active'));
+        return;
+    }
+
+    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+
+    if ($product_id <= 0) {
+        wp_send_json_error(array('message' => 'Invalid product ID'));
+        return;
+    }
+
+    $product = wc_get_product($product_id);
+
+    if (!$product) {
+        wp_send_json_error(array('message' => 'Product not found'));
+        return;
+    }
+
+    ob_start();
+    ?>
+    <div class="quick-view-inner">
+        <div class="quick-view-images">
+            <div class="quick-view-main-image">
+                <?php echo $product->get_image('large'); ?>
+            </div>
+            <?php
+            $gallery_images = $product->get_gallery_image_ids();
+            if (!empty($gallery_images)) :
+            ?>
+                <div class="quick-view-thumbnails">
+                    <div class="quick-view-thumbnail active">
+                        <?php echo $product->get_image('thumbnail'); ?>
+                    </div>
+                    <?php foreach ($gallery_images as $image_id) : ?>
+                        <div class="quick-view-thumbnail">
+                            <?php echo wp_get_attachment_image($image_id, 'thumbnail'); ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="quick-view-details">
+            <h2 class="quick-view-title"><?php echo esc_html($product->get_name()); ?></h2>
+
+            <div class="quick-view-price">
+                <?php echo $product->get_price_html(); ?>
+            </div>
+
+            <?php
+            $rating_count = $product->get_rating_count();
+            $average_rating = $product->get_average_rating();
+
+            if ($rating_count > 0) :
+            ?>
+                <div class="quick-view-rating">
+                    <div class="product-card-stars">
+                        <?php
+                        for ($i = 1; $i <= 5; $i++) {
+                            if ($i <= $average_rating) {
+                                echo '<span class="star">★</span>';
+                            } else {
+                                echo '<span class="star empty">★</span>';
+                            }
+                        }
+                        ?>
+                    </div>
+                    <span class="product-card-rating-count">(<?php echo esc_html($rating_count); ?> reviews)</span>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($product->get_short_description()) : ?>
+                <div class="quick-view-description">
+                    <?php echo wpautop($product->get_short_description()); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($product->is_type('variable')) : ?>
+                <div class="quick-view-variations">
+                    <?php
+                    $attributes = $product->get_variation_attributes();
+                    foreach ($attributes as $attribute_name => $options) :
+                        ?>
+                        <div class="quick-view-variation">
+                            <label class="quick-view-variation-label"><?php echo wc_attribute_label($attribute_name); ?></label>
+                            <div class="quick-view-variation-options">
+                                <?php foreach ($options as $option) : ?>
+                                    <button class="quick-view-variation-option" data-attribute="<?php echo esc_attr($attribute_name); ?>" data-value="<?php echo esc_attr($option); ?>">
+                                        <?php echo esc_html($option); ?>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php
+                    endforeach;
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($product->is_in_stock()) : ?>
+                <div class="quick-view-quantity">
+                    <label class="quick-view-quantity-label">Quantity:</label>
+                    <div class="quick-view-quantity-input">
+                        <button class="quick-view-quantity-btn minus">−</button>
+                        <span class="quick-view-quantity-value">1</span>
+                        <button class="quick-view-quantity-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="quick-view-actions">
+                    <button class="quick-view-add-to-cart" data-product-id="<?php echo esc_attr($product_id); ?>">
+                        Add to Cart
+                    </button>
+                    <a href="<?php echo esc_url($product->get_permalink()); ?>" class="quick-view-view-full">
+                        View Full Details
+                    </a>
+                </div>
+            <?php else : ?>
+                <div class="quick-view-actions">
+                    <button class="quick-view-add-to-cart" disabled>
+                        Out of Stock
+                    </button>
+                    <a href="<?php echo esc_url($product->get_permalink()); ?>" class="quick-view-view-full">
+                        View Full Details
+                    </a>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+
+    $html = ob_get_clean();
+
+    wp_send_json_success(array('html' => $html));
+}
+add_action('wp_ajax_aakaari_get_quick_view', 'aakaari_ajax_get_quick_view');
+add_action('wp_ajax_nopriv_aakaari_get_quick_view', 'aakaari_ajax_get_quick_view');

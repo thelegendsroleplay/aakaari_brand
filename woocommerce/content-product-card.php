@@ -43,6 +43,28 @@ if (empty($product) || !$product->is_visible()) {
             <div class="product-card-content">
                 <h3 class="product-card-title"><?php echo esc_html($product->get_name()); ?></h3>
 
+                <?php
+                $rating_count = $product->get_rating_count();
+                $average_rating = $product->get_average_rating();
+
+                if ($rating_count > 0) :
+                ?>
+                    <div class="product-card-rating">
+                        <div class="product-card-stars">
+                            <?php
+                            for ($i = 1; $i <= 5; $i++) {
+                                if ($i <= $average_rating) {
+                                    echo '<span class="star">★</span>';
+                                } else {
+                                    echo '<span class="star empty">★</span>';
+                                }
+                            }
+                            ?>
+                        </div>
+                        <span class="product-card-rating-count">(<?php echo esc_html($rating_count); ?>)</span>
+                    </div>
+                <?php endif; ?>
+
                 <?php if ($product->get_short_description()) : ?>
                     <p class="product-card-description">
                         <?php echo wp_trim_words($product->get_short_description(), 10, '...'); ?>
