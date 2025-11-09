@@ -336,7 +336,7 @@
      */
     function updateCartQuantity(cartKey, quantity) {
         const formData = new FormData();
-        formData.append('action', 'update_cart_item_quantity');
+        formData.append('action', 'aakaari_update_cart_quantity');
         formData.append('cart_item_key', cartKey);
         formData.append('quantity', quantity);
         formData.append('nonce', aakaariAjax.nonce);

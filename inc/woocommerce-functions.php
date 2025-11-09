@@ -144,6 +144,102 @@ add_action('wp_ajax_aakaari_get_cart_count', 'aakaari_ajax_get_cart_count');
 add_action('wp_ajax_nopriv_aakaari_get_cart_count', 'aakaari_ajax_get_cart_count');
 
 /**
+ * AJAX Update Cart Quantity
+ */
+function aakaari_ajax_update_cart_quantity() {
+    check_ajax_referer('aakaari-ajax-nonce', 'nonce');
+
+    if (!is_woocommerce_activated()) {
+        wp_send_json_error(array('message' => 'WooCommerce is not active'));
+        return;
+    }
+
+    $cart_item_key = isset($_POST['cart_item_key']) ? sanitize_text_field($_POST['cart_item_key']) : '';
+    $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 0;
+
+    if (empty($cart_item_key)) {
+        wp_send_json_error(array('message' => 'Invalid cart item'));
+        return;
+    }
+
+    if ($quantity < 0) {
+        wp_send_json_error(array('message' => 'Invalid quantity'));
+        return;
+    }
+
+    // Update the cart
+    if ($quantity == 0) {
+        // Remove item if quantity is 0
+        WC()->cart->remove_cart_item($cart_item_key);
+    } else {
+        // Update quantity
+        WC()->cart->set_quantity($cart_item_key, $quantity, true);
+    }
+
+    wp_send_json_success(array(
+        'message' => 'Cart updated',
+        'cart_count' => WC()->cart->get_cart_contents_count()
+    ));
+}
+add_action('wp_ajax_aakaari_update_cart_quantity', 'aakaari_ajax_update_cart_quantity');
+add_action('wp_ajax_nopriv_aakaari_update_cart_quantity', 'aakaari_ajax_update_cart_quantity');
+
+/**
+ * AJAX Remove Cart Item
+ */
+function aakaari_ajax_remove_cart_item() {
+    check_ajax_referer('aakaari-ajax-nonce', 'nonce');
+
+    if (!is_woocommerce_activated()) {
+        wp_send_json_error(array('message' => 'WooCommerce is not active'));
+        return;
+    }
+
+    $cart_item_key = isset($_POST['cart_item_key']) ? sanitize_text_field($_POST['cart_item_key']) : '';
+
+    if (empty($cart_item_key)) {
+        wp_send_json_error(array('message' => 'Invalid cart item'));
+        return;
+    }
+
+    // Remove from cart
+    $removed = WC()->cart->remove_cart_item($cart_item_key);
+
+    if ($removed) {
+        wp_send_json_success(array(
+            'message' => 'Item removed from cart',
+            'cart_count' => WC()->cart->get_cart_contents_count()
+        ));
+    } else {
+        wp_send_json_error(array('message' => 'Failed to remove item'));
+    }
+}
+add_action('wp_ajax_aakaari_remove_cart_item', 'aakaari_ajax_remove_cart_item');
+add_action('wp_ajax_nopriv_aakaari_remove_cart_item', 'aakaari_ajax_remove_cart_item');
+
+/**
+ * AJAX Clear Cart
+ */
+function aakaari_ajax_clear_cart() {
+    check_ajax_referer('aakaari-ajax-nonce', 'nonce');
+
+    if (!is_woocommerce_activated()) {
+        wp_send_json_error(array('message' => 'WooCommerce is not active'));
+        return;
+    }
+
+    // Clear the entire cart
+    WC()->cart->empty_cart();
+
+    wp_send_json_success(array(
+        'message' => 'Cart cleared',
+        'cart_count' => 0
+    ));
+}
+add_action('wp_ajax_aakaari_clear_cart', 'aakaari_ajax_clear_cart');
+add_action('wp_ajax_nopriv_aakaari_clear_cart', 'aakaari_ajax_clear_cart');
+
+/**
  * Update cart count via fragments (for AJAX cart)
  */
 function aakaari_add_to_cart_fragment($fragments) {
