@@ -11,12 +11,7 @@ get_header();
 ?>
 
 <main id="main" class="site-main woocommerce-page">
-    <?php
-    while (have_posts()) :
-        the_post();
-        the_content();
-    endwhile;
-    ?>
+    <?php woocommerce_content(); ?>
 </main>
 
 <?php

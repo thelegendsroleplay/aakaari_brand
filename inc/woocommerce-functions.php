@@ -27,9 +27,29 @@ function aakaari_woocommerce_setup() {
         return;
     }
 
-    // Add custom WooCommerce functions here
+    // Remove default WooCommerce wrappers
+    remove_action('woocommerce_before_main_content', 'woocommerce_output_content_wrapper', 10);
+    remove_action('woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10);
+
+    // Add our custom wrappers
+    add_action('woocommerce_before_main_content', 'aakaari_wrapper_start', 10);
+    add_action('woocommerce_after_main_content', 'aakaari_wrapper_end', 10);
 }
 add_action('after_setup_theme', 'aakaari_woocommerce_setup');
+
+/**
+ * Custom WooCommerce wrapper start
+ */
+function aakaari_wrapper_start() {
+    echo '<div class="woocommerce-content-wrapper">';
+}
+
+/**
+ * Custom WooCommerce wrapper end
+ */
+function aakaari_wrapper_end() {
+    echo '</div>';
+}
 
 /**
  * Disable default WooCommerce styles (optional - uncomment if you want full control)
