@@ -411,7 +411,22 @@ while (have_posts()) :
 
         <!-- Related Products -->
         <?php
+        // Get related products
         $related_products = wc_get_related_products($product->get_id(), 4);
+
+        // If no related products, get random products
+        if (empty($related_products)) {
+            $args = array(
+                'post_type'      => 'product',
+                'posts_per_page' => 4,
+                'orderby'        => 'rand',
+                'post__not_in'   => array($product->get_id()),
+                'post_status'    => 'publish',
+            );
+            $random_products = get_posts($args);
+            $related_products = wp_list_pluck($random_products, 'ID');
+        }
+
         if (!empty($related_products)) :
         ?>
             <div class="related-section">

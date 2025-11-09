@@ -1056,8 +1056,9 @@
 
     .add-cart-btn,
     .buy-btn {
-        height: 2.75rem;
+        height: 3.5rem;
         font-size: 0.9375rem;
+        padding: 0.875rem 1.5rem;
     }
 
     .features-row {
@@ -1228,8 +1229,9 @@
 
     .add-cart-btn,
     .buy-btn {
-        height: 2.5rem;
+        height: 3.25rem;
         font-size: 0.875rem;
+        padding: 0.875rem 1.5rem;
     }
 
     .features-row {
