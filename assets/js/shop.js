@@ -6,8 +6,11 @@
 (function() {
     'use strict';
 
+    console.log('Shop Page Script Loaded');
+
     // Wait for DOM to be ready
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('Shop Page DOM Ready');
         initFiltersToggle();
         initPriceSliders();
         initColorSwatches();

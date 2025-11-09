@@ -7,6 +7,11 @@
  * @package Aakaari_Brand
  */
 
+// TEMPORARY DEBUG - Remove after fixing
+if (file_exists(AAKAARI_THEME_DIR . '/DEBUG-CHECK.php')) {
+    include(AAKAARI_THEME_DIR . '/DEBUG-CHECK.php');
+}
+
 get_header();
 ?>
 
