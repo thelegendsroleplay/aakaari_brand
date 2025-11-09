@@ -60,6 +60,7 @@
                         'menu_class'     => 'header-nav-menu',
                         'container'      => false,
                         'fallback_cb'    => 'aakaari_default_menu',
+                        'walker'         => new Aakaari_Desktop_Nav_Walker(),
                     ));
                     ?>
                 </nav>
@@ -158,6 +159,7 @@
                     'menu_class'     => 'header-mobile-nav',
                     'container'      => false,
                     'fallback_cb'    => 'aakaari_default_mobile_menu',
+                    'walker'         => new Aakaari_Mobile_Nav_Walker(),
                 ));
                 ?>
                 <?php if (is_user_logged_in()) : ?>
