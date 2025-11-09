@@ -27,7 +27,7 @@ if (WC()->cart) {
 }
 echo '</div>';
 
-do_action('woocommerce_before_cart'); ?>
+do_action('woocommerce_before_cart');
 
 /* -------------------------
  * Defensive checks
