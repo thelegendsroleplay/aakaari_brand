@@ -123,16 +123,42 @@ while (have_posts()) :
                     if (!empty($attributes)) :
                 ?>
                     <div class="options-section">
-                        <?php foreach ($attributes as $attribute_name => $options) : ?>
+                        <?php foreach ($attributes as $attribute_name => $options) :
+                            $attribute_slug = sanitize_title($attribute_name);
+                            $is_color_attribute = (strpos($attribute_slug, 'color') !== false || strpos($attribute_slug, 'pa_color') !== false);
+                        ?>
                             <div class="option-row">
                                 <label><?php echo wc_attribute_label($attribute_name); ?>:</label>
-                                <div class="option-btns" data-attribute="<?php echo esc_attr(sanitize_title($attribute_name)); ?>">
-                                    <?php foreach ($options as $option) : ?>
-                                        <button type="button" class="option-btn" data-value="<?php echo esc_attr($option); ?>">
-                                            <?php echo esc_html($option); ?>
-                                        </button>
-                                    <?php endforeach; ?>
-                                </div>
+                                <?php if ($is_color_attribute) : ?>
+                                    <div class="color-btns" data-attribute="<?php echo esc_attr($attribute_slug); ?>">
+                                        <?php foreach ($options as $option) :
+                                            // Get term object to retrieve color metadata
+                                            $term = get_term_by('slug', sanitize_title($option), $attribute_name);
+                                            if (!$term) {
+                                                $term = get_term_by('name', $option, $attribute_name);
+                                            }
+                                            $hex_color = '';
+                                            if ($term) {
+                                                $hex_color = get_term_meta($term->term_id, 'attribute_color', true);
+                                            }
+                                            // Fallback to color name if no hex color is set
+                                            $bg_color = $hex_color ? $hex_color : strtolower($option);
+                                        ?>
+                                            <button type="button" class="color-btn"
+                                                    style="background-color: <?php echo esc_attr($bg_color); ?>"
+                                                    title="<?php echo esc_attr($option); ?>"
+                                                    data-value="<?php echo esc_attr($option); ?>"></button>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else : ?>
+                                    <div class="option-btns" data-attribute="<?php echo esc_attr($attribute_slug); ?>">
+                                        <?php foreach ($options as $option) : ?>
+                                            <button type="button" class="option-btn" data-value="<?php echo esc_attr($option); ?>">
+                                                <?php echo esc_html($option); ?>
+                                            </button>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -164,8 +190,23 @@ while (have_posts()) :
                                 <div class="option-row">
                                     <label>Color:</label>
                                     <div class="color-btns">
-                                        <?php foreach ($color_options as $color) : ?>
-                                            <button type="button" class="color-btn" style="background-color: <?php echo esc_attr(strtolower(trim($color))); ?>" title="<?php echo esc_attr(trim($color)); ?>"></button>
+                                        <?php foreach ($color_options as $color) :
+                                            $color_name = trim($color);
+                                            // Get term object to retrieve color metadata
+                                            $term = get_term_by('name', $color_name, 'pa_color');
+                                            if (!$term) {
+                                                $term = get_term_by('slug', sanitize_title($color_name), 'pa_color');
+                                            }
+                                            $hex_color = '';
+                                            if ($term) {
+                                                $hex_color = get_term_meta($term->term_id, 'attribute_color', true);
+                                            }
+                                            // Fallback to color name if no hex color is set
+                                            $bg_color = $hex_color ? $hex_color : strtolower($color_name);
+                                        ?>
+                                            <button type="button" class="color-btn"
+                                                    style="background-color: <?php echo esc_attr($bg_color); ?>"
+                                                    title="<?php echo esc_attr($color_name); ?>"></button>
                                         <?php endforeach; ?>
                                     </div>
                                 </div>

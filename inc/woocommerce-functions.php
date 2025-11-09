@@ -189,16 +189,43 @@ function aakaari_ajax_get_quick_view() {
                     <?php
                     $attributes = $product->get_variation_attributes();
                     foreach ($attributes as $attribute_name => $options) :
+                        $attribute_slug = sanitize_title($attribute_name);
+                        $is_color_attribute = (strpos($attribute_slug, 'color') !== false || strpos($attribute_slug, 'pa_color') !== false);
                         ?>
                         <div class="quick-view-variation">
                             <label class="quick-view-variation-label"><?php echo wc_attribute_label($attribute_name); ?></label>
-                            <div class="quick-view-variation-options">
-                                <?php foreach ($options as $option) : ?>
-                                    <button class="quick-view-variation-option" data-attribute="<?php echo esc_attr($attribute_name); ?>" data-value="<?php echo esc_attr($option); ?>">
-                                        <?php echo esc_html($option); ?>
-                                    </button>
-                                <?php endforeach; ?>
-                            </div>
+                            <?php if ($is_color_attribute) : ?>
+                                <div class="quick-view-variation-options color-options">
+                                    <?php foreach ($options as $option) :
+                                        // Get term object to retrieve color metadata
+                                        $term = get_term_by('slug', sanitize_title($option), $attribute_name);
+                                        if (!$term) {
+                                            $term = get_term_by('name', $option, $attribute_name);
+                                        }
+                                        $hex_color = '';
+                                        if ($term) {
+                                            $hex_color = get_term_meta($term->term_id, 'attribute_color', true);
+                                        }
+                                        // Fallback to color name if no hex color is set
+                                        $bg_color = $hex_color ? $hex_color : strtolower($option);
+                                    ?>
+                                        <button class="quick-view-variation-option color-option"
+                                                style="background-color: <?php echo esc_attr($bg_color); ?>; width: 2.5rem; height: 2.5rem; border-radius: 50%; padding: 0;"
+                                                data-attribute="<?php echo esc_attr($attribute_name); ?>"
+                                                data-value="<?php echo esc_attr($option); ?>"
+                                                title="<?php echo esc_attr($option); ?>">
+                                        </button>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else : ?>
+                                <div class="quick-view-variation-options">
+                                    <?php foreach ($options as $option) : ?>
+                                        <button class="quick-view-variation-option" data-attribute="<?php echo esc_attr($attribute_name); ?>" data-value="<?php echo esc_attr($option); ?>">
+                                            <?php echo esc_html($option); ?>
+                                        </button>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                         <?php
                     endforeach;
