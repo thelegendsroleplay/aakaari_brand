@@ -58,10 +58,13 @@
         const maxPriceSlider = document.getElementById('max-price');
         const minPriceLabel = document.getElementById('min-price-label');
         const maxPriceLabel = document.getElementById('max-price-label');
+        const form = document.getElementById('product-filters-form');
 
         if (!minPriceSlider || !maxPriceSlider) {
             return;
         }
+
+        let priceTimeout;
 
         // Update labels when sliders change
         minPriceSlider.addEventListener('input', function() {
@@ -93,6 +96,19 @@
                 maxPriceLabel.textContent = maxVal;
             }
         });
+
+        // Auto-submit when slider is released (with debounce)
+        function handlePriceChange() {
+            clearTimeout(priceTimeout);
+            priceTimeout = setTimeout(function() {
+                if (form) {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            }, 500); // Wait 500ms after user stops dragging
+        }
+
+        minPriceSlider.addEventListener('change', handlePriceChange);
+        maxPriceSlider.addEventListener('change', handlePriceChange);
     }
 
     /**
@@ -100,6 +116,7 @@
      */
     function initColorSwatches() {
         const colorSwatches = document.querySelectorAll('.color-swatch');
+        const form = document.getElementById('product-filters-form');
 
         colorSwatches.forEach(function(swatch) {
             swatch.addEventListener('click', function(e) {
@@ -112,6 +129,11 @@
                 const checkbox = this.querySelector('input[type="checkbox"]');
                 if (checkbox) {
                     checkbox.checked = !checkbox.checked;
+
+                    // Auto-submit form for instant filtering
+                    if (form) {
+                        form.dispatchEvent(new Event('submit'));
+                    }
                 }
             });
         });
@@ -236,13 +258,12 @@
             window.location.href = currentUrl.toString();
         });
 
-        // Also trigger on any checkbox/radio change for instant filtering
-        const instantFilters = form.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+        // Instant filtering on checkbox/radio change
+        const instantFilters = form.querySelectorAll('input[type="checkbox"]:not(.color-swatch input), input[type="radio"]');
         instantFilters.forEach(function(input) {
             input.addEventListener('change', function() {
-                // Auto-submit form on filter change
-                // Comment this out if you want manual "Apply Filters" button only
-                // form.dispatchEvent(new Event('submit'));
+                // Auto-submit form on filter change for instant filtering
+                form.dispatchEvent(new Event('submit'));
             });
         });
     }
