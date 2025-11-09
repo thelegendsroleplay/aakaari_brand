@@ -213,6 +213,9 @@
             return;
         }
 
+        // Debug: log what we're sending
+        console.log('Adding to cart with options:', options);
+
         $.ajax({
             type: 'POST',
             url: aakaariAjax.ajaxUrl,
@@ -243,10 +246,16 @@
                         }, 500);
                     }
                 } else {
+                    // Debug: log error response
+                    console.error('Add to cart failed:', response);
+                    if (response.data && response.data.debug) {
+                        console.log('Debug info:', response.data.debug);
+                    }
                     showNotification(response.data.message || 'Failed to add product to cart', 'error');
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error('AJAX error:', status, error);
                 showNotification('Failed to add product to cart', 'error');
             },
             complete: function() {
