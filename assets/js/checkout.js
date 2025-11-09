@@ -253,39 +253,42 @@
      * Setup quantity controls in order summary
      */
     function setupQuantityControls() {
-        // Increase quantity
+        // Handle quantity button clicks
         document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('increase')) {
-                const cartKey = e.target.dataset.cartKey;
-                const qtyInput = document.querySelector(`.qty-value[data-cart-key="${cartKey}"]`);
+            // Check if clicked element or its parent is a quantity button
+            const target = e.target.closest('.qty-btn');
 
-                if (qtyInput) {
-                    const currentQty = parseInt(qtyInput.value);
-                    const maxQty = parseInt(qtyInput.max) || 999;
+            if (!target) return;
 
-                    if (currentQty < maxQty) {
-                        qtyInput.value = currentQty + 1;
-                        updateCartQuantity(cartKey, currentQty + 1);
-                    }
+            e.preventDefault();
+            e.stopPropagation();
+
+            const cartKey = target.dataset.cartKey;
+            const qtyInput = document.querySelector(`.qty-value[data-cart-key="${cartKey}"]`);
+
+            if (!qtyInput) return;
+
+            const currentQty = parseInt(qtyInput.value) || 1;
+
+            // Increase quantity
+            if (target.classList.contains('increase')) {
+                const maxQty = parseInt(qtyInput.max) || 999;
+
+                if (currentQty < maxQty) {
+                    qtyInput.value = currentQty + 1;
+                    updateCartQuantity(cartKey, currentQty + 1);
                 }
             }
 
             // Decrease quantity
-            if (e.target.classList.contains('decrease')) {
-                const cartKey = e.target.dataset.cartKey;
-                const qtyInput = document.querySelector(`.qty-value[data-cart-key="${cartKey}"]`);
-
-                if (qtyInput) {
-                    const currentQty = parseInt(qtyInput.value);
-
-                    if (currentQty > 1) {
-                        qtyInput.value = currentQty - 1;
-                        updateCartQuantity(cartKey, currentQty - 1);
-                    } else {
-                        // Ask for confirmation before removing
-                        if (confirm('Remove this item from cart?')) {
-                            updateCartQuantity(cartKey, 0);
-                        }
+            if (target.classList.contains('decrease')) {
+                if (currentQty > 1) {
+                    qtyInput.value = currentQty - 1;
+                    updateCartQuantity(cartKey, currentQty - 1);
+                } else {
+                    // Ask for confirmation before removing
+                    if (confirm('Remove this item from cart?')) {
+                        updateCartQuantity(cartKey, 0);
                     }
                 }
             }
