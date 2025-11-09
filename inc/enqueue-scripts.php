@@ -38,8 +38,8 @@ function aakaari_enqueue_styles() {
         AAKAARI_THEME_VERSION
     );
 
-    // Home page styles
-    if (is_page_template('template-home.php')) {
+    // Home page styles (also needed for quick view modal)
+    if (is_page_template('template-home.php') || is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy()) {
         wp_enqueue_style(
             'aakaari-home',
             AAKAARI_THEME_URI . '/assets/css/home.css',
@@ -88,8 +88,8 @@ function aakaari_enqueue_scripts() {
         'nonce'   => wp_create_nonce('aakaari-ajax-nonce'),
     ));
 
-    // Home page scripts
-    if (is_page_template('template-home.php')) {
+    // Home page scripts (also needed for quick view and add to cart on shop pages)
+    if (is_page_template('template-home.php') || is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy()) {
         wp_enqueue_script(
             'aakaari-home',
             AAKAARI_THEME_URI . '/assets/js/home.js',
@@ -110,7 +110,7 @@ function aakaari_enqueue_scripts() {
         wp_enqueue_script(
             'aakaari-shop',
             AAKAARI_THEME_URI . '/assets/js/shop.js',
-            array('jquery'),
+            array('jquery', 'aakaari-home'),
             AAKAARI_THEME_VERSION,
             true
         );
