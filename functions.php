@@ -23,6 +23,7 @@ function aakaari_include_files() {
         '/inc/theme-setup.php',           // Theme setup and support
         '/inc/enqueue-scripts.php',       // Enqueue CSS and JS files
         '/inc/woocommerce-functions.php', // WooCommerce specific functions
+        '/inc/customizer.php',            // Theme customizer settings
         // Add more inc files here as you create them
     );
 
