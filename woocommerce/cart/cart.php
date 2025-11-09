@@ -227,10 +227,6 @@ endif;
                         <button type="button" id="clear-cart-btn" class="btn destructive" data-nonce="<?php echo esc_attr( wp_create_nonce( 'aakaari-ajax-nonce' ) ); ?>">
                             <?php esc_html_e( 'Clear Cart', 'aakaari' ); ?>
                         </button>
-
-                        <button type="submit" class="btn btn-primary" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'woocommerce' ); ?>">
-                            <?php esc_html_e( 'Update cart', 'woocommerce' ); ?>
-                        </button>
                     </div>
 
                     <?php do_action( 'woocommerce_cart_actions' ); ?>
