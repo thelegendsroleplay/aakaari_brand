@@ -76,7 +76,17 @@ function aakaari_ajax_add_to_cart() {
         // Build variation attributes array
         foreach ($options as $attribute_name => $attribute_value) {
             // Normalize attribute name to WooCommerce format
-            $attribute_key = 'attribute_' . sanitize_title($attribute_name);
+            // Convert hyphens back to underscores (sanitize_title converts _ to -)
+            $attribute_name = str_replace('-', '_', $attribute_name);
+
+            // If it doesn't start with 'attribute_', add it
+            if (strpos($attribute_name, 'attribute_') !== 0) {
+                $attribute_key = 'attribute_' . $attribute_name;
+            } else {
+                $attribute_key = $attribute_name;
+            }
+
+            // Sanitize the value to match WooCommerce format
             $variation[$attribute_key] = sanitize_title($attribute_value);
         }
 
@@ -85,7 +95,14 @@ function aakaari_ajax_add_to_cart() {
         $variation_id = $data_store->find_matching_product_variation($product, $variation);
 
         if (!$variation_id) {
-            wp_send_json_error(array('message' => 'Selected variation not found. Please try different options.'));
+            // Log for debugging
+            error_log('Variation matching failed. Product ID: ' . $product_id);
+            error_log('Requested attributes: ' . print_r($variation, true));
+
+            wp_send_json_error(array(
+                'message' => 'Selected variation not found. Please try different options.',
+                'debug' => $variation
+            ));
             return;
         }
 
