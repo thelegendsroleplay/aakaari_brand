@@ -91,6 +91,16 @@ get_header();
                 </div>
 
                 <div class="product-carousel-wrapper">
+                    <button class="carousel-nav-button prev" data-carousel-nav="featured" data-direction="prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <button class="carousel-nav-button next" data-carousel-nav="featured" data-direction="next">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
                     <div class="product-carousel" data-carousel="featured">
                         <?php
                         $featured_args = array(
@@ -177,6 +187,16 @@ get_header();
                 </div>
 
                 <div class="product-carousel-wrapper">
+                    <button class="carousel-nav-button prev" data-carousel-nav="new-arrivals" data-direction="prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <button class="carousel-nav-button next" data-carousel-nav="new-arrivals" data-direction="next">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
                     <div class="product-carousel" data-carousel="new-arrivals">
                         <?php
                         $new_arrivals_args = array(
@@ -249,6 +269,26 @@ get_header();
         </section>
 
     </div>
+
+    <!-- Quick View Modal -->
+    <div class="quick-view-modal" id="quickViewModal">
+        <div class="quick-view-content">
+            <button class="quick-view-close" id="quickViewClose">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div id="quickViewContent">
+                <!-- Content will be loaded via AJAX -->
+                <div class="quick-view-loading">
+                    <div class="quick-view-loading-spinner"></div>
+                    <p>Loading product details...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </main>
 
 <?php
