@@ -10,6 +10,7 @@
      * Initialize cart functionality
      */
     function init() {
+        console.log('Cart.js initialized');
         setupQuantityControls();
         setupRemoveButtons();
         setupClearCart();
@@ -19,15 +20,37 @@
      * Setup quantity +/- controls
      */
     function setupQuantityControls() {
-        // Increase quantity
+        // Handle all button clicks in cart items
         document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('increase')) {
-                const cartKey = e.target.dataset.key;
-                const qtyInput = e.target.closest('.item-quantity').querySelector('.qty-value');
+            let target = e.target;
+
+            // If clicked on button content, get the button element
+            if (!target.classList.contains('qty-btn')) {
+                target = target.closest('.qty-btn');
+            }
+
+            if (!target) return;
+
+            // Handle increase button
+            if (target.classList.contains('increase')) {
+                e.preventDefault();
+                console.log('Increase button clicked');
+
+                const cartKey = target.getAttribute('data-key');
+                const itemQuantity = target.closest('.item-quantity');
+
+                if (!itemQuantity) {
+                    console.error('Could not find .item-quantity parent');
+                    return;
+                }
+
+                const qtyInput = itemQuantity.querySelector('.qty-value');
 
                 if (qtyInput) {
                     const currentQty = parseInt(qtyInput.value);
-                    const maxQty = parseInt(qtyInput.max) || 999;
+                    const maxQty = parseInt(qtyInput.getAttribute('max')) || 999;
+
+                    console.log('Current qty:', currentQty, 'Max qty:', maxQty);
 
                     if (currentQty < maxQty) {
                         qtyInput.value = currentQty + 1;
@@ -36,13 +59,25 @@
                 }
             }
 
-            // Decrease quantity
-            if (e.target.classList.contains('decrease')) {
-                const cartKey = e.target.dataset.key;
-                const qtyInput = e.target.closest('.item-quantity').querySelector('.qty-value');
+            // Handle decrease button
+            if (target.classList.contains('decrease')) {
+                e.preventDefault();
+                console.log('Decrease button clicked');
+
+                const cartKey = target.getAttribute('data-key');
+                const itemQuantity = target.closest('.item-quantity');
+
+                if (!itemQuantity) {
+                    console.error('Could not find .item-quantity parent');
+                    return;
+                }
+
+                const qtyInput = itemQuantity.querySelector('.qty-value');
 
                 if (qtyInput) {
                     const currentQty = parseInt(qtyInput.value);
+
+                    console.log('Current qty:', currentQty);
 
                     if (currentQty > 1) {
                         qtyInput.value = currentQty - 1;
@@ -62,7 +97,7 @@
             if (e.target.classList.contains('qty-value')) {
                 const cartItem = e.target.closest('.cart-item');
                 if (cartItem) {
-                    const cartKey = cartItem.dataset.key;
+                    const cartKey = cartItem.getAttribute('data-key');
                     const newQty = parseInt(e.target.value);
 
                     if (newQty > 0) {
@@ -80,11 +115,21 @@
      */
     function setupRemoveButtons() {
         document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('item-remove')) {
-                e.preventDefault();
+            let target = e.target;
 
-                const cartKey = e.target.dataset.key;
-                const productName = e.target.closest('.cart-item')?.querySelector('.item-title')?.textContent;
+            // If clicked on button content, get the button element
+            if (!target.classList.contains('item-remove')) {
+                target = target.closest('.item-remove');
+            }
+
+            if (!target) return;
+
+            if (target.classList.contains('item-remove')) {
+                e.preventDefault();
+                console.log('Remove button clicked');
+
+                const cartKey = target.getAttribute('data-key');
+                const productName = target.closest('.cart-item')?.querySelector('.item-title')?.textContent;
 
                 if (confirm(`Remove ${productName || 'this item'} from cart?`)) {
                     removeCartItem(cartKey);
@@ -100,13 +145,17 @@
         const clearButton = document.getElementById('clear-cart-btn');
 
         if (clearButton) {
+            console.log('Clear cart button found');
             clearButton.addEventListener('click', function(e) {
                 e.preventDefault();
+                console.log('Clear cart button clicked');
 
                 if (confirm('Are you sure you want to clear your entire cart?')) {
                     clearCart();
                 }
             });
+        } else {
+            console.warn('Clear cart button not found');
         }
     }
 
@@ -114,6 +163,8 @@
      * Update cart item quantity via AJAX
      */
     function updateCartQuantity(cartKey, quantity) {
+        console.log('updateCartQuantity called:', cartKey, quantity);
+
         if (typeof aakaariAjax === 'undefined') {
             console.error('aakaariAjax is not defined');
             alert('Unable to update cart. Please refresh the page.');
@@ -126,6 +177,8 @@
         formData.append('quantity', quantity);
         formData.append('nonce', aakaariAjax.nonce);
 
+        console.log('Sending AJAX request to update quantity');
+
         // Show loading state
         showLoadingState();
 
@@ -135,6 +188,7 @@
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Update quantity response:', data);
             if (data.success) {
                 // Reload page to update totals
                 window.location.reload();
@@ -154,6 +208,8 @@
      * Remove cart item via AJAX
      */
     function removeCartItem(cartKey) {
+        console.log('removeCartItem called:', cartKey);
+
         if (typeof aakaariAjax === 'undefined') {
             console.error('aakaariAjax is not defined');
             alert('Unable to remove item. Please refresh the page.');
@@ -165,6 +221,8 @@
         formData.append('cart_item_key', cartKey);
         formData.append('nonce', aakaariAjax.nonce);
 
+        console.log('Sending AJAX request to remove item');
+
         // Show loading state
         showLoadingState();
 
@@ -174,6 +232,7 @@
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Remove item response:', data);
             if (data.success) {
                 // Reload page to update cart
                 window.location.reload();
@@ -193,6 +252,8 @@
      * Clear entire cart via AJAX
      */
     function clearCart() {
+        console.log('clearCart called');
+
         if (typeof aakaariAjax === 'undefined') {
             console.error('aakaariAjax is not defined');
             alert('Unable to clear cart. Please refresh the page.');
@@ -203,6 +264,8 @@
         formData.append('action', 'aakaari_clear_cart');
         formData.append('nonce', aakaariAjax.nonce);
 
+        console.log('Sending AJAX request to clear cart');
+
         // Show loading state
         showLoadingState();
 
@@ -212,6 +275,7 @@
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Clear cart response:', data);
             if (data.success) {
                 // Reload page to show empty cart
                 window.location.reload();
