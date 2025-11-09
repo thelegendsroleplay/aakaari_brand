@@ -14,13 +14,15 @@ get_header();
 
         <!-- Hero Section -->
         <section class="hero-banner">
-            <div class="hero-image-container">
+            <div class="hero-image-container <?php echo !get_theme_mod('aakaari_hero_image') ? 'hero-gradient-bg' : ''; ?>">
                 <?php
-                $hero_image = get_theme_mod('aakaari_hero_image', AAKAARI_THEME_URI . '/assets/images/hero-default.jpg');
+                $hero_image = get_theme_mod('aakaari_hero_image');
+                if ($hero_image) :
                 ?>
-                <img src="<?php echo esc_url($hero_image); ?>"
-                     alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_title', 'Premium Streetwear Collection')); ?>"
-                     class="hero-banner-image" />
+                    <img src="<?php echo esc_url($hero_image); ?>"
+                         alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_title', 'Premium Streetwear Collection')); ?>"
+                         class="hero-banner-image" />
+                <?php endif; ?>
                 <div class="hero-overlay">
                     <div class="hero-content-wrapper">
                         <div class="hero-text-content">
