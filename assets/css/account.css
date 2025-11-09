@@ -298,13 +298,152 @@ body.logged-in.page .entry-title {
   margin: 0 0 1.5rem;
   font-size: 1.125rem;
   color: #000;
+  font-weight: 600;
 }
 
+.form-section p {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group .required {
+  color: #dc2626;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="tel"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background: #fff;
+  color: #000;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-group input::placeholder {
+  color: #999;
+}
+
+.form-group span {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+/* Woocommerce Form Overrides */
+.woocommerce-EditAccountForm input[type="text"],
+.woocommerce-EditAccountForm input[type="email"],
+.woocommerce-EditAccountForm input[type="password"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+
+.woocommerce-EditAccountForm input:focus {
+  outline: none;
+  border-color: #000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Form Actions */
 .form-actions {
   display: flex;
   gap: 1rem;
   padding-top: 2rem;
   border-top: 1px solid #e5e7eb;
+  align-items: center;
+}
+
+.form-actions button[type="submit"],
+.form-actions .woocommerce-Button {
+  padding: 0.75rem 2rem;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.form-actions button[type="submit"]:hover,
+.form-actions .woocommerce-Button:hover {
+  background: #333;
+}
+
+.form-actions p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+/* Error Messages */
+.woocommerce-error,
+.woocommerce-message {
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  border-left: 4px solid;
+}
+
+.woocommerce-error {
+  background: #fef2f2;
+  border-left-color: #dc2626;
+  color: #991b1b;
+}
+
+.woocommerce-message {
+  background: #f0fdf4;
+  border-left-color: #16a34a;
+  color: #166534;
+}
+
+.woocommerce-error a,
+.woocommerce-message a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* Success State */
+.woocommerce-message::before {
+  content: "✓ ";
+  font-weight: bold;
+  margin-right: 0.5rem;
 }
 
 /* Addresses */
