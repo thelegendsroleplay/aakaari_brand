@@ -124,3 +124,12 @@ p {
   margin: 0;
   padding: 0;
 }
+
+/* Hide default WooCommerce notices globally - we use custom toast notifications */
+.woocommerce-notices-wrapper,
+.woocommerce-message,
+.woocommerce-error,
+.woocommerce-info,
+.wc-block-components-notice-banner {
+  display: none !important;
+}

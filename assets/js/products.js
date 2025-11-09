@@ -194,11 +194,11 @@
     }
 
     // add to cart (in overlay)
-    if(e.target.closest('.add-btn')){
+    if(e.target.closest('.product-add-to-cart-btn')){
       e.preventDefault();
       e.stopPropagation();
-      const btn = e.target.closest('.add-btn');
-      const id = btn.dataset.id;
+      const btn = e.target.closest('.product-add-to-cart-btn');
+      const id = btn.dataset.productId || btn.dataset.id;
       const card = btn.closest('.product-card');
 
       // Get product details for toast
@@ -275,13 +275,16 @@
           jQuery(document.body).trigger('wc_fragment_refresh');
           jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, btn]);
 
-          // Show beautiful toast notification
+          // Store the cart item key for undo functionality
+          const cartItemKey = response.cart_item_key || null;
+
+          // Show beautiful toast notification with Undo button
           if (typeof window.showCartToast === 'function') {
             window.showCartToast({
               name: productName,
               price: productPrice,
               image: productImage
-            });
+            }, cartItemKey);
           }
         } else {
           // Unexpected response format
@@ -304,6 +307,68 @@
       });
     }
   });
+
+  /**
+   * Undo add to cart - removes the last added item
+   */
+  window.undoAddToCart = function(cartItemKey, toast) {
+    if (!cartItemKey) {
+      console.error('No cart item key provided for undo');
+      return;
+    }
+
+    // Show loading state
+    const undoBtn = toast.querySelector('.undo-btn');
+    if (undoBtn) {
+      undoBtn.textContent = 'Removing...';
+      undoBtn.style.pointerEvents = 'none';
+    }
+
+    // Use WooCommerce AJAX to remove cart item
+    fetch('/?wc-ajax=remove_from_cart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        cart_item_key: cartItemKey
+      })
+    })
+    .then(r => r.json())
+    .then(response => {
+      if (response.fragments) {
+        // Update cart fragments
+        jQuery.each(response.fragments, function(key, value) {
+          jQuery(key).replaceWith(value);
+        });
+
+        // Trigger cart update events
+        jQuery(document.body).trigger('wc_fragment_refresh');
+        jQuery(document.body).trigger('removed_from_cart', [response.fragments, response.cart_hash]);
+
+        // Dismiss the toast
+        if (toast && typeof toast.remove === 'function') {
+          toast.classList.add('hiding');
+          setTimeout(() => toast.remove(), 200);
+        }
+
+        // Show confirmation
+        if (typeof window.showMessageToast === 'function') {
+          window.showMessageToast('Removed', 'Item removed from cart', 'info');
+        }
+      }
+    })
+    .catch(err => {
+      console.error('Undo error:', err);
+      if (undoBtn) {
+        undoBtn.textContent = 'Undo';
+        undoBtn.style.pointerEvents = 'all';
+      }
+      if (typeof window.showMessageToast === 'function') {
+        window.showMessageToast('Error', 'Could not remove item', 'error');
+      }
+    });
+  };
 
   // Toggle filters on mobile
   document.addEventListener('click', function(e){

@@ -39,6 +39,9 @@
     // Create toast element
     const toast = document.createElement('div');
     toast.className = 'toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.setAttribute('aria-atomic', 'true');
 
     // Icon
     let icon = '✓';
@@ -65,7 +68,7 @@
         ${actions.length > 0 ? `
           <div class="toast-actions">
             ${actions.map(action => `
-              <a href="${action.href}" class="toast-action-btn ${action.primary ? 'primary' : ''}">${action.text}</a>
+              <a href="${action.href}" class="toast-action-btn ${action.primary ? 'primary' : ''} ${action.class || ''}">${action.text}</a>
             `).join('')}
           </div>
         ` : ''}
@@ -144,19 +147,34 @@
   };
 
   /**
-   * Show cart toast
+   * Show cart toast with Undo option
    */
-  window.showCartToast = function(productData) {
-    return showToast({
+  window.showCartToast = function(productData, cartItemKey) {
+    const toast = showToast({
       type: 'success',
       title: 'Added to Cart',
       message: 'Item successfully added',
       product: productData,
       actions: [
         { text: 'View Cart', href: '/cart', primary: true },
-        { text: 'Checkout', href: '/checkout' }
-      ]
+        { text: 'Undo', href: '#', class: 'undo-btn', data: { cartItemKey } }
+      ],
+      duration: 5000 // Longer duration for undo option
     });
+
+    // Handle Undo button click
+    const undoBtn = toast.querySelector('.undo-btn');
+    if (undoBtn && cartItemKey) {
+      undoBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Trigger undo functionality
+        if (typeof window.undoAddToCart === 'function') {
+          window.undoAddToCart(cartItemKey, toast);
+        }
+      });
+    }
+
+    return toast;
   };
 
   /**

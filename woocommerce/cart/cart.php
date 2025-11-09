@@ -234,16 +234,6 @@ do_action( 'woocommerce_before_cart' ); ?>
                             <?php do_action( 'woocommerce_proceed_to_checkout' ); ?>
                         </div>
 
-                        <div class="payment-methods">
-                            <p class="mb-1 muted">We accept:</p>
-                            <div class="payment-icons">
-                                <img src="https://via.placeholder.com/40x25/666/fff?text=VISA" alt="Visa">
-                                <img src="https://via.placeholder.com/40x25/666/fff?text=MC" alt="Mastercard">
-                                <img src="https://via.placeholder.com/40x25/666/fff?text=AMEX" alt="Amex">
-                                <img src="https://via.placeholder.com/40x25/666/fff?text=PP" alt="PayPal">
-                            </div>
-                        </div>
-
                         <?php do_action( 'woocommerce_after_cart_totals' ); ?>
                     </aside>
                 </div>
