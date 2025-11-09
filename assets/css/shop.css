@@ -73,7 +73,11 @@
 .product-card-link {
     text-decoration: none;
     color: inherit;
+}
+
+.product-card-image-link {
     display: block;
+    text-decoration: none;
 }
 
 .product-card-image-wrapper {
