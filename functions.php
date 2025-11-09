@@ -61,13 +61,16 @@ function aakaari_theme_setup() {
 add_action( 'after_setup_theme', 'aakaari_theme_setup' );
 
 /**
- * Enable AJAX add to cart for simple products on shop pages
+ * Disable WooCommerce's default AJAX add to cart script
+ * We use our custom handler in products.js instead to avoid conflicts
+ * and provide custom toast notifications with undo functionality
  */
-add_action( 'wp_enqueue_scripts', 'aakaari_enable_ajax_add_to_cart', 99 );
-function aakaari_enable_ajax_add_to_cart() {
-    // Enable AJAX add to cart on shop/archive pages for simple products
+add_action( 'wp_enqueue_scripts', 'aakaari_disable_wc_ajax_add_to_cart', 99 );
+function aakaari_disable_wc_ajax_add_to_cart() {
+    // Dequeue WooCommerce's default add-to-cart script to prevent conflicts
     if ( function_exists( 'is_shop' ) && ( is_shop() || is_product_category() || is_product_tag() || is_front_page() ) ) {
-        wp_enqueue_script( 'wc-add-to-cart' );
+        wp_dequeue_script( 'wc-add-to-cart' );
+        wp_deregister_script( 'wc-add-to-cart' );
     }
 }
 

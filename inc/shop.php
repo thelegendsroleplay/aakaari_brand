@@ -196,9 +196,9 @@ function aakaari_render_product_card( $product ) {
 
   ob_start();
   ?>
-  <article class="product-card" onclick="window.location='<?php echo $permalink; ?>'">
+  <article class="product-card" data-product-url="<?php echo esc_attr( $permalink ); ?>">
     <!-- Image -->
-    <div class="product-card-image">
+    <div class="product-card-image product-media">
       <?php if ( $image_id ) : ?>
         <?php echo wp_get_attachment_image( $image_id, 'woocommerce_thumbnail', false, array( 'class' => 'default-image', 'alt' => $title ) ); ?>
         <?php if ( $hover_image_id !== $image_id ) : ?>
@@ -220,7 +220,7 @@ function aakaari_render_product_card( $product ) {
       </div>
 
       <!-- Wishlist Button -->
-      <button class="product-wishlist-btn" data-product-id="<?php echo esc_attr( $id ); ?>" onclick="event.stopPropagation();" aria-label="Add to wishlist">
+      <button class="product-wishlist-btn" data-product-id="<?php echo esc_attr( $id ); ?>" aria-label="Add to wishlist">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
         </svg>
@@ -251,7 +251,7 @@ function aakaari_render_product_card( $product ) {
       <?php if ( $category_name ) : ?>
         <p class="product-category"><?php echo esc_html( $category_name ); ?></p>
       <?php endif; ?>
-      <h3 class="product-card-title">
+      <h3 class="product-card-title product-title">
         <a href="<?php echo $permalink; ?>">
           <?php echo $title; ?>
         </a>
@@ -270,9 +270,31 @@ function aakaari_render_product_card( $product ) {
         </div>
         <span class="product-review-count">(<?php echo esc_html( $review_count ); ?>)</span>
       </div>
-      <div class="product-price"><?php echo $product->get_price_html(); ?></div>
+      <div class="product-price price"><?php echo $product->get_price_html(); ?></div>
     </div>
   </article>
+  <script>
+  // Product card click handling - moved from inline to proper event delegation
+  (function() {
+    const cards = document.querySelectorAll('.product-card[data-product-url]');
+    cards.forEach(function(card) {
+      // Only add listener if it hasn't been added yet
+      if (!card.dataset.clickHandlerAdded) {
+        card.dataset.clickHandlerAdded = 'true';
+        card.addEventListener('click', function(e) {
+          // Don't navigate if clicking on buttons/links
+          if (!e.target.closest('a, button, .product-wishlist-btn, .product-add-to-cart-btn')) {
+            const url = card.getAttribute('data-product-url');
+            if (url) {
+              window.location.href = url;
+            }
+          }
+        });
+        card.style.cursor = 'pointer';
+      }
+    });
+  })();
+  </script>
   <?php
   return ob_get_clean();
 }
