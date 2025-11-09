@@ -180,6 +180,9 @@
      * Open Quick View Modal
      */
     function openQuickView(productId, modal, contentDiv) {
+        console.log('Opening quick view for product:', productId);
+        console.log('aakaariAjax object:', aakaariAjax);
+
         // Show modal with loading state
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -192,6 +195,17 @@
             </div>
         `;
 
+        // Check if aakaariAjax is defined
+        if (typeof aakaariAjax === 'undefined') {
+            console.error('aakaariAjax is not defined!');
+            contentDiv.innerHTML = `
+                <div class="quick-view-loading">
+                    <p>Configuration error. Please refresh the page.</p>
+                </div>
+            `;
+            return;
+        }
+
         // Fetch product details via AJAX
         $.ajax({
             type: 'POST',
@@ -202,21 +216,26 @@
                 nonce: aakaariAjax.nonce
             },
             success: function(response) {
+                console.log('AJAX Response:', response);
                 if (response.success) {
                     contentDiv.innerHTML = response.data.html;
                     initQuickViewInteractions();
                 } else {
+                    console.error('AJAX Error:', response.data);
                     contentDiv.innerHTML = `
                         <div class="quick-view-loading">
                             <p>Failed to load product details.</p>
+                            <p class="error-message">${response.data.message || 'Unknown error'}</p>
                         </div>
                     `;
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error('AJAX Request Failed:', {xhr, status, error});
                 contentDiv.innerHTML = `
                     <div class="quick-view-loading">
                         <p>An error occurred. Please try again.</p>
+                        <p class="error-message">Error: ${error}</p>
                     </div>
                 `;
             }
