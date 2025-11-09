@@ -315,12 +315,12 @@ while (have_posts()) :
                             <form class="review-form" id="reviewForm">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="review-name">Name *</label>
-                                        <input type="text" id="review-name" name="name" required <?php if (is_user_logged_in()) : ?>value="<?php echo esc_attr(wp_get_current_user()->display_name); ?>" readonly<?php endif; ?>>
-                                    </div>
-                                    <div class="form-group">
                                         <label for="review-email">Email *</label>
                                         <input type="email" id="review-email" name="email" required <?php if (is_user_logged_in()) : ?>value="<?php echo esc_attr(wp_get_current_user()->user_email); ?>" readonly<?php endif; ?>>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="review-name">Name *</label>
+                                        <input type="text" id="review-name" name="name" required <?php if (is_user_logged_in()) : ?>value="<?php echo esc_attr(wp_get_current_user()->display_name); ?>" readonly<?php endif; ?>>
                                     </div>
                                 </div>
 
