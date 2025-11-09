@@ -105,38 +105,32 @@ get_header();
                     </button>
                     <div class="product-carousel" data-carousel="featured">
                         <?php
-                        $featured_args = array(
-                            'post_type'      => 'product',
-                            'posts_per_page' => 8,
-                            'tax_query'      => array(
-                                array(
-                                    'taxonomy' => 'product_visibility',
-                                    'field'    => 'name',
-                                    'terms'    => 'featured',
-                                ),
-                            ),
-                        );
+                        // Get featured product IDs using WooCommerce function
+                        $featured_ids = wc_get_featured_product_ids();
 
-                        $featured_products = new WP_Query($featured_args);
-
-                        if ($featured_products->have_posts()) :
-                            while ($featured_products->have_posts()) : $featured_products->the_post();
-                                wc_get_template_part('content', 'product-card');
-                            endwhile;
-                            wp_reset_postdata();
-                        else :
-                            // Fallback: show regular products if no featured products
-                            $fallback_args = array(
+                        if (!empty($featured_ids)) :
+                            $featured_args = array(
                                 'post_type'      => 'product',
                                 'posts_per_page' => 8,
+                                'post__in'       => $featured_ids,
+                                'orderby'        => 'post__in',
                             );
-                            $fallback_products = new WP_Query($fallback_args);
-                            if ($fallback_products->have_posts()) :
-                                while ($fallback_products->have_posts()) : $fallback_products->the_post();
+
+                            $featured_products = new WP_Query($featured_args);
+
+                            if ($featured_products->have_posts()) :
+                                while ($featured_products->have_posts()) : $featured_products->the_post();
                                     wc_get_template_part('content', 'product-card');
                                 endwhile;
                                 wp_reset_postdata();
                             endif;
+                        else :
+                            // Show message if no featured products
+                            ?>
+                            <div style="text-align: center; padding: 3rem 1rem; color: #666;">
+                                <p>No featured products yet. Please mark some products as featured in the admin panel.</p>
+                            </div>
+                            <?php
                         endif;
                         ?>
                     </div>
