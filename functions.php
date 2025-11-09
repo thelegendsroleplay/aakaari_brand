@@ -61,12 +61,14 @@ function aakaari_theme_setup() {
 add_action( 'after_setup_theme', 'aakaari_theme_setup' );
 
 /**
- * Enable AJAX add to cart for all products
+ * Enable AJAX add to cart for simple products on shop pages
  */
-add_filter( 'woocommerce_product_add_to_cart_url', 'aakaari_enable_ajax_add_to_cart', 10, 2 );
-function aakaari_enable_ajax_add_to_cart( $url, $product ) {
-    // Return empty to use AJAX add to cart
-    return '';
+add_action( 'wp_enqueue_scripts', 'aakaari_enable_ajax_add_to_cart', 99 );
+function aakaari_enable_ajax_add_to_cart() {
+    // Enable AJAX add to cart on shop/archive pages for simple products
+    if ( function_exists( 'is_shop' ) && ( is_shop() || is_product_category() || is_product_tag() || is_front_page() ) ) {
+        wp_enqueue_script( 'wc-add-to-cart' );
+    }
 }
 
 /**
@@ -689,13 +691,34 @@ function aakaari_enqueue_checkout_assets() {
     if ( is_user_logged_in() && function_exists( 'wc' ) ) {
         $customer = wc()->customer;
         if ( $customer instanceof WC_Customer ) {
-            $shipping_address = $customer->get_address( 'shipping' );
-            $billing_address  = $customer->get_address( 'billing' );
+            // Use non-deprecated methods for WooCommerce 3.0+
+            $shipping_address = array(
+                'address_1' => $customer->get_shipping_address_1(),
+                'address_2' => $customer->get_shipping_address_2(),
+                'city'      => $customer->get_shipping_city(),
+                'state'     => $customer->get_shipping_state(),
+                'postcode'  => $customer->get_shipping_postcode(),
+                'country'   => $customer->get_shipping_country(),
+            );
 
-            if ( is_array( $shipping_address ) ) {
+            $billing_address = array(
+                'first_name' => $customer->get_billing_first_name(),
+                'last_name'  => $customer->get_billing_last_name(),
+                'company'    => $customer->get_billing_company(),
+                'address_1'  => $customer->get_billing_address_1(),
+                'address_2'  => $customer->get_billing_address_2(),
+                'city'       => $customer->get_billing_city(),
+                'state'      => $customer->get_billing_state(),
+                'postcode'   => $customer->get_billing_postcode(),
+                'country'    => $customer->get_billing_country(),
+                'email'      => $customer->get_billing_email(),
+                'phone'      => $customer->get_billing_phone(),
+            );
+
+            if ( ! empty( array_filter( $shipping_address ) ) ) {
                 $saved_addresses['shipping'] = array_map( 'wc_clean', $shipping_address );
             }
-            if ( is_array( $billing_address ) ) {
+            if ( ! empty( array_filter( $billing_address ) ) ) {
                 $saved_addresses['billing'] = array_map( 'wc_clean', $billing_address );
             }
         }

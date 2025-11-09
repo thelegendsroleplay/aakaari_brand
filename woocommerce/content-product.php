@@ -41,7 +41,7 @@ $is_new = $days_since_published < 30;
 $is_featured = $product->is_featured();
 ?>
 
-<div <?php wc_product_class( 'product-card', $product ); ?> onclick="window.location.href='<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>'"  style="cursor: pointer;">
+<div <?php wc_product_class( 'product-card', $product ); ?> data-product-url="<?php echo esc_url( get_permalink( $product->get_id() ) ); ?>">
     <!-- Image -->
     <div class="product-card-image">
         <?php echo wp_get_attachment_image( $image_id, 'woocommerce_thumbnail', false, array(
@@ -93,7 +93,7 @@ $is_featured = $product->is_featured();
                    data-product_id="<?php echo esc_attr( $product->get_id() ); ?>"
                    data-product_sku="<?php echo esc_attr( $product->get_sku() ); ?>"
                    data-quantity="1"
-                   onclick="event.stopPropagation();"
+                   aria-label="<?php echo esc_attr( sprintf( 'Add "%s" to your cart', $product->get_name() ) ); ?>"
                    rel="nofollow">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="8" cy="21" r="1"></circle>
@@ -143,23 +143,40 @@ $is_featured = $product->is_featured();
 </div>
 
 <script>
-// Image hover effect
-document.querySelectorAll('.product-card-image').forEach(function(imageContainer) {
-    const defaultImage = imageContainer.querySelector('.default-image');
-    const hoverImage = imageContainer.querySelector('.hover-image');
+(function() {
+    // Image hover effect
+    document.querySelectorAll('.product-card-image').forEach(function(imageContainer) {
+        const defaultImage = imageContainer.querySelector('.default-image');
+        const hoverImage = imageContainer.querySelector('.hover-image');
 
-    if (hoverImage) {
-        imageContainer.addEventListener('mouseenter', function() {
-            defaultImage.style.display = 'none';
-            hoverImage.style.display = 'block';
-        });
+        if (hoverImage) {
+            imageContainer.addEventListener('mouseenter', function() {
+                defaultImage.style.display = 'none';
+                hoverImage.style.display = 'block';
+            });
 
-        imageContainer.addEventListener('mouseleave', function() {
-            defaultImage.style.display = 'block';
-            hoverImage.style.display = 'none';
+            imageContainer.addEventListener('mouseleave', function() {
+                defaultImage.style.display = 'block';
+                hoverImage.style.display = 'none';
+            });
+        }
+    });
+
+    // Product card click handling - navigate to product page
+    document.querySelectorAll('.product-card').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+            // Don't navigate if clicking on buttons/links
+            if (!e.target.closest('a, button, .product-wishlist-btn, .product-add-to-cart-btn')) {
+                const url = card.getAttribute('data-product-url');
+                if (url) {
+                    window.location.href = url;
+                }
+            }
         });
-    }
-});
+        // Add cursor pointer
+        card.style.cursor = 'pointer';
+    });
+})();
 
 // Wishlist function
 function addToWishlist(productId) {
