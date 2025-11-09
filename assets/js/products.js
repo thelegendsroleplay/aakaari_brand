@@ -198,7 +198,7 @@
       e.preventDefault();
       e.stopPropagation();
       const btn = e.target.closest('.product-add-to-cart-btn');
-      const id = btn.dataset.productId || btn.dataset.id;
+      const id = btn.dataset.product_id || btn.dataset.productId || btn.dataset.id;
       const card = btn.closest('.product-card');
 
       // Get product details for toast
