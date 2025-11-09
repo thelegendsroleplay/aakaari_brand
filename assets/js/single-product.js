@@ -6,7 +6,10 @@
 (function($) {
     'use strict';
 
+    console.log('Single Product Page Script Loaded');
+
     $(document).ready(function() {
+        console.log('Single Product Page DOM Ready');
         initImageGallery();
         initOptions();
         initQuantityControls();
