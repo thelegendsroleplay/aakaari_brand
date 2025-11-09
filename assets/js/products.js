@@ -146,7 +146,6 @@
         if (data && data.success) {
           renderProductsHtml(data.data.html || '', data.data.count || 0);
         } else {
-<<<<<<< Updated upstream
           renderProductsHtml('<div style="grid-column:1/-1;padding:2rem;text-align:center;color:#666">No products found</div>');
           updateCount(0);
         }
@@ -361,9 +360,7 @@
           }
           // Reload to update cart
           setTimeout(() => window.location.reload(), 1000);
-=======
           renderProductsHtml('<div style="grid-column:1/-1;padding:2rem;text-align:center;color:#666">No products found</div>', 0);
->>>>>>> Stashed changes
         }
       })
       .catch(err => {
@@ -392,7 +389,6 @@
     }
   }
 
-<<<<<<< Updated upstream
   /**
    * Undo add to cart - removes the last added item
    */
@@ -460,7 +456,6 @@
     if(e.target.matches(selectors.toggleFilters)){
       const sidebar = $(selectors.filtersSidebar);
       const toggleText = $(selectors.filtersToggleText);
-=======
   /* --------------------
      Update cart fragments helper
      - Uses fragments from add-to-cart response if present
@@ -712,7 +707,6 @@
     if (el.matches(S.toggleFilters) || el.closest(S.toggleFilters)) {
       const sidebar = $(S.filtersSidebar);
       const toggleText = $(S.filtersToggleText);
->>>>>>> Stashed changes
       if (sidebar) {
         sidebar.classList.toggle('hide');
         sidebar.classList.toggle('show');
