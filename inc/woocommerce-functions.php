@@ -395,3 +395,161 @@ function aakaari_ajax_clear_cart() {
 }
 add_action('wp_ajax_clear_cart', 'aakaari_ajax_clear_cart');
 add_action('wp_ajax_nopriv_clear_cart', 'aakaari_ajax_clear_cart');
+
+/**
+ * Handle quick login on checkout
+ */
+function aakaari_handle_checkout_login() {
+    if (isset($_POST['aakaari_login']) && isset($_POST['login-nonce'])) {
+        if (!wp_verify_nonce($_POST['login-nonce'], 'aakaari-login')) {
+            wc_add_notice(__('Security check failed. Please try again.', 'aakaari'), 'error');
+            return;
+        }
+
+        $username = sanitize_text_field($_POST['username']);
+        $password = $_POST['password'];
+        $remember = isset($_POST['rememberme']);
+
+        $user = wp_signon(array(
+            'user_login'    => $username,
+            'user_password' => $password,
+            'remember'      => $remember,
+        ), is_ssl());
+
+        if (is_wp_error($user)) {
+            wc_add_notice($user->get_error_message(), 'error');
+        } else {
+            wp_safe_redirect(wc_get_checkout_url());
+            exit;
+        }
+    }
+}
+add_action('init', 'aakaari_handle_checkout_login');
+
+/**
+ * Handle quick registration on checkout
+ */
+function aakaari_handle_checkout_register() {
+    if (isset($_POST['aakaari_register']) && isset($_POST['register-nonce'])) {
+        if (!wp_verify_nonce($_POST['register-nonce'], 'aakaari-register')) {
+            wc_add_notice(__('Security check failed. Please try again.', 'aakaari'), 'error');
+            return;
+        }
+
+        $email = sanitize_email($_POST['email']);
+        $password = $_POST['password'];
+
+        // Validate email
+        if (empty($email) || !is_email($email)) {
+            wc_add_notice(__('Please provide a valid email address.', 'aakaari'), 'error');
+            return;
+        }
+
+        // Check if email already exists
+        if (email_exists($email)) {
+            wc_add_notice(__('An account is already registered with your email address. Please login.', 'aakaari'), 'error');
+            return;
+        }
+
+        // Validate password
+        if (empty($password) || strlen($password) < 6) {
+            wc_add_notice(__('Password must be at least 6 characters long.', 'aakaari'), 'error');
+            return;
+        }
+
+        // Create new user
+        $username = sanitize_user(current(explode('@', $email)), true);
+
+        // Ensure username is unique
+        if (username_exists($username)) {
+            $username = $username . rand(1, 999);
+        }
+
+        $user_id = wp_create_user($username, $password, $email);
+
+        if (is_wp_error($user_id)) {
+            wc_add_notice($user_id->get_error_message(), 'error');
+            return;
+        }
+
+        // Update user role to customer
+        $user = new WP_User($user_id);
+        $user->set_role('customer');
+
+        // Log the user in
+        wp_set_current_user($user_id);
+        wp_set_auth_cookie($user_id);
+
+        // Send new account email
+        do_action('woocommerce_created_customer', $user_id);
+
+        wp_safe_redirect(wc_get_checkout_url());
+        exit;
+    }
+}
+add_action('init', 'aakaari_handle_checkout_register');
+
+/**
+ * AJAX handler for updating cart item quantity from checkout
+ */
+function aakaari_ajax_update_cart_item_quantity() {
+    check_ajax_referer('aakaari-ajax-nonce', 'nonce');
+
+    $cart_item_key = sanitize_text_field($_POST['cart_item_key']);
+    $quantity = intval($_POST['quantity']);
+
+    if (empty($cart_item_key)) {
+        wp_send_json_error(array('message' => 'Invalid cart item'));
+    }
+
+    if ($quantity === 0) {
+        // Remove item
+        WC()->cart->remove_cart_item($cart_item_key);
+        wp_send_json_success(array(
+            'message' => 'Item removed from cart',
+            'cart_count' => WC()->cart->get_cart_contents_count()
+        ));
+    } else {
+        // Update quantity
+        $updated = WC()->cart->set_quantity($cart_item_key, $quantity, true);
+
+        if ($updated) {
+            WC()->cart->calculate_totals();
+            wp_send_json_success(array(
+                'message' => 'Quantity updated',
+                'cart_count' => WC()->cart->get_cart_contents_count()
+            ));
+        } else {
+            wp_send_json_error(array('message' => 'Failed to update quantity'));
+        }
+    }
+}
+add_action('wp_ajax_update_cart_item_quantity', 'aakaari_ajax_update_cart_item_quantity');
+add_action('wp_ajax_nopriv_update_cart_item_quantity', 'aakaari_ajax_update_cart_item_quantity');
+
+/**
+ * AJAX handler for applying coupon
+ */
+function aakaari_ajax_apply_coupon() {
+    check_ajax_referer('aakaari-ajax-nonce', 'security');
+
+    $coupon_code = sanitize_text_field($_POST['coupon_code']);
+
+    if (empty($coupon_code)) {
+        wp_send_json_error(array('message' => 'Please enter a coupon code'));
+    }
+
+    $result = WC()->cart->apply_coupon($coupon_code);
+
+    if ($result) {
+        WC()->cart->calculate_totals();
+        wp_send_json_success(array(
+            'message' => 'Coupon applied successfully',
+            'cart_total' => WC()->cart->get_cart_total()
+        ));
+    } else {
+        wp_send_json_error(array('message' => 'Invalid coupon code'));
+    }
+}
+add_action('wp_ajax_apply_coupon', 'aakaari_ajax_apply_coupon');
+add_action('wp_ajax_nopriv_apply_coupon', 'aakaari_ajax_apply_coupon');
