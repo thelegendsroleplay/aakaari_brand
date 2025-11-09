@@ -306,3 +306,58 @@ function aakaari_ajax_submit_review() {
 }
 add_action('wp_ajax_aakaari_submit_review', 'aakaari_ajax_submit_review');
 add_action('wp_ajax_nopriv_aakaari_submit_review', 'aakaari_ajax_submit_review');
+
+/**
+ * AJAX handler for removing cart item
+ */
+function aakaari_ajax_remove_cart_item() {
+    check_ajax_referer('aakaari-ajax-nonce', 'nonce');
+
+    if (!is_woocommerce_activated()) {
+        wp_send_json_error(array('message' => 'WooCommerce is not active'));
+        return;
+    }
+
+    $cart_item_key = isset($_POST['cart_item_key']) ? sanitize_text_field($_POST['cart_item_key']) : '';
+
+    if (empty($cart_item_key)) {
+        wp_send_json_error(array('message' => 'Invalid cart item key'));
+        return;
+    }
+
+    // Remove the item from cart
+    $removed = WC()->cart->remove_cart_item($cart_item_key);
+
+    if ($removed) {
+        wp_send_json_success(array(
+            'message' => 'Item removed from cart',
+            'cart_count' => WC()->cart->get_cart_contents_count()
+        ));
+    } else {
+        wp_send_json_error(array('message' => 'Failed to remove item from cart'));
+    }
+}
+add_action('wp_ajax_remove_cart_item', 'aakaari_ajax_remove_cart_item');
+add_action('wp_ajax_nopriv_remove_cart_item', 'aakaari_ajax_remove_cart_item');
+
+/**
+ * AJAX handler for clearing entire cart
+ */
+function aakaari_ajax_clear_cart() {
+    check_ajax_referer('aakaari-ajax-nonce', 'nonce');
+
+    if (!is_woocommerce_activated()) {
+        wp_send_json_error(array('message' => 'WooCommerce is not active'));
+        return;
+    }
+
+    // Clear the cart
+    WC()->cart->empty_cart();
+
+    wp_send_json_success(array(
+        'message' => 'Cart cleared successfully',
+        'cart_count' => 0
+    ));
+}
+add_action('wp_ajax_clear_cart', 'aakaari_ajax_clear_cart');
+add_action('wp_ajax_nopriv_clear_cart', 'aakaari_ajax_clear_cart');
