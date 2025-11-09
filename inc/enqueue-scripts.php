@@ -110,6 +110,26 @@ function aakaari_enqueue_styles() {
             AAKAARI_THEME_VERSION
         );
     }
+
+    // My Account page styles
+    if (is_account_page()) {
+        wp_enqueue_style(
+            'aakaari-account',
+            AAKAARI_THEME_URI . '/assets/css/account.css',
+            array(),
+            AAKAARI_THEME_VERSION,
+            'all'
+        );
+    }
+
+    // Live chat styles - load globally
+    wp_enqueue_style(
+        'aakaari-live-chat',
+        AAKAARI_THEME_URI . '/assets/css/live-chat.css',
+        array(),
+        AAKAARI_THEME_VERSION,
+        'all'
+    );
 }
 add_action('wp_enqueue_scripts', 'aakaari_enqueue_styles', 20); // Priority 20 to load after default WordPress/WooCommerce styles
 
@@ -220,6 +240,21 @@ function aakaari_enqueue_scripts() {
             'nonce'   => wp_create_nonce('aakaari-ajax-nonce'),
         ));
     }
+
+    // Live chat script - load globally
+    wp_enqueue_script(
+        'aakaari-live-chat',
+        AAKAARI_THEME_URI . '/assets/js/live-chat.js',
+        array('jquery'),
+        AAKAARI_THEME_VERSION,
+        true
+    );
+
+    // Localize script for AJAX (live chat needs it)
+    wp_localize_script('aakaari-live-chat', 'liveChatAjax', array(
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce'   => wp_create_nonce('live-chat-nonce'),
+    ));
 
     // Comment reply script
     if (is_singular() && comments_open() && get_option('thread_comments')) {
