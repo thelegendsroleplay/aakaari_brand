@@ -38,6 +38,20 @@ function aakaari_woocommerce_setup() {
 add_action('after_setup_theme', 'aakaari_woocommerce_setup');
 
 /**
+ * Force woocommerce.php template for WooCommerce pages
+ */
+function aakaari_woocommerce_template($template) {
+    if (is_woocommerce() || is_cart() || is_checkout() || is_account_page()) {
+        $woocommerce_template = locate_template('woocommerce.php');
+        if ($woocommerce_template) {
+            return $woocommerce_template;
+        }
+    }
+    return $template;
+}
+add_filter('template_include', 'aakaari_woocommerce_template', 99);
+
+/**
  * Custom WooCommerce wrapper start
  */
 function aakaari_wrapper_start() {
