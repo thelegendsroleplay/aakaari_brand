@@ -38,6 +38,14 @@ function aakaari_enqueue_styles() {
         AAKAARI_THEME_VERSION
     );
 
+    // Footer styles
+    wp_enqueue_style(
+        'aakaari-footer',
+        AAKAARI_THEME_URI . '/assets/css/footer.css',
+        array('aakaari-main'),
+        AAKAARI_THEME_VERSION
+    );
+
     // Home page styles (also needed for quick view modal and product cards on single product page)
     if (is_page_template('template-home.php') || is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy() || is_product()) {
         wp_enqueue_style(
