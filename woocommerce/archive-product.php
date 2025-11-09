@@ -148,13 +148,18 @@ $product_categories = get_terms(array(
                     <div class="filter-section">
                         <h3><?php esc_html_e('Colors', 'aakaari-brand'); ?></h3>
                         <div class="color-options">
-                            <?php foreach ($available_colors as $color) : ?>
+                            <?php foreach ($available_colors as $color) :
+                                // Get hex color from term metadata
+                                $hex_color = get_term_meta($color->term_id, 'attribute_color', true);
+                                // Fallback to color name if no hex color is set
+                                $bg_color = $hex_color ? $hex_color : strtolower($color->name);
+                            ?>
                                 <button
                                     type="button"
                                     class="color-swatch <?php echo in_array($color->slug, $selected_colors) ? 'selected' : ''; ?>"
                                     data-color="<?php echo esc_attr($color->slug); ?>"
                                     title="<?php echo esc_attr($color->name); ?>"
-                                    style="background-color: <?php echo esc_attr(strtolower($color->name)); ?>;"
+                                    style="background-color: <?php echo esc_attr($bg_color); ?>;"
                                 >
                                     <input
                                         type="checkbox"
