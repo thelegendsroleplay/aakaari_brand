@@ -66,7 +66,7 @@ function aakaari_customize_register($wp_customize) {
     $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'aakaari_hero_image', array(
         'label'       => __('Hero Background Image', 'aakaari-brand'),
         'section'     => 'aakaari_home_settings',
-        'description' => __('Upload a hero background image (recommended: 1920x600px)', 'aakaari-brand'),
+        'description' => __('Upload a hero background image (recommended: 1920x600px). If no image is uploaded, a gradient background will be displayed.', 'aakaari-brand'),
     )));
 
     // Promo Section Settings
