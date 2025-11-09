@@ -19,8 +19,6 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
                 <p><?php esc_html_e( 'Sign in to your account or create a new one', 'woocommerce' ); ?></p>
             </div>
 
-            <?php if ( 'yes' === get_option( 'woocommerce_enable_myaccount_registration' ) ) : ?>
-
             <!-- Tabs -->
             <div class="auth-tabs">
                 <div class="tabs-list">
@@ -173,69 +171,6 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
                 </div>
 
             </div>
-
-            <?php else : ?>
-
-            <!-- Login Only (Registration Disabled) -->
-            <div class="auth-tabs">
-                <form class="woocommerce-form woocommerce-form-login login auth-form" method="post">
-
-                    <?php do_action( 'woocommerce_login_form_start' ); ?>
-
-                    <div class="form-field">
-                        <label for="username">
-                            <?php esc_html_e( 'Email', 'woocommerce' ); ?> <span class="required">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            class="woocommerce-Input woocommerce-Input--text input-text"
-                            name="username"
-                            id="username"
-                            autocomplete="username"
-                            placeholder="<?php esc_attr_e( 'john@example.com', 'woocommerce' ); ?>"
-                            value="<?php echo ( ! empty( $_POST['username'] ) ) ? esc_attr( wp_unslash( $_POST['username'] ) ) : ''; ?>"
-                            required
-                        />
-                    </div>
-
-                    <div class="form-field">
-                        <label for="password">
-                            <?php esc_html_e( 'Password', 'woocommerce' ); ?> <span class="required">*</span>
-                        </label>
-                        <input
-                            class="woocommerce-Input woocommerce-Input--text input-text"
-                            type="password"
-                            name="password"
-                            id="password"
-                            autocomplete="current-password"
-                            placeholder="<?php esc_attr_e( '••••••••', 'woocommerce' ); ?>"
-                            required
-                        />
-                    </div>
-
-                    <div class="form-footer">
-                        <label class="remember-me woocommerce-form__label woocommerce-form__label-for-checkbox woocommerce-form-login__rememberme">
-                            <input class="woocommerce-form__input woocommerce-form__input-checkbox" name="rememberme" type="checkbox" id="rememberme" value="forever" />
-                            <span><?php esc_html_e( 'Remember me', 'woocommerce' ); ?></span>
-                        </label>
-                        <a href="<?php echo esc_url( wp_lostpassword_url() ); ?>" class="forgot-password">
-                            <?php esc_html_e( 'Forgot password?', 'woocommerce' ); ?>
-                        </a>
-                    </div>
-
-                    <?php do_action( 'woocommerce_login_form' ); ?>
-
-                    <?php wp_nonce_field( 'woocommerce-login', 'woocommerce-login-nonce' ); ?>
-                    <button type="submit" class="woocommerce-button button woocommerce-form-login__submit auth-submit-btn" name="login" value="<?php esc_attr_e( 'Log in', 'woocommerce' ); ?>">
-                        <?php esc_html_e( 'Sign In', 'woocommerce' ); ?>
-                    </button>
-
-                    <?php do_action( 'woocommerce_login_form_end' ); ?>
-
-                </form>
-            </div>
-
-            <?php endif; ?>
 
             <!-- Social Login Section -->
             <div class="social-login">
