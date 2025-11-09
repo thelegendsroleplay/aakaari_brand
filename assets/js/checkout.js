@@ -294,17 +294,24 @@
 
             // Increase quantity
             if (target.classList.contains('increase')) {
+                console.log('Increase logic triggered');
                 const maxQty = parseInt(qtyInput.getAttribute('max')) || 999;
+                console.log('Max qty:', maxQty, 'Current qty:', currentQty, 'Can increase:', currentQty < maxQty);
 
                 if (currentQty < maxQty) {
+                    console.log('Updating quantity from', currentQty, 'to', currentQty + 1);
                     qtyInput.value = currentQty + 1;
                     updateCartQuantity(cartKey, currentQty + 1);
+                } else {
+                    console.warn('Cannot increase: at max quantity');
                 }
             }
 
             // Decrease quantity
             if (target.classList.contains('decrease')) {
+                console.log('Decrease logic triggered');
                 if (currentQty > 1) {
+                    console.log('Updating quantity from', currentQty, 'to', currentQty - 1);
                     qtyInput.value = currentQty - 1;
                     updateCartQuantity(cartKey, currentQty - 1);
                 } else {
