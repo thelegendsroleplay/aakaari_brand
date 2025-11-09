@@ -14,15 +14,7 @@ if (!defined('ABSPATH')) {
  * Enqueue theme styles
  */
 function aakaari_enqueue_styles() {
-    // Main theme stylesheet
-    wp_enqueue_style(
-        'aakaari-style',
-        get_stylesheet_uri(),
-        array(),
-        AAKAARI_THEME_VERSION
-    );
-
-    // Custom CSS file
+    // Custom CSS file - load first
     wp_enqueue_style(
         'aakaari-main',
         AAKAARI_THEME_URI . '/assets/css/main.css',
@@ -30,7 +22,7 @@ function aakaari_enqueue_styles() {
         AAKAARI_THEME_VERSION
     );
 
-    // Header styles
+    // Header styles - depends on main
     wp_enqueue_style(
         'aakaari-header',
         AAKAARI_THEME_URI . '/assets/css/header.css',
@@ -38,11 +30,19 @@ function aakaari_enqueue_styles() {
         AAKAARI_THEME_VERSION
     );
 
-    // Footer styles
+    // Footer styles - depends on main
     wp_enqueue_style(
         'aakaari-footer',
         AAKAARI_THEME_URI . '/assets/css/footer.css',
         array('aakaari-main'),
+        AAKAARI_THEME_VERSION
+    );
+
+    // Main theme stylesheet - load last to allow overrides
+    wp_enqueue_style(
+        'aakaari-style',
+        get_stylesheet_uri(),
+        array('aakaari-header', 'aakaari-footer'),
         AAKAARI_THEME_VERSION
     );
 
@@ -96,7 +96,7 @@ function aakaari_enqueue_styles() {
         );
     }
 }
-add_action('wp_enqueue_scripts', 'aakaari_enqueue_styles');
+add_action('wp_enqueue_scripts', 'aakaari_enqueue_styles', 20); // Priority 20 to load after default WordPress/WooCommerce styles
 
 /**
  * Enqueue theme scripts
