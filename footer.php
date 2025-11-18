@@ -148,11 +148,34 @@
                         &copy; <?php echo date('Y'); ?> Herrenn. All rights reserved.
                     </p>
                     <div class="footer-payments">
-                        <span class="footer-payments-label">Secure payments via</span>
+                        <span class="footer-payments-label">Secure payments</span>
                         <div class="footer-payment-badges">
-                            <div class="footer-payment-badge">VISA</div>
-                            <div class="footer-payment-badge">MASTERCARD</div>
-                            <div class="footer-payment-badge">PAYPAL</div>
+                            <div class="footer-payment-icon" title="Visa">
+                                <svg viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="48" height="32" rx="4" fill="#1434CB"/>
+                                    <path d="M20.8 21.5h-2.7l-1.7-6.6c-.1-.3-.2-.5-.4-.6-.4-.2-1.1-.4-1.7-.5l0-.3h2.9c.4 0 .7.3.8.7l.7 3.9 1.9-4.6h2.6l-4.4 8zm5.8 0h-2.5l2-8h2.5l-2 8zm8.3-7.8c-.5-.2-1.3-.4-2.3-.4-2.5 0-4.3 1.3-4.3 3.2 0 1.4 1.2 2.1 2.2 2.6 1 .5 1.4.8 1.4 1.2 0 .6-.8.9-1.5.9-1 0-1.5-.1-2.3-.5l-.3-.2-.3 1.9c.6.3 1.7.5 2.9.5 2.7 0 4.4-1.3 4.4-3.3 0-1.1-.7-1.9-2.1-2.6-.9-.4-1.4-.7-1.4-1.2 0-.4.5-.8 1.5-.8.8 0 1.5.2 1.9.3l.2.1.3-1.7zm4.5 7.8h-2.2c-.4 0-.7-.2-.8-.6l-3-7.4h2.6l.5 1.5h3.2l.3-1.5h2.3l-2 8zm-2.8-3.2l1.3-3.5.7 3.5h-2z" fill="white"/>
+                                </svg>
+                            </div>
+                            <div class="footer-payment-icon" title="Mastercard">
+                                <svg viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="48" height="32" rx="4" fill="#EB001B"/>
+                                    <circle cx="18" cy="16" r="10" fill="#FF5F00"/>
+                                    <circle cx="30" cy="16" r="10" fill="#F79E1B" opacity="0.8"/>
+                                </svg>
+                            </div>
+                            <div class="footer-payment-icon" title="UPI">
+                                <svg viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="48" height="32" rx="4" fill="#097939"/>
+                                    <text x="24" y="20" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">UPI</text>
+                                </svg>
+                            </div>
+                            <div class="footer-payment-icon" title="RuPay">
+                                <svg viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="48" height="32" rx="4" fill="#097939"/>
+                                    <text x="24" y="12" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="7" font-weight="bold">RuPay</text>
+                                    <path d="M14 16h20v2h-20z" fill="#FF6B00"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
