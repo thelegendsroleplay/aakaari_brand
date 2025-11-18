@@ -719,6 +719,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    max-width: 100%;
 }
 
 .form-row {
@@ -726,6 +727,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
     width: 100%;
+    align-items: start;
 }
 
 .form-group {
@@ -733,7 +735,8 @@
     flex-direction: column;
     gap: 0.5rem;
     width: 100%;
-    min-width: 0; /* Ensures grid items don't overflow */
+    min-width: 0;
+    max-width: 100%;
 }
 
 .form-group label {
@@ -1305,10 +1308,10 @@
         padding: 1rem;
     }
 
-    /* Review form responsive */
+    /* Review form responsive - keep side by side on small screens too */
     .form-row {
-        grid-template-columns: 1fr;
-        gap: 1rem;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.875rem;
     }
 
     .review-form-wrapper {
