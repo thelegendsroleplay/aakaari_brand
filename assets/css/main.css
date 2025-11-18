@@ -30,6 +30,17 @@ body {
     line-height: 1.6;
     color: var(--text-color);
     background-color: var(--background-color);
+    overflow-x: hidden;
+}
+
+html {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+#page {
+    overflow-x: hidden;
+    width: 100%;
 }
 
 img {
