@@ -722,7 +722,7 @@
     max-width: 100%;
 }
 
-.form-row {
+.review-form .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
@@ -730,7 +730,7 @@
     align-items: start;
 }
 
-.form-group {
+.review-form .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -739,14 +739,14 @@
     max-width: 100%;
 }
 
-.form-group label {
+.review-form .form-group label {
     font-weight: 600;
     font-size: 0.9375rem;
     color: #333;
 }
 
-.form-group input,
-.form-group textarea {
+.review-form .form-group input,
+.review-form .form-group textarea {
     padding: 0.75rem 1rem;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -757,20 +757,29 @@
     box-sizing: border-box;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
+.review-form .form-group input:focus,
+.review-form .form-group textarea:focus {
     outline: none;
     border-color: #000;
 }
 
-.form-group input[readonly] {
+.review-form .form-group input[readonly] {
     background: #f9f9f9;
     cursor: not-allowed;
 }
 
-.form-group textarea {
+.review-form .form-group textarea {
     resize: vertical;
     min-height: 120px;
+}
+
+/* Desktop: Ensure side-by-side layout */
+@media (min-width: 769px) {
+    .review-form .form-row {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1.25rem !important;
+    }
 }
 
 /* Star Rating Input */
@@ -1309,7 +1318,7 @@
     }
 
     /* Review form responsive - keep side by side on small screens too */
-    .form-row {
+    .review-form .form-row {
         grid-template-columns: 1fr 1fr;
         gap: 0.875rem;
     }
@@ -1323,12 +1332,12 @@
         margin-bottom: 1rem;
     }
 
-    .form-group label {
+    .review-form .form-group label {
         font-size: 0.875rem;
     }
 
-    .form-group input,
-    .form-group textarea {
+    .review-form .form-group input,
+    .review-form .form-group textarea {
         padding: 0.625rem 0.875rem;
         font-size: 0.875rem;
     }
