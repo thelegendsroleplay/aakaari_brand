@@ -24,9 +24,9 @@
                 <!-- Logo -->
                 <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="header-logo">
                     <div class="header-logo-icon">
-                        <span class="header-logo-text">ST</span>
+                        <span class="header-logo-text">HE</span>
                     </div>
-                    <span class="header-logo-name">StreetStyle</span>
+                    <span class="header-logo-name">Herrenn</span>
                 </a>
 
                 <!-- Desktop Navigation -->

@@ -8,9 +8,9 @@
                 <div class="footer-brand">
                     <div class="footer-brand-logo">
                         <div class="footer-logo-icon">
-                            <span class="footer-logo-text">ST</span>
+                            <span class="footer-logo-text">HE</span>
                         </div>
-                        <span class="footer-brand-name">StreetStyle</span>
+                        <span class="footer-brand-name">Herrenn</span>
                     </div>
                     <p class="footer-brand-description">
                         Premium streetwear essentials for the modern lifestyle. Quality you can feel.
@@ -145,7 +145,7 @@
             <div class="footer-bottom-container">
                 <div class="footer-bottom-content">
                     <p class="footer-copyright">
-                        &copy; <?php echo date('Y'); ?> StreetStyle. All rights reserved.
+                        &copy; <?php echo date('Y'); ?> Herrenn. All rights reserved.
                     </p>
                     <div class="footer-payments">
                         <span class="footer-payments-label">Secure payments via</span>
