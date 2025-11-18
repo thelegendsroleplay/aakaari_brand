@@ -230,7 +230,7 @@ function aakaari_customize_register($wp_customize) {
         'section'     => 'aakaari_home_settings',
         'type'        => 'url',
         'description' => __('Leave empty to use sale products page', 'aakaari-brand'),
-    )));
+    ));
 
     // Promo Section Settings
     $wp_customize->add_setting('aakaari_promo_badge', array(
