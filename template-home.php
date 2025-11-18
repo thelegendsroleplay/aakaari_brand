@@ -17,32 +17,34 @@ get_header();
             <div class="hero-slider-container">
                 <!-- Slide 1 -->
                 <div class="hero-slide active">
-                    <div class="hero-slide-background <?php echo !get_theme_mod('aakaari_hero_image') ? 'hero-gradient-bg' : ''; ?>">
+                    <div class="hero-slide-background">
                         <?php
-                        $hero_image = get_theme_mod('aakaari_hero_image');
-                        if ($hero_image) :
+                        $hero_image_1 = get_theme_mod('aakaari_hero_slide_1_image', 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=1600&q=80');
+                        if ($hero_image_1) :
                         ?>
-                            <img src="<?php echo esc_url($hero_image); ?>"
-                                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_title', 'Premium Streetwear Collection')); ?>"
+                            <img src="<?php echo esc_url($hero_image_1); ?>"
+                                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_slide_1_title', 'Premium Streetwear Collection')); ?>"
                                  class="hero-slide-image" />
                         <?php endif; ?>
                     </div>
                     <div class="hero-slide-overlay">
                         <div class="hero-slide-content">
-                            <div class="hero-tag animate-slide-up"><?php echo esc_html(get_theme_mod('aakaari_hero_tag', 'NEW ARRIVAL')); ?></div>
+                            <div class="hero-tag animate-slide-up"><?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_tag', 'NEW ARRIVAL')); ?></div>
                             <h1 class="hero-slide-title animate-slide-up">
-                                <?php echo esc_html(get_theme_mod('aakaari_hero_title', 'Premium Streetwear Collection')); ?>
+                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_title', 'Premium Streetwear Collection')); ?>
                             </h1>
                             <p class="hero-slide-subtitle animate-slide-up">
-                                <?php echo esc_html(get_theme_mod('aakaari_hero_subtitle', 'Discover our latest collection of premium t-shirts and hoodies')); ?>
+                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_subtitle', 'Discover our latest collection of premium t-shirts and hoodies')); ?>
                             </p>
                             <div class="hero-slide-actions animate-slide-up">
-                                <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="hero-cta-primary">
-                                    Shop Now
+                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_link', get_permalink(wc_get_page_id('shop')))); ?>" class="hero-cta-primary">
+                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_text', 'Shop Now')); ?>
                                 </a>
-                                <a href="<?php echo esc_url(home_url('/shop/?orderby=date')); ?>" class="hero-cta-secondary">
-                                    New Arrivals
-                                </a>
+                                <?php if (get_theme_mod('aakaari_hero_slide_1_button_2_text', 'New Arrivals')) : ?>
+                                    <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_2_link', home_url('/shop/?orderby=date'))); ?>" class="hero-cta-secondary">
+                                        <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_2_text', 'New Arrivals')); ?>
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -50,20 +52,28 @@ get_header();
 
                 <!-- Slide 2 -->
                 <div class="hero-slide">
-                    <div class="hero-slide-background" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="hero-slide-background">
+                        <?php
+                        $hero_image_2 = get_theme_mod('aakaari_hero_slide_2_image', 'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=1600&q=80');
+                        if ($hero_image_2) :
+                        ?>
+                            <img src="<?php echo esc_url($hero_image_2); ?>"
+                                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_slide_2_title', 'Exclusive Collection')); ?>"
+                                 class="hero-slide-image" />
+                        <?php endif; ?>
                     </div>
                     <div class="hero-slide-overlay">
                         <div class="hero-slide-content">
-                            <div class="hero-tag animate-slide-up">TRENDING NOW</div>
+                            <div class="hero-tag animate-slide-up"><?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_tag', 'TRENDING NOW')); ?></div>
                             <h2 class="hero-slide-title animate-slide-up">
-                                Exclusive Collection
+                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_title', 'Exclusive Collection')); ?>
                             </h2>
                             <p class="hero-slide-subtitle animate-slide-up">
-                                Limited edition pieces crafted for the bold and stylish
+                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_subtitle', 'Limited edition pieces crafted for the bold and stylish')); ?>
                             </p>
                             <div class="hero-slide-actions animate-slide-up">
-                                <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="hero-cta-primary">
-                                    Explore Now
+                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_2_button_link', get_permalink(wc_get_page_id('shop')))); ?>" class="hero-cta-primary">
+                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_button_text', 'Explore Now')); ?>
                                 </a>
                             </div>
                         </div>
@@ -72,38 +82,32 @@ get_header();
 
                 <!-- Slide 3 -->
                 <div class="hero-slide">
-                    <div class="hero-slide-background" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="hero-slide-background">
+                        <?php
+                        $hero_image_3 = get_theme_mod('aakaari_hero_slide_3_image', 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=1600&q=80');
+                        if ($hero_image_3) :
+                        ?>
+                            <img src="<?php echo esc_url($hero_image_3); ?>"
+                                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_slide_3_title', 'Up to 40% Off')); ?>"
+                                 class="hero-slide-image" />
+                        <?php endif; ?>
                     </div>
                     <div class="hero-slide-overlay">
                         <div class="hero-slide-content">
-                            <div class="hero-tag animate-slide-up">SALE</div>
+                            <div class="hero-tag animate-slide-up"><?php echo esc_html(get_theme_mod('aakaari_hero_slide_3_tag', 'SALE')); ?></div>
                             <h2 class="hero-slide-title animate-slide-up">
-                                Up to 40% Off
+                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_3_title', 'Up to 40% Off')); ?>
                             </h2>
                             <p class="hero-slide-subtitle animate-slide-up">
-                                Don't miss out on amazing deals on selected items
+                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_3_subtitle', 'Don\'t miss out on amazing deals on selected items')); ?>
                             </p>
                             <div class="hero-slide-actions animate-slide-up">
-                                <a href="<?php echo esc_url(home_url('/shop/?on_sale=yes')); ?>" class="hero-cta-primary">
-                                    Shop Sale
+                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_3_button_link', home_url('/shop/?on_sale=yes'))); ?>" class="hero-cta-primary">
+                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_3_button_text', 'Shop Sale')); ?>
                                 </a>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Navigation -->
-                <div class="hero-slider-nav">
-                    <button class="hero-nav-btn hero-nav-prev" aria-label="Previous slide">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="15 18 9 12 15 6"></polyline>
-                        </svg>
-                    </button>
-                    <button class="hero-nav-btn hero-nav-next" aria-label="Next slide">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </button>
                 </div>
 
                 <!-- Dots -->

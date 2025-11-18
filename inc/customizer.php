@@ -23,50 +23,213 @@ function aakaari_customize_register($wp_customize) {
         'priority' => 30,
     ));
 
-    // Hero Section Settings
-    $wp_customize->add_setting('aakaari_hero_tag', array(
+    // Hero Slider Section Settings
+
+    // === SLIDE 1 ===
+    $wp_customize->add_setting('aakaari_hero_slide_1_image', array(
+        'default'           => 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=1600&q=80',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'aakaari_hero_slide_1_image', array(
+        'label'       => __('Slide 1 - Background Image', 'aakaari-brand'),
+        'section'     => 'aakaari_home_settings',
+        'description' => __('Upload background image for slide 1 (recommended: 1600x600px)', 'aakaari-brand'),
+    )));
+
+    $wp_customize->add_setting('aakaari_hero_slide_1_tag', array(
         'default'           => 'NEW ARRIVAL',
         'sanitize_callback' => 'sanitize_text_field',
     ));
-
-    $wp_customize->add_control('aakaari_hero_tag', array(
-        'label'       => __('Hero Tag', 'aakaari-brand'),
-        'section'     => 'aakaari_home_settings',
-        'type'        => 'text',
-        'description' => __('Small tag text above hero title', 'aakaari-brand'),
-    ));
-
-    $wp_customize->add_setting('aakaari_hero_title', array(
-        'default'           => 'Premium Streetwear Collection',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
-
-    $wp_customize->add_control('aakaari_hero_title', array(
-        'label'   => __('Hero Title', 'aakaari-brand'),
+    $wp_customize->add_control('aakaari_hero_slide_1_tag', array(
+        'label'   => __('Slide 1 - Tag', 'aakaari-brand'),
         'section' => 'aakaari_home_settings',
         'type'    => 'text',
     ));
 
-    $wp_customize->add_setting('aakaari_hero_subtitle', array(
+    $wp_customize->add_setting('aakaari_hero_slide_1_title', array(
+        'default'           => 'Premium Streetwear Collection',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_1_title', array(
+        'label'   => __('Slide 1 - Title', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'text',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_1_subtitle', array(
         'default'           => 'Discover our latest collection of premium t-shirts and hoodies',
         'sanitize_callback' => 'sanitize_textarea_field',
     ));
-
-    $wp_customize->add_control('aakaari_hero_subtitle', array(
-        'label'   => __('Hero Subtitle', 'aakaari-brand'),
+    $wp_customize->add_control('aakaari_hero_slide_1_subtitle', array(
+        'label'   => __('Slide 1 - Subtitle', 'aakaari-brand'),
         'section' => 'aakaari_home_settings',
         'type'    => 'textarea',
     ));
 
-    $wp_customize->add_setting('aakaari_hero_image', array(
+    $wp_customize->add_setting('aakaari_hero_slide_1_button_text', array(
+        'default'           => 'Shop Now',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_1_button_text', array(
+        'label'   => __('Slide 1 - Primary Button Text', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'text',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_1_button_link', array(
         'default'           => '',
         'sanitize_callback' => 'esc_url_raw',
     ));
-
-    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'aakaari_hero_image', array(
-        'label'       => __('Hero Background Image', 'aakaari-brand'),
+    $wp_customize->add_control('aakaari_hero_slide_1_button_link', array(
+        'label'       => __('Slide 1 - Primary Button Link', 'aakaari-brand'),
         'section'     => 'aakaari_home_settings',
-        'description' => __('Upload a hero background image (recommended: 1920x600px). If no image is uploaded, a gradient background will be displayed.', 'aakaari-brand'),
+        'type'        => 'url',
+        'description' => __('Leave empty to use shop page', 'aakaari-brand'),
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_1_button_2_text', array(
+        'default'           => 'New Arrivals',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_1_button_2_text', array(
+        'label'       => __('Slide 1 - Secondary Button Text', 'aakaari-brand'),
+        'section'     => 'aakaari_home_settings',
+        'type'        => 'text',
+        'description' => __('Leave empty to hide second button', 'aakaari-brand'),
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_1_button_2_link', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_1_button_2_link', array(
+        'label'   => __('Slide 1 - Secondary Button Link', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'url',
+    ));
+
+    // === SLIDE 2 ===
+    $wp_customize->add_setting('aakaari_hero_slide_2_image', array(
+        'default'           => 'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=1600&q=80',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'aakaari_hero_slide_2_image', array(
+        'label'       => __('Slide 2 - Background Image', 'aakaari-brand'),
+        'section'     => 'aakaari_home_settings',
+        'description' => __('Upload background image for slide 2 (recommended: 1600x600px)', 'aakaari-brand'),
+    )));
+
+    $wp_customize->add_setting('aakaari_hero_slide_2_tag', array(
+        'default'           => 'TRENDING NOW',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_2_tag', array(
+        'label'   => __('Slide 2 - Tag', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'text',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_2_title', array(
+        'default'           => 'Exclusive Collection',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_2_title', array(
+        'label'   => __('Slide 2 - Title', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'text',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_2_subtitle', array(
+        'default'           => 'Limited edition pieces crafted for the bold and stylish',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_2_subtitle', array(
+        'label'   => __('Slide 2 - Subtitle', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'textarea',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_2_button_text', array(
+        'default'           => 'Explore Now',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_2_button_text', array(
+        'label'   => __('Slide 2 - Button Text', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'text',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_2_button_link', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_2_button_link', array(
+        'label'       => __('Slide 2 - Button Link', 'aakaari-brand'),
+        'section'     => 'aakaari_home_settings',
+        'type'        => 'url',
+        'description' => __('Leave empty to use shop page', 'aakaari-brand'),
+    ));
+
+    // === SLIDE 3 ===
+    $wp_customize->add_setting('aakaari_hero_slide_3_image', array(
+        'default'           => 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=1600&q=80',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'aakaari_hero_slide_3_image', array(
+        'label'       => __('Slide 3 - Background Image', 'aakaari-brand'),
+        'section'     => 'aakaari_home_settings',
+        'description' => __('Upload background image for slide 3 (recommended: 1600x600px)', 'aakaari-brand'),
+    )));
+
+    $wp_customize->add_setting('aakaari_hero_slide_3_tag', array(
+        'default'           => 'SALE',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_3_tag', array(
+        'label'   => __('Slide 3 - Tag', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'text',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_3_title', array(
+        'default'           => 'Up to 40% Off',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_3_title', array(
+        'label'   => __('Slide 3 - Title', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'text',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_3_subtitle', array(
+        'default'           => 'Don\'t miss out on amazing deals on selected items',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_3_subtitle', array(
+        'label'   => __('Slide 3 - Subtitle', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'textarea',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_3_button_text', array(
+        'default'           => 'Shop Sale',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_3_button_text', array(
+        'label'   => __('Slide 3 - Button Text', 'aakaari-brand'),
+        'section' => 'aakaari_home_settings',
+        'type'    => 'text',
+    ));
+
+    $wp_customize->add_setting('aakaari_hero_slide_3_button_link', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control('aakaari_hero_slide_3_button_link', array(
+        'label'       => __('Slide 3 - Button Link', 'aakaari-brand'),
+        'section'     => 'aakaari_home_settings',
+        'type'        => 'url',
+        'description' => __('Leave empty to use sale products page', 'aakaari-brand'),
     )));
 
     // Promo Section Settings

@@ -32,8 +32,6 @@
     function initHeroSlider() {
         const slides = document.querySelectorAll('.hero-slide');
         const dots = document.querySelectorAll('.hero-dot');
-        const prevBtn = document.querySelector('.hero-nav-prev');
-        const nextBtn = document.querySelector('.hero-nav-next');
 
         if (!slides.length) return;
 
@@ -87,23 +85,6 @@
             clearInterval(slideInterval);
         }
 
-        // Event listeners
-        if (prevBtn) {
-            prevBtn.addEventListener('click', function() {
-                prevSlide();
-                stopSlideShow();
-                startSlideShow();
-            });
-        }
-
-        if (nextBtn) {
-            nextBtn.addEventListener('click', function() {
-                nextSlide();
-                stopSlideShow();
-                startSlideShow();
-            });
-        }
-
         // Dot navigation
         dots.forEach((dot, index) => {
             dot.addEventListener('click', function() {
@@ -144,10 +125,8 @@
                     }
                 }
             }
-        }
 
-        // Pause on hover (desktop)
-        if (sliderContainer) {
+            // Pause on hover (desktop)
             sliderContainer.addEventListener('mouseenter', stopSlideShow);
             sliderContainer.addEventListener('mouseleave', startSlideShow);
         }
