@@ -12,34 +12,105 @@ get_header();
 <main id="main" class="site-main">
     <div class="home-page">
 
-        <!-- Hero Section -->
-        <section class="hero-banner">
-            <div class="hero-image-container <?php echo !get_theme_mod('aakaari_hero_image') ? 'hero-gradient-bg' : ''; ?>">
-                <?php
-                $hero_image = get_theme_mod('aakaari_hero_image');
-                if ($hero_image) :
-                ?>
-                    <img src="<?php echo esc_url($hero_image); ?>"
-                         alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_title', 'Premium Streetwear Collection')); ?>"
-                         class="hero-banner-image" />
-                <?php endif; ?>
-                <div class="hero-overlay">
-                    <div class="hero-content-wrapper">
-                        <div class="hero-text-content">
-                            <div class="hero-tag"><?php echo esc_html(get_theme_mod('aakaari_hero_tag', 'NEW ARRIVAL')); ?></div>
-                            <h1 class="hero-main-title">
+        <!-- Hero Slider Section -->
+        <section class="hero-slider-section">
+            <div class="hero-slider-container">
+                <!-- Slide 1 -->
+                <div class="hero-slide active">
+                    <div class="hero-slide-background <?php echo !get_theme_mod('aakaari_hero_image') ? 'hero-gradient-bg' : ''; ?>">
+                        <?php
+                        $hero_image = get_theme_mod('aakaari_hero_image');
+                        if ($hero_image) :
+                        ?>
+                            <img src="<?php echo esc_url($hero_image); ?>"
+                                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_title', 'Premium Streetwear Collection')); ?>"
+                                 class="hero-slide-image" />
+                        <?php endif; ?>
+                    </div>
+                    <div class="hero-slide-overlay">
+                        <div class="hero-slide-content">
+                            <div class="hero-tag animate-slide-up"><?php echo esc_html(get_theme_mod('aakaari_hero_tag', 'NEW ARRIVAL')); ?></div>
+                            <h1 class="hero-slide-title animate-slide-up">
                                 <?php echo esc_html(get_theme_mod('aakaari_hero_title', 'Premium Streetwear Collection')); ?>
                             </h1>
-                            <p class="hero-main-subtitle">
+                            <p class="hero-slide-subtitle animate-slide-up">
                                 <?php echo esc_html(get_theme_mod('aakaari_hero_subtitle', 'Discover our latest collection of premium t-shirts and hoodies')); ?>
                             </p>
-                            <div class="hero-cta-group">
-                                <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="hero-cta-button">
+                            <div class="hero-slide-actions animate-slide-up">
+                                <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="hero-cta-primary">
                                     Shop Now
+                                </a>
+                                <a href="<?php echo esc_url(home_url('/shop/?orderby=date')); ?>" class="hero-cta-secondary">
+                                    New Arrivals
                                 </a>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="hero-slide">
+                    <div class="hero-slide-background" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    </div>
+                    <div class="hero-slide-overlay">
+                        <div class="hero-slide-content">
+                            <div class="hero-tag animate-slide-up">TRENDING NOW</div>
+                            <h2 class="hero-slide-title animate-slide-up">
+                                Exclusive Collection
+                            </h2>
+                            <p class="hero-slide-subtitle animate-slide-up">
+                                Limited edition pieces crafted for the bold and stylish
+                            </p>
+                            <div class="hero-slide-actions animate-slide-up">
+                                <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>" class="hero-cta-primary">
+                                    Explore Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="hero-slide">
+                    <div class="hero-slide-background" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    </div>
+                    <div class="hero-slide-overlay">
+                        <div class="hero-slide-content">
+                            <div class="hero-tag animate-slide-up">SALE</div>
+                            <h2 class="hero-slide-title animate-slide-up">
+                                Up to 40% Off
+                            </h2>
+                            <p class="hero-slide-subtitle animate-slide-up">
+                                Don't miss out on amazing deals on selected items
+                            </p>
+                            <div class="hero-slide-actions animate-slide-up">
+                                <a href="<?php echo esc_url(home_url('/shop/?on_sale=yes')); ?>" class="hero-cta-primary">
+                                    Shop Sale
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="hero-slider-nav">
+                    <button class="hero-nav-btn hero-nav-prev" aria-label="Previous slide">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <button class="hero-nav-btn hero-nav-next" aria-label="Next slide">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Dots -->
+                <div class="hero-slider-dots">
+                    <button class="hero-dot active" data-slide="0" aria-label="Go to slide 1"></button>
+                    <button class="hero-dot" data-slide="1" aria-label="Go to slide 2"></button>
+                    <button class="hero-dot" data-slide="2" aria-label="Go to slide 3"></button>
                 </div>
             </div>
         </section>

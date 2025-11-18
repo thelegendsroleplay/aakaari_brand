@@ -10,6 +10,9 @@
     $(document).ready(function() {
         console.log('Home Page Loaded');
 
+        // Initialize hero slider
+        initHeroSlider();
+
         // Initialize product carousels
         initProductCarousels();
 
@@ -22,6 +25,158 @@
         // Category card interactions
         initCategoryCards();
     });
+
+    /**
+     * Initialize Hero Slider
+     */
+    function initHeroSlider() {
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.hero-dot');
+        const prevBtn = document.querySelector('.hero-nav-prev');
+        const nextBtn = document.querySelector('.hero-nav-next');
+
+        if (!slides.length) return;
+
+        let currentSlide = 0;
+        let slideInterval;
+        const slideDelay = 5000; // 5 seconds
+
+        // Go to specific slide
+        function goToSlide(n) {
+            // Remove active class from all slides and dots
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            dots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+
+            // Wrap around if necessary
+            if (n >= slides.length) {
+                currentSlide = 0;
+            } else if (n < 0) {
+                currentSlide = slides.length - 1;
+            } else {
+                currentSlide = n;
+            }
+
+            // Add active class to current slide and dot
+            slides[currentSlide].classList.add('active');
+            if (dots[currentSlide]) {
+                dots[currentSlide].classList.add('active');
+            }
+        }
+
+        // Next slide
+        function nextSlide() {
+            goToSlide(currentSlide + 1);
+        }
+
+        // Previous slide
+        function prevSlide() {
+            goToSlide(currentSlide - 1);
+        }
+
+        // Auto play
+        function startSlideShow() {
+            slideInterval = setInterval(nextSlide, slideDelay);
+        }
+
+        // Stop auto play
+        function stopSlideShow() {
+            clearInterval(slideInterval);
+        }
+
+        // Event listeners
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                prevSlide();
+                stopSlideShow();
+                startSlideShow();
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                nextSlide();
+                stopSlideShow();
+                startSlideShow();
+            });
+        }
+
+        // Dot navigation
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                goToSlide(index);
+                stopSlideShow();
+                startSlideShow();
+            });
+        });
+
+        // Touch support for mobile swipe
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const sliderContainer = document.querySelector('.hero-slider-container');
+
+        if (sliderContainer) {
+            sliderContainer.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                stopSlideShow();
+            });
+
+            sliderContainer.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+                startSlideShow();
+            });
+
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                const diff = touchStartX - touchEndX;
+
+                if (Math.abs(diff) > swipeThreshold) {
+                    if (diff > 0) {
+                        // Swipe left - next slide
+                        nextSlide();
+                    } else {
+                        // Swipe right - previous slide
+                        prevSlide();
+                    }
+                }
+            }
+        }
+
+        // Pause on hover (desktop)
+        if (sliderContainer) {
+            sliderContainer.addEventListener('mouseenter', stopSlideShow);
+            sliderContainer.addEventListener('mouseleave', startSlideShow);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+                stopSlideShow();
+                startSlideShow();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+                stopSlideShow();
+                startSlideShow();
+            }
+        });
+
+        // Start the slideshow
+        startSlideShow();
+
+        // Pause when page is not visible
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopSlideShow();
+            } else {
+                startSlideShow();
+            }
+        });
+    }
 
     /**
      * Initialize Product Carousels with Navigation
