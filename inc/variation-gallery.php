@@ -82,6 +82,47 @@ function aakaari_save_variation_gallery_images($variation_id, $i) {
 add_action('woocommerce_save_product_variation', 'aakaari_save_variation_gallery_images', 10, 2);
 
 /**
+ * Alternative save hook to debug if the variation-specific hook isn't firing
+ */
+function aakaari_debug_product_save($post_id) {
+    error_log('==== PRODUCT UPDATE HOOK FIRED FOR POST ID: ' . $post_id . ' ====');
+    error_log('All POST keys: ' . print_r(array_keys($_POST), true));
+
+    if (isset($_POST['variation_gallery_images'])) {
+        error_log('Found variation_gallery_images in POST: ' . print_r($_POST['variation_gallery_images'], true));
+    } else {
+        error_log('No variation_gallery_images in POST data');
+    }
+
+    if (isset($_POST['variable_post_id'])) {
+        error_log('Found variable_post_id (variation IDs): ' . print_r($_POST['variable_post_id'], true));
+    }
+}
+add_action('woocommerce_update_product', 'aakaari_debug_product_save', 10, 1);
+
+/**
+ * Verify hooks are registered - run on init
+ */
+function aakaari_verify_hooks_registered() {
+    global $wp_filter;
+    error_log('==== VERIFYING VARIATION GALLERY HOOKS ====');
+
+    if (isset($wp_filter['woocommerce_save_product_variation'])) {
+        error_log('woocommerce_save_product_variation hook IS registered');
+        error_log('Callbacks: ' . print_r($wp_filter['woocommerce_save_product_variation'], true));
+    } else {
+        error_log('woocommerce_save_product_variation hook NOT registered');
+    }
+
+    if (isset($wp_filter['woocommerce_update_product'])) {
+        error_log('woocommerce_update_product hook IS registered');
+    } else {
+        error_log('woocommerce_update_product hook NOT registered');
+    }
+}
+add_action('init', 'aakaari_verify_hooks_registered', 999);
+
+/**
  * Enqueue admin scripts for variation gallery
  */
 function aakaari_enqueue_variation_gallery_admin_scripts($hook) {
