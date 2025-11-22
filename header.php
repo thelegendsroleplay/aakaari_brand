@@ -23,10 +23,7 @@
             <div class="header-content">
                 <!-- Logo -->
                 <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="header-logo">
-                    <div class="header-logo-icon">
-                        <span class="header-logo-text">HE</span>
-                    </div>
-                    <span class="header-logo-name">Herrenn</span>
+                    <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/herrenn-icon-black-gold-1.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" class="header-logo-img" style="height: 40px; width: auto;">
                 </a>
 
                 <!-- Desktop Navigation -->

@@ -7,10 +7,7 @@
                 <!-- Brand -->
                 <div class="footer-brand">
                     <div class="footer-brand-logo">
-                        <div class="footer-logo-icon">
-                            <span class="footer-logo-text">HE</span>
-                        </div>
-                        <span class="footer-brand-name">Herrenn</span>
+                        <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/herrenn-icon-black-gold-1.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" class="footer-logo-img" style="height: 48px; width: auto;">
                     </div>
                     <p class="footer-brand-description">
                         Premium streetwear essentials for the modern lifestyle. Quality you can feel.
