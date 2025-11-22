@@ -559,34 +559,21 @@ function aakaari_ajax_get_variation_data() {
     // Check if variation has custom gallery images
     $variation_gallery = get_post_meta($variation_id, '_variation_gallery_images', true);
 
-    // Debug logging
-    error_log('=== AJAX Get Variation Data ===');
-    error_log('Variation ID: ' . $variation_id);
-    error_log('Variation Gallery Meta: ' . $variation_gallery);
-
     if (!empty($variation_gallery)) {
         // Use variation-specific gallery images
         $variation_gallery_ids = explode(',', $variation_gallery);
-        error_log('Gallery IDs found: ' . print_r($variation_gallery_ids, true));
 
         foreach ($variation_gallery_ids as $gallery_image_id) {
             $gallery_image_id = trim($gallery_image_id);
             if ($gallery_image_id && is_numeric($gallery_image_id)) {
-                $large_url = wp_get_attachment_image_url($gallery_image_id, 'large');
-                $thumb_url = wp_get_attachment_image_url($gallery_image_id, 'thumbnail');
-
-                error_log('Image ID ' . $gallery_image_id . ' - Large: ' . $large_url . ', Thumb: ' . $thumb_url);
-
                 $gallery_images[] = array(
-                    'large' => $large_url,
-                    'thumbnail' => $thumb_url,
+                    'large' => wp_get_attachment_image_url($gallery_image_id, 'large'),
+                    'thumbnail' => wp_get_attachment_image_url($gallery_image_id, 'thumbnail'),
                     'id' => $gallery_image_id
                 );
             }
         }
-        error_log('Total gallery images built: ' . count($gallery_images));
     } else {
-        error_log('No variation gallery found, using fallback');
         // Fallback to variation main image + product gallery
         // First, add the variation's main image if it exists
         if ($variation_image_id) {
