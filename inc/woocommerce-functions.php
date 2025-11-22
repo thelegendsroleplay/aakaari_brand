@@ -566,11 +566,17 @@ function aakaari_ajax_get_variation_data() {
         foreach ($variation_gallery_ids as $gallery_image_id) {
             $gallery_image_id = trim($gallery_image_id);
             if ($gallery_image_id && is_numeric($gallery_image_id)) {
-                $gallery_images[] = array(
-                    'large' => wp_get_attachment_image_url($gallery_image_id, 'large'),
-                    'thumbnail' => wp_get_attachment_image_url($gallery_image_id, 'thumbnail'),
-                    'id' => $gallery_image_id
-                );
+                $large_url = wp_get_attachment_image_url($gallery_image_id, 'large');
+                $thumb_url = wp_get_attachment_image_url($gallery_image_id, 'thumbnail');
+
+                // Only add if both URLs are valid
+                if ($large_url && $thumb_url) {
+                    $gallery_images[] = array(
+                        'large' => $large_url,
+                        'thumbnail' => $thumb_url,
+                        'id' => $gallery_image_id
+                    );
+                }
             }
         }
     } else {
