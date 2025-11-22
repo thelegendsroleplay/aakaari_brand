@@ -506,12 +506,20 @@
                 nonce: aakaariAjax.nonce
             },
             success: function(response) {
+                console.log('=== Variation Data Response ===');
+                console.log('Full response:', response);
+
                 if (response.success) {
                     const data = response.data;
+                    console.log('Variation ID:', data.variation_id);
+                    console.log('Gallery Images:', data.gallery_images);
+                    console.log('Gallery Images Count:', data.gallery_images ? data.gallery_images.length : 0);
 
                     // Update main image if variation has an image
                     if (data.image_url) {
                         const mainImage = document.getElementById('mainProductImage');
+                        console.log('Updating main image to:', data.image_url);
+                        console.log('Main image element:', mainImage);
                         if (mainImage) {
                             mainImage.src = data.image_url;
                         }
@@ -520,6 +528,9 @@
                     // Update thumbnail gallery
                     if (data.gallery_images && data.gallery_images.length > 0) {
                         const thumbnailList = document.querySelector('.thumbnail-list');
+                        console.log('Thumbnail list element:', thumbnailList);
+                        console.log('Updating gallery with', data.gallery_images.length, 'images');
+
                         if (thumbnailList) {
                             // Clear existing thumbnails
                             thumbnailList.innerHTML = '';
