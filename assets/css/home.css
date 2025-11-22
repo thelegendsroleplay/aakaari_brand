@@ -1488,16 +1488,12 @@
     overflow: hidden;
 }
 
+/* Desktop / base layout */
 .hero-slider-container {
-    position: relative;
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-    /* A slightly shorter height on mobile often helps reduce severe cropping */
-    height: 500px; 
-    overflow: hidden;
-    background: #000;
+    /* Make it match your 1600x600 look on desktop */
+    height: 600px;
 }
+
 
 /* Individual Slide */
 .hero-slide {
@@ -1528,24 +1524,110 @@
 }
 
 /* --- FIX FOR MOBILE CROPPING IS HERE --- */
+/* =========================================
+   HERO SLIDER BACKGROUND IMAGES (The Fix)
+   ========================================= */
+
+/* 1. Base Mobile Style (Default Center Focus) */
 .hero-slide-background--image {
     background-size: cover;
     background-repeat: no-repeat;
-    
-    /* MOBILE FOCUS: 
-       Instead of "center center", we use "25% center".
-       This tells the browser to focus horizontally at the 25% mark (the left side where the character is)
-       and vertically in the middle.
-    */
-    background-position: 25% center; 
-
-    /* Optional Ken Burns effect - keep or remove as desired */
+    /* Default to center focus - works perfectly for the new centered Slide 2 image */
+    background-position: center center;
+    /* Optional animation */
     animation: kenburns 20s ease-out infinite alternate;
 }
+
+/* 2. Slide 1 Mobile Fix: Character is on the LEFT */
+/* Anchor focus to the left side (20%) on mobile */
+.hero-slide--grind .hero-slide-background--image {
+    background-position: 20% center;
+}
+
+/* 3. Slide 2 Mobile Fix: Character is now CENTERED in the new image */
+/* We removed the specific 80% fix because the default center position above now works best. */
+
 
 @keyframes kenburns {
     0% { transform: scale(1); }
     100% { transform: scale(1.1); }
+}
+
+/* =========================================
+   DESKTOP OVERRIDES (Min-width 992px)
+   ========================================= */
+@media (min-width: 992px) {
+    
+    .hero-slider-container {
+        height: 600px; /* Taller for desktop */
+    }
+
+    /* --- DESKTOP IMAGE RESET --- */
+    /* On wide screens, reset ALL slides to center the image */
+    .hero-slide-background--image,
+    .hero-slide--grind .hero-slide-background--image,
+    .hero-slide--culture .hero-slide-background--image {
+        background-position: center center;
+    }
+
+    /* (Keep the rest of your existing desktop CSS below this point...) */
+    /* Gradient Shift for Slide 1 */
+    .hero-slide--grind .hero-slide-overlay {
+        align-items: center;
+        justify-content: flex-end;
+        padding: 40px 8%;
+        background: linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.10) 70%, rgba(0,0,0,0.00) 100%);
+    }
+    
+    /* Gradient Shift for Slide 2 */
+     .hero-slide--culture .hero-slide-overlay {
+        align-items: center;
+        justify-content: flex-start; /* Left align on desktop */
+        padding-left: 8%;
+        background: linear-gradient(to right, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.70) 30%, rgba(0,0,0,0.10) 60%, rgba(0,0,0,0.00) 100%);
+    }
+
+    /* General desktop content styles */
+    .hero-slide-content {
+        max-width: 480px;
+        margin-left: auto; /* Default push right */
+    }
+    
+    /* Slide 2 content align left */
+    .hero-slide--culture .hero-slide-content {
+        text-align: left;
+        margin-left: 0;
+        max-width: 550px;
+    }
+
+    .hero-slide-title { font-size: 48px; }
+    .hero-slide-subtitle { font-size: 18px; }
+
+    .hero-slide-actions {
+        justify-content: flex-start;
+        flex-direction: row;
+    }
+
+    .hero-cta-primary,
+    .hero-cta-secondary {
+        width: auto;
+        padding: 16px 36px;
+    }
+
+    .hero-corner-badge {
+        top: 32px;
+        left: 32px;
+        padding: 8px 20px;
+        font-size: 12px;
+    }
+    
+    .hero-slider-dots { bottom: 40px; }
+    
+    /* Slide 2 Watermark Desktop Position */
+     .hero-watermark {
+        left: 25%;
+        width: 30%;
+    }
 }
 
 /* Overlay Base */
@@ -1695,7 +1777,7 @@
 /* ============================================
    DESKTOP OVERRIDES (Min-width 992px)
    ============================================ */
-@media (min-width: 992px) {
+@media (min-width: 768px) {
     
     .hero-slider-container {
         height: 600px; /* Taller for desktop */
@@ -1757,11 +1839,81 @@
         bottom: 40px;
     }
 }
+/* ==============================
+   SLIDE 2 – "Street Culture Redefined"
+   ============================== */
 
-/* ============================================
-   OTHER SECTIONS
-   ============================================ */
-/* Add your Category, Product, Promo CSS here */
-.category-section { padding: 40px 0 60px; background: #ffffff; }
-.category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-@media (max-width: 768px) { .category-grid { grid-template-columns: 1fr; } }
+/* The specific modifier for this slide */
+.hero-slide--culture .hero-slide-overlay {
+    /* Mobile Default: Dramatic dark bottom-up gradient */
+    align-items: flex-end;
+    justify-content: center;
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.95) 0%,
+        rgba(0, 0, 0, 0.70) 40%,
+        rgba(0, 0, 0, 0.20) 80%,
+        rgba(0, 0, 0, 0.00) 100%
+    );
+}
+
+/* Geometric H Watermark */
+.hero-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%; /* Large on mobile */
+    height: auto;
+    opacity: 0.05; /* Very subtle */
+    pointer-events: none;
+    z-index: 0; /* Behind text */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-watermark svg {
+    width: 100%;
+    height: auto;
+    fill: #ffffff;
+}
+
+/* Ensure content sits above watermark */
+.hero-slide--culture .hero-slide-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* DESKTOP OVERRIDES for Slide 2 */
+@media (min-width: 992px) {
+    .hero-slide--culture .hero-slide-overlay {
+        align-items: center;
+        justify-content: flex-start; /* Left align on desktop */
+        padding-left: 8%;
+        /* Desktop: Left-to-right dark gradient to make text pop vs busy graffiti */
+        background: linear-gradient(
+            to right,
+            rgba(0, 0, 0, 0.90) 0%,
+            rgba(0, 0, 0, 0.70) 30%,
+            rgba(0, 0, 0, 0.10) 60%,
+            rgba(0, 0, 0, 0.00) 100%
+        );
+    }
+
+    .hero-slide--culture .hero-slide-content {
+        text-align: left;
+        margin-left: 0;
+        max-width: 550px;
+    }
+
+    .hero-slide--culture .hero-slide-actions {
+        justify-content: flex-start;
+    }
+
+    /* Position watermark behind the text block on desktop */
+    .hero-watermark {
+        left: 25%;
+        width: 30%;
+    }
+}

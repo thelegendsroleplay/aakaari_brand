@@ -12,126 +12,143 @@ get_header();
 <main id="main" class="site-main">
     <div class="home-page">
 
-        <!-- Hero Slider Section -->
         <section class="hero-slider-section">
-            <div class="hero-slider-container">
-                <!-- Slide 1 – HERRENN Hero -->
-    <div class="hero-slide active hero-slide--grind">
-    <?php
-    // Get hero image from Customizer (set this to your Capsule Collection / Built for the Grind image)
-    $hero_image_1 = get_theme_mod(
-        'aakaari_hero_slide_1_image',
-        'https://your-site.com/wp-content/uploads/hero-herrenn-1600x600.jpg' // fallback
-    );
-    ?>
-    
-    <!-- Background as CSS background-image -->
-    <div class="hero-slide-background hero-slide-background--image"
-         style="background-image: url('<?php echo esc_url( $hero_image_1 ); ?>');">
-    </div>
-
-    <div class="hero-slide-overlay">
-        <!-- Top-left badge -->
-        <div class="hero-corner-badge">
-            <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_tag', 'FRESH ARRIVAL')); ?>
-        </div>
-
-        <!-- Text + CTAs -->
-        <div class="hero-slide-content">
-            <h1 class="hero-slide-title animate-slide-up">
-                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_title', 'Built for the Grind')); ?>
-            </h1>
-
-            <p class="hero-slide-subtitle animate-slide-up">
-                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_subtitle', 'Streetwear that moves with you')); ?>
-            </p>
-
-            <div class="hero-slide-actions animate-slide-up">
-                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_link', get_permalink(wc_get_page_id('shop')))); ?>"
-                   class="hero-cta-primary">
-                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_text', 'SHOP NOW')); ?>
-                </a>
-
-                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_2_link', home_url('/our-story/'))); ?>"
-                   class="hero-cta-secondary">
-                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_2_text', 'OUR STORY')); ?>
-                </a>
+            <div class="hero-slider-container" id="heroSliderContainer">
+                
+                <div class="hero-slide active hero-slide--grind">
+                    <?php
+                    // Get hero image from Customizer
+                    $hero_image_1 = get_theme_mod(
+                        'aakaari_hero_slide_1_image',
+                        'https://your-site.com/wp-content/uploads/hero-herrenn-1600x600.jpg' // fallback URL
+                    );
+                    ?>
+                    
+                    <div class="hero-slide-background hero-slide-background--image"
+                         style="background-image: url('<?php echo esc_url( $hero_image_1 ); ?>');">
                     </div>
-                </div>
-            </div>
-    </div>
 
-
-                <!-- Slide 2 -->
-                <div class="hero-slide">
-                    <div class="hero-slide-background">
-                        <?php
-                        $hero_image_2 = get_theme_mod('aakaari_hero_slide_2_image', 'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=1600&q=80');
-                        if ($hero_image_2) :
-                        ?>
-                            <img src="<?php echo esc_url($hero_image_2); ?>"
-                                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_slide_2_title', 'Exclusive Collection')); ?>"
-                                 class="hero-slide-image" />
-                        <?php endif; ?>
-                    </div>
                     <div class="hero-slide-overlay">
+                        <div class="hero-corner-badge animate-slide-up">
+                            <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_tag', 'FRESH ARRIVAL')); ?>
+                        </div>
+
                         <div class="hero-slide-content">
-                            <div class="hero-tag animate-slide-up"><?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_tag', 'TRENDING NOW')); ?></div>
-                            <h2 class="hero-slide-title animate-slide-up">
-                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_title', 'Exclusive Collection')); ?>
-                            </h2>
+                            <h1 class="hero-slide-title animate-slide-up">
+                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_title', 'Built for the Grind')); ?>
+                            </h1>
+
                             <p class="hero-slide-subtitle animate-slide-up">
-                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_subtitle', 'Limited edition pieces crafted for the bold and stylish')); ?>
+                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_subtitle', 'Streetwear that moves with you')); ?>
                             </p>
+
                             <div class="hero-slide-actions animate-slide-up">
-                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_2_button_link', get_permalink(wc_get_page_id('shop')))); ?>" class="hero-cta-primary">
-                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_button_text', 'Explore Now')); ?>
+                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_link', get_permalink(wc_get_page_id('shop')))); ?>"
+                                   class="hero-cta-primary">
+                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_text', 'SHOP NOW')); ?>
+                                </a>
+
+                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_2_link', home_url('/our-story/'))); ?>"
+                                   class="hero-cta-secondary">
+                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_2_text', 'OUR STORY')); ?>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Slide 3 -->
-                <div class="hero-slide">
-                    <div class="hero-slide-background">
-                        <?php
-                        $hero_image_3 = get_theme_mod('aakaari_hero_slide_3_image', 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=1600&q=80');
-                        if ($hero_image_3) :
-                        ?>
-                            <img src="<?php echo esc_url($hero_image_3); ?>"
-                                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_slide_3_title', 'Up to 40% Off')); ?>"
-                                 class="hero-slide-image" />
-                        <?php endif; ?>
+
+                <div class="hero-slide hero-slide--culture">
+                    <?php
+                    // FIX: Define the variable before using it
+                    $hero_image_2 = get_theme_mod(
+                        'aakaari_hero_slide_2_image',
+                        'https://your-site.com/wp-content/uploads/hero-culture.jpg' // fallback URL
+                    );
+                    ?>
+            
+                    <div class="hero-slide-background hero-slide-background--image"
+                         style="background-image: url('<?php echo esc_url( $hero_image_2 ); ?>');">
                     </div>
+
                     <div class="hero-slide-overlay">
+                        
+                        <div class="hero-corner-badge animate-slide-up">
+                            <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_tag', 'NEW DROP')); ?>
+                        </div>
+
                         <div class="hero-slide-content">
-                            <div class="hero-tag animate-slide-up"><?php echo esc_html(get_theme_mod('aakaari_hero_slide_3_tag', 'SALE')); ?></div>
-                            <h2 class="hero-slide-title animate-slide-up">
-                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_3_title', 'Up to 40% Off')); ?>
-                            </h2>
+                            <h1 class="hero-slide-title animate-slide-up">
+                                <?php echo wp_kses_post(get_theme_mod('aakaari_hero_slide_2_title', 'STREET CULTURE<br>REDEFINED')); ?>
+                            </h1>
+
                             <p class="hero-slide-subtitle animate-slide-up">
-                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_3_subtitle', 'Don\'t miss out on amazing deals on selected items')); ?>
+                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_subtitle', 'Premium quality meets authentic style.')); ?>
                             </p>
+
                             <div class="hero-slide-actions animate-slide-up">
-                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_3_button_link', home_url('/shop/?on_sale=yes'))); ?>" class="hero-cta-primary">
-                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_3_button_text', 'Shop Sale')); ?>
+                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_2_btn_link', wc_get_page_id('shop'))); ?>" 
+                                   class="hero-cta-primary">
+                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_btn_text', 'EXPLORE NOW')); ?>
+                                </a>
+
+                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_2_btn2_link', '#')); ?>" 
+                                   class="hero-cta-secondary">
+                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_btn2_text', 'LIMITED EDITION')); ?>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Dots -->
                 <div class="hero-slider-dots">
                     <button class="hero-dot active" data-slide="0" aria-label="Go to slide 1"></button>
                     <button class="hero-dot" data-slide="1" aria-label="Go to slide 2"></button>
-                    <button class="hero-dot" data-slide="2" aria-label="Go to slide 3"></button>
                 </div>
             </div>
         </section>
 
-        <!-- Category Section -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sliderContainer = document.getElementById('heroSliderContainer');
+            if (!sliderContainer) return;
+
+            const slides = sliderContainer.querySelectorAll('.hero-slide');
+            const dots = sliderContainer.querySelectorAll('.hero-dot');
+            const slideInterval = 6000; // Change slide every 6 seconds
+            let currentSlide = 0;
+            let autoSlideTimer;
+
+            // Function to switch to a specific slide
+            function goToSlide(n) {
+                slides[currentSlide].classList.remove('active');
+                dots[currentSlide].classList.remove('active');
+                
+                currentSlide = (n + slides.length) % slides.length; // Ensure index wraps around
+                
+                slides[currentSlide].classList.add('active');
+                dots[currentSlide].classList.add('active');
+            }
+
+            // Function to go to next slide automatically
+            function nextSlide() {
+                goToSlide(currentSlide + 1);
+            }
+
+            // Event listeners for dots
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    clearInterval(autoSlideTimer); // Stop auto-play on manual interaction
+                    goToSlide(index);
+                    autoSlideTimer = setInterval(nextSlide, slideInterval); // Restart auto-play
+                });
+            });
+
+            // Start automatic sliding
+            autoSlideTimer = setInterval(nextSlide, slideInterval);
+        });
+        </script>
+
         <section class="category-section">
             <div class="page-container">
                 <h2 class="category-section-title">Shop by Category</h2>
@@ -169,7 +186,6 @@ get_header();
             </div>
         </section>
 
-        <!-- Featured Products Section -->
         <section class="products-section">
             <div class="page-container">
                 <div class="section-title-wrapper">
@@ -192,7 +208,6 @@ get_header();
                     </button>
                     <div class="product-carousel" data-carousel="featured">
                         <?php
-                        // Get featured product IDs using WooCommerce function
                         $featured_ids = wc_get_featured_product_ids();
 
                         if (!empty($featured_ids)) :
@@ -212,7 +227,6 @@ get_header();
                                 wp_reset_postdata();
                             endif;
                         else :
-                            // Show message if no featured products
                             ?>
                             <div style="text-align: center; padding: 3rem 1rem; color: #666;">
                                 <p>No featured products yet. Please mark some products as featured in the admin panel.</p>
@@ -225,7 +239,6 @@ get_header();
             </div>
         </section>
 
-        <!-- Promo Banner Section -->
         <section class="promo-section">
             <div class="page-container">
                 <div class="promo-card">
@@ -273,7 +286,6 @@ get_header();
             </div>
         </section>
 
-        <!-- New Arrivals Section -->
         <section class="products-section">
             <div class="page-container">
                 <div class="section-title-wrapper">
@@ -284,7 +296,7 @@ get_header();
                 </div>
 
                 <div class="product-carousel-wrapper">
-                    <button class="carousel-nav-button prev" data-carousel-nav="new-arrivals" data-direction="prev">
+                     <button class="carousel-nav-button prev" data-carousel-nav="new-arrivals" data-direction="prev">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="15 18 9 12 15 6"></polyline>
                         </svg>
@@ -317,7 +329,6 @@ get_header();
             </div>
         </section>
 
-        <!-- Trust Section -->
         <section class="trust-section">
             <div class="page-container">
                 <div class="trust-grid">
@@ -332,7 +343,7 @@ get_header();
                         </div>
                         <div class="trust-text">
                             <h4 class="trust-title">Free Shipping</h4>
-                            <p class="trust-desc">On orders over $75</p>
+                            <p class="trust-desc">On orders over ₹499</p>
                         </div>
                     </div>
 
@@ -358,7 +369,7 @@ get_header();
                         </div>
                         <div class="trust-text">
                             <h4 class="trust-title">Easy Returns</h4>
-                            <p class="trust-desc">30-day policy</p>
+                            <p class="trust-desc">7 Days Exchange policy</p>
                         </div>
                     </div>
                 </div>
@@ -367,7 +378,6 @@ get_header();
 
     </div>
 
-    <!-- Quick View Modal -->
     <div class="quick-view-modal" id="quickViewModal">
         <div class="quick-view-content">
             <button class="quick-view-close" id="quickViewClose">
@@ -377,7 +387,6 @@ get_header();
                 </svg>
             </button>
             <div id="quickViewContent">
-                <!-- Content will be loaded via AJAX -->
                 <div class="quick-view-loading">
                     <div class="quick-view-loading-spinner"></div>
                     <p>Loading product details...</p>
