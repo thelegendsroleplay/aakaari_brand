@@ -72,6 +72,9 @@
                 // Update hidden input
                 $galleryInput.val(imageIds.join(','));
                 console.log('Updated gallery IDs:', imageIds.join(','));
+                console.log('Hidden input name:', $galleryInput.attr('name'));
+                console.log('Hidden input value after update:', $galleryInput.val());
+                console.log('Hidden input element:', $galleryInput[0]);
 
                 // Re-initialize sortable for new items
                 initSortable($galleryContainer, $galleryInput);
