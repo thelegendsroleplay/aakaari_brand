@@ -485,3 +485,108 @@ function aakaari_ajax_submit_review() {
 }
 add_action('wp_ajax_aakaari_submit_review', 'aakaari_ajax_submit_review');
 add_action('wp_ajax_nopriv_aakaari_submit_review', 'aakaari_ajax_submit_review');
+
+/**
+ * AJAX handler to get variation data including images
+ */
+function aakaari_ajax_get_variation_data() {
+    check_ajax_referer('aakaari-ajax-nonce', 'nonce');
+
+    if (!is_woocommerce_activated()) {
+        wp_send_json_error(array('message' => 'WooCommerce is not active'));
+        return;
+    }
+
+    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+    $attributes = isset($_POST['attributes']) ? $_POST['attributes'] : array();
+
+    if ($product_id <= 0) {
+        wp_send_json_error(array('message' => 'Invalid product ID'));
+        return;
+    }
+
+    $product = wc_get_product($product_id);
+
+    if (!$product || !$product->is_type('variable')) {
+        wp_send_json_error(array('message' => 'Product not found or not a variable product'));
+        return;
+    }
+
+    // Build variation attributes array
+    $variation_attributes = array();
+    foreach ($attributes as $attribute_name => $attribute_value) {
+        // Normalize attribute name
+        $attribute_name = str_replace('-', '_', $attribute_name);
+
+        if (strpos($attribute_name, 'attribute_') !== 0) {
+            $attribute_key = 'attribute_' . $attribute_name;
+        } else {
+            $attribute_key = $attribute_name;
+        }
+
+        $variation_attributes[$attribute_key] = sanitize_title($attribute_value);
+    }
+
+    // Find matching variation
+    $data_store = WC_Data_Store::load('product');
+    $variation_id = $data_store->find_matching_product_variation($product, $variation_attributes);
+
+    if (!$variation_id) {
+        wp_send_json_error(array('message' => 'No matching variation found'));
+        return;
+    }
+
+    $variation = wc_get_product($variation_id);
+
+    if (!$variation) {
+        wp_send_json_error(array('message' => 'Variation not found'));
+        return;
+    }
+
+    // Get variation image
+    $variation_image_id = $variation->get_image_id();
+    $main_image_url = '';
+    $thumbnail_url = '';
+
+    if ($variation_image_id) {
+        $main_image_url = wp_get_attachment_image_url($variation_image_id, 'large');
+        $thumbnail_url = wp_get_attachment_image_url($variation_image_id, 'thumbnail');
+    }
+
+    // Get variation gallery images (if any custom gallery is set)
+    $gallery_images = array();
+
+    // First, add the variation's main image if it exists
+    if ($variation_image_id) {
+        $gallery_images[] = array(
+            'large' => $main_image_url,
+            'thumbnail' => $thumbnail_url,
+            'id' => $variation_image_id
+        );
+    }
+
+    // Get product gallery images as fallback/additional images
+    $product_gallery_ids = $product->get_gallery_image_ids();
+    foreach ($product_gallery_ids as $gallery_image_id) {
+        // Skip if this is already the variation image
+        if ($gallery_image_id != $variation_image_id) {
+            $gallery_images[] = array(
+                'large' => wp_get_attachment_image_url($gallery_image_id, 'large'),
+                'thumbnail' => wp_get_attachment_image_url($gallery_image_id, 'thumbnail'),
+                'id' => $gallery_image_id
+            );
+        }
+    }
+
+    wp_send_json_success(array(
+        'variation_id' => $variation_id,
+        'image_url' => $main_image_url,
+        'thumbnail_url' => $thumbnail_url,
+        'gallery_images' => $gallery_images,
+        'price_html' => $variation->get_price_html(),
+        'stock_html' => $variation->is_in_stock() ? 'In stock' : 'Out of stock',
+        'is_in_stock' => $variation->is_in_stock()
+    ));
+}
+add_action('wp_ajax_aakaari_get_variation_data', 'aakaari_ajax_get_variation_data');
+add_action('wp_ajax_nopriv_aakaari_get_variation_data', 'aakaari_ajax_get_variation_data');
