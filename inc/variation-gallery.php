@@ -17,6 +17,9 @@ if (!defined('ABSPATH')) {
 function aakaari_add_variation_gallery_field($loop, $variation_data, $variation) {
     $variation_id = $variation->ID;
     $gallery_images = get_post_meta($variation_id, '_variation_gallery_images', true);
+
+    // Debug: Log what we retrieved
+    error_log('Loading variation gallery for variation ID ' . $variation_id . ': ' . $gallery_images);
     ?>
     <div class="form-row form-row-full variation-gallery-wrapper" style="clear: both; margin-top: 15px;">
         <h4 style="margin-bottom: 10px; font-weight: 600;"><?php esc_html_e('Variation Gallery Images', 'aakaari'); ?></h4>
@@ -56,9 +59,22 @@ add_action('woocommerce_product_after_variable_attributes', 'aakaari_add_variati
  * Save variation gallery images
  */
 function aakaari_save_variation_gallery_images($variation_id, $i) {
+    // Log for debugging
+    error_log('Saving variation gallery for variation ID: ' . $variation_id . ', loop index: ' . $i);
+
     if (isset($_POST['variation_gallery_images'][$i])) {
         $gallery_images = sanitize_text_field($_POST['variation_gallery_images'][$i]);
-        update_post_meta($variation_id, '_variation_gallery_images', $gallery_images);
+        error_log('Gallery images to save: ' . $gallery_images);
+
+        if (!empty($gallery_images)) {
+            update_post_meta($variation_id, '_variation_gallery_images', $gallery_images);
+            error_log('Successfully saved gallery images for variation ' . $variation_id);
+        } else {
+            delete_post_meta($variation_id, '_variation_gallery_images');
+            error_log('Deleted empty gallery for variation ' . $variation_id);
+        }
+    } else {
+        error_log('No variation_gallery_images found in POST for index: ' . $i);
     }
 }
 add_action('woocommerce_save_product_variation', 'aakaari_save_variation_gallery_images', 10, 2);
