@@ -15,40 +15,53 @@ get_header();
         <!-- Hero Slider Section -->
         <section class="hero-slider-section">
             <div class="hero-slider-container">
-                <!-- Slide 1 -->
-                <div class="hero-slide active">
-                    <div class="hero-slide-background">
-                        <?php
-                        $hero_image_1 = get_theme_mod('aakaari_hero_slide_1_image', 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=1600&q=80');
-                        if ($hero_image_1) :
-                        ?>
-                            <img src="<?php echo esc_url($hero_image_1); ?>"
-                                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_slide_1_title', 'Premium Streetwear Collection')); ?>"
-                                 class="hero-slide-image" />
-                        <?php endif; ?>
-                    </div>
-                    <div class="hero-slide-overlay">
-                        <div class="hero-slide-content">
-                            <div class="hero-tag animate-slide-up"><?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_tag', 'NEW ARRIVAL')); ?></div>
-                            <h1 class="hero-slide-title animate-slide-up">
-                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_title', 'Premium Streetwear Collection')); ?>
-                            </h1>
-                            <p class="hero-slide-subtitle animate-slide-up">
-                                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_subtitle', 'Discover our latest collection of premium t-shirts and hoodies')); ?>
-                            </p>
-                            <div class="hero-slide-actions animate-slide-up">
-                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_link', get_permalink(wc_get_page_id('shop')))); ?>" class="hero-cta-primary">
-                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_text', 'Shop Now')); ?>
-                                </a>
-                                <?php if (get_theme_mod('aakaari_hero_slide_1_button_2_text', 'New Arrivals')) : ?>
-                                    <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_2_link', home_url('/shop/?orderby=date'))); ?>" class="hero-cta-secondary">
-                                        <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_2_text', 'New Arrivals')); ?>
-                                    </a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Slide 1 – HERRENN "Built for the Grind" -->
+<div class="hero-slide active hero-slide--grind">
+    <div class="hero-slide-background">
+        <?php
+        // Upload your 1600x600 hero image in Media and paste the URL below in Customizer
+        $hero_image_1 = get_theme_mod(
+            'aakaari_hero_slide_1_image',
+            'https://your-site.com/wp-content/uploads/hero-herrenn-1600x600.jpg'
+        );
+        if ($hero_image_1) :
+        ?>
+            <img src="<?php echo esc_url($hero_image_1); ?>"
+                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_slide_1_title', 'Built for the Grind')); ?>"
+                 class="hero-slide-image" />
+        <?php endif; ?>
+    </div>
+
+    <div class="hero-slide-overlay">
+        <!-- Corner badge -->
+        <div class="hero-corner-badge">
+            <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_tag', 'FRESH ARRIVAL')); ?>
+        </div>
+
+        <!-- Main content -->
+        <div class="hero-slide-content">
+            <h1 class="hero-slide-title animate-slide-up">
+                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_title', 'Built for the Grind')); ?>
+            </h1>
+
+            <p class="hero-slide-subtitle animate-slide-up">
+                <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_subtitle', 'Streetwear that moves with you')); ?>
+            </p>
+
+            <div class="hero-slide-actions animate-slide-up">
+                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_link', get_permalink(wc_get_page_id('shop')))); ?>"
+                   class="hero-cta-primary">
+                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_text', 'SHOP NOW')); ?>
+                </a>
+
+                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_2_link', home_url('/our-story/'))); ?>"
+                   class="hero-cta-secondary">
+                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_2_text', 'OUR STORY')); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- Slide 2 -->
                 <div class="hero-slide">
