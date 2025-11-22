@@ -49,7 +49,7 @@ function aakaari_add_variation_gallery_field($loop, $variation_data, $variation)
             }
             ?>
         </ul>
-        <input type="hidden" name="variation_gallery_images[<?php echo esc_attr($loop); ?>]" class="variation-gallery-images-input" data-loop="<?php echo esc_attr($loop); ?>" value="<?php echo esc_attr($gallery_images); ?>">
+        <input type="hidden" name="variable_gallery_images[<?php echo esc_attr($loop); ?>]" class="variation-gallery-images-input" data-loop="<?php echo esc_attr($loop); ?>" value="<?php echo esc_attr($gallery_images); ?>">
     </div>
     <?php
 }
@@ -64,8 +64,8 @@ function aakaari_save_variation_gallery_images($variation_id, $i) {
     error_log('Saving variation gallery for variation ID: ' . $variation_id . ', loop index: ' . $i);
     error_log('POST data keys: ' . print_r(array_keys($_POST), true));
 
-    if (isset($_POST['variation_gallery_images'][$i])) {
-        $gallery_images = sanitize_text_field($_POST['variation_gallery_images'][$i]);
+    if (isset($_POST['variable_gallery_images'][$i])) {
+        $gallery_images = sanitize_text_field($_POST['variable_gallery_images'][$i]);
         error_log('Gallery images to save: ' . $gallery_images);
 
         if (!empty($gallery_images)) {
@@ -76,7 +76,7 @@ function aakaari_save_variation_gallery_images($variation_id, $i) {
             error_log('Deleted empty gallery for variation ' . $variation_id);
         }
     } else {
-        error_log('No variation_gallery_images found in POST for index: ' . $i);
+        error_log('No variable_gallery_images found in POST for index: ' . $i);
     }
 }
 add_action('woocommerce_save_product_variation', 'aakaari_save_variation_gallery_images', 10, 2);
@@ -88,10 +88,10 @@ function aakaari_debug_product_save($post_id) {
     error_log('==== PRODUCT UPDATE HOOK FIRED FOR POST ID: ' . $post_id . ' ====');
     error_log('All POST keys: ' . print_r(array_keys($_POST), true));
 
-    if (isset($_POST['variation_gallery_images'])) {
-        error_log('Found variation_gallery_images in POST: ' . print_r($_POST['variation_gallery_images'], true));
+    if (isset($_POST['variable_gallery_images'])) {
+        error_log('Found variable_gallery_images in POST: ' . print_r($_POST['variable_gallery_images'], true));
     } else {
-        error_log('No variation_gallery_images in POST data');
+        error_log('No variable_gallery_images in POST data');
     }
 
     if (isset($_POST['variable_post_id'])) {
@@ -146,7 +146,7 @@ function aakaari_enqueue_variation_gallery_admin_scripts($hook) {
         'aakaari-variation-gallery-admin',
         get_template_directory_uri() . '/assets/js/admin/variation-gallery.js',
         array('jquery', 'jquery-ui-sortable'),
-        '1.0.3', // Changed version to force refresh
+        '1.0.4', // Changed version to force refresh
         true
     );
 
@@ -155,7 +155,7 @@ function aakaari_enqueue_variation_gallery_admin_scripts($hook) {
         'aakaari-variation-gallery-admin',
         get_template_directory_uri() . '/assets/css/admin/variation-gallery.css',
         array(),
-        '1.0.3' // Changed version to force refresh
+        '1.0.4' // Changed version to force refresh
     );
 }
 add_action('admin_enqueue_scripts', 'aakaari_enqueue_variation_gallery_admin_scripts');
