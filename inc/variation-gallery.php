@@ -18,36 +18,39 @@ function aakaari_add_variation_gallery_field($loop, $variation_data, $variation)
     $variation_id = $variation->ID;
     $gallery_images = get_post_meta($variation_id, '_variation_gallery_images', true);
     ?>
-    <div class="form-row form-row-full variation-gallery-wrapper">
-        <h4><?php esc_html_e('Variation Gallery Images', 'aakaari'); ?></h4>
-        <p class="form-field">
-            <a href="#" class="button variation-gallery-add-images" data-variation-id="<?php echo esc_attr($variation_id); ?>">
+    <div class="form-row form-row-full variation-gallery-wrapper" style="clear: both; margin-top: 15px;">
+        <h4 style="margin-bottom: 10px; font-weight: 600;"><?php esc_html_e('Variation Gallery Images', 'aakaari'); ?></h4>
+        <p class="form-field" style="margin-bottom: 10px;">
+            <label style="display: block; margin-bottom: 5px;"><?php esc_html_e('Add multiple images for this variation:', 'aakaari'); ?></label>
+            <a href="#" class="button variation-gallery-add-images" data-variation-id="<?php echo esc_attr($variation_id); ?>" data-loop="<?php echo esc_attr($loop); ?>">
                 <?php esc_html_e('Add gallery images', 'aakaari'); ?>
             </a>
         </p>
-        <ul class="variation-gallery-images" data-variation-id="<?php echo esc_attr($variation_id); ?>">
+        <ul class="variation-gallery-images" data-variation-id="<?php echo esc_attr($variation_id); ?>" data-loop="<?php echo esc_attr($loop); ?>" style="list-style: none; margin: 10px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px;">
             <?php
             if (!empty($gallery_images)) {
                 $gallery_images_array = explode(',', $gallery_images);
                 foreach ($gallery_images_array as $image_id) {
-                    if ($image_id) {
+                    if ($image_id && is_numeric($image_id)) {
                         $image = wp_get_attachment_image($image_id, 'thumbnail');
-                        ?>
-                        <li class="image" data-attachment-id="<?php echo esc_attr($image_id); ?>">
-                            <?php echo $image; ?>
-                            <a href="#" class="delete-image" title="<?php esc_attr_e('Remove image', 'aakaari'); ?>">&times;</a>
-                        </li>
-                        <?php
+                        if ($image) {
+                            ?>
+                            <li class="image" data-attachment-id="<?php echo esc_attr($image_id); ?>" style="position: relative; width: 80px; height: 80px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #fff; cursor: move;">
+                                <?php echo $image; ?>
+                                <a href="#" class="delete-image" title="<?php esc_attr_e('Remove image', 'aakaari'); ?>" style="position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; background: #dc3232; color: #fff; text-decoration: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 1;">&times;</a>
+                            </li>
+                            <?php
+                        }
                     }
                 }
             }
             ?>
         </ul>
-        <input type="hidden" name="variation_gallery_images[<?php echo esc_attr($loop); ?>]" class="variation-gallery-images-input" value="<?php echo esc_attr($gallery_images); ?>">
+        <input type="hidden" name="variation_gallery_images[<?php echo esc_attr($loop); ?>]" class="variation-gallery-images-input" data-loop="<?php echo esc_attr($loop); ?>" value="<?php echo esc_attr($gallery_images); ?>">
     </div>
     <?php
 }
-add_action('woocommerce_variation_options_pricing', 'aakaari_add_variation_gallery_field', 10, 3);
+add_action('woocommerce_product_after_variable_attributes', 'aakaari_add_variation_gallery_field', 10, 3);
 
 /**
  * Save variation gallery images
@@ -73,20 +76,27 @@ function aakaari_enqueue_variation_gallery_admin_scripts($hook) {
         return;
     }
 
+    // Enqueue WordPress media library
     wp_enqueue_media();
+
+    // Enqueue jQuery UI sortable
+    wp_enqueue_script('jquery-ui-sortable');
+
+    // Enqueue our custom script
     wp_enqueue_script(
         'aakaari-variation-gallery-admin',
         get_template_directory_uri() . '/assets/js/admin/variation-gallery.js',
-        array('jquery'),
-        '1.0.0',
+        array('jquery', 'jquery-ui-sortable'),
+        '1.0.1',
         true
     );
 
+    // Enqueue our custom styles
     wp_enqueue_style(
         'aakaari-variation-gallery-admin',
         get_template_directory_uri() . '/assets/css/admin/variation-gallery.css',
         array(),
-        '1.0.0'
+        '1.0.1'
     );
 }
 add_action('admin_enqueue_scripts', 'aakaari_enqueue_variation_gallery_admin_scripts');

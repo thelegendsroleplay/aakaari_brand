@@ -3,17 +3,26 @@
  */
 
 .variation-gallery-wrapper {
-    padding: 12px;
+    padding: 15px;
     background: #f9f9f9;
     border: 1px solid #ddd;
-    margin: 12px 0;
+    margin: 15px 0;
     border-radius: 4px;
+    clear: both;
 }
 
 .variation-gallery-wrapper h4 {
-    margin: 0 0 12px;
+    margin: 0 0 10px;
     font-size: 14px;
     font-weight: 600;
+    color: #23282d;
+}
+
+.variation-gallery-wrapper label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
 }
 
 .variation-gallery-add-images {
@@ -21,47 +30,14 @@
     margin-bottom: 12px;
 }
 
-.variation-gallery-images {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.variation-gallery-images li.image {
-    position: relative;
-    width: 80px;
-    height: 80px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #fff;
-    cursor: move;
-}
-
 .variation-gallery-images li.image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 .variation-gallery-images li.image .delete-image {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 20px;
-    height: 20px;
-    background: #dc3232;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    line-height: 1;
     opacity: 0;
     transition: opacity 0.2s;
 }
@@ -71,18 +47,13 @@
 }
 
 .variation-gallery-images li.image .delete-image:hover {
-    background: #a00;
+    background: #a00 !important;
 }
 
 .variation-gallery-sortable-placeholder {
     width: 80px;
     height: 80px;
-    border: 2px dashed #ddd;
-    background: #f9f9f9;
+    border: 2px dashed #0073aa;
+    background: #e8f5fa;
     border-radius: 4px;
-}
-
-/* Hide the input field */
-.variation-gallery-images-input {
-    display: none;
 }
