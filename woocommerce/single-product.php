@@ -265,7 +265,7 @@ while (have_posts()) :
                             <circle cx="5.5" cy="18.5" r="2.5"></circle>
                             <circle cx="18.5" cy="18.5" r="2.5"></circle>
                         </svg>
-                        <span>Free shipping over $100</span>
+                        <span>Free shipping over ₹499</span>
                     </div>
                     <div class="feature">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -273,7 +273,7 @@ while (have_posts()) :
                             <polyline points="1 20 1 14 7 14"></polyline>
                             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                         </svg>
-                        <span>30-day returns</span>
+                        <span>7 days exchange</span>
                     </div>
                 </div>
 

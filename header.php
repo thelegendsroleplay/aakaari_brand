@@ -23,7 +23,7 @@
             <div class="header-content">
                 <!-- Logo -->
                 <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="header-logo">
-                    <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/herrenn-icon-black-gold-1.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" class="header-logo-img" style="height: 40px; width: auto;">
+                    <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/herrenn-logo-black-1.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" class="header-logo-img" style="height: 32px; width: auto;">
                 </a>
 
                 <!-- Desktop Navigation -->
