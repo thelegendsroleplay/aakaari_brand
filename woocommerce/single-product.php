@@ -56,11 +56,6 @@ while (have_posts()) :
                 <?php if ($main_image || !empty($attachment_ids)) : ?>
                     <div class="thumbnail-list">
                         <!-- Main image thumbnail -->
-                        <?php if ($main_image) : ?>
-                            <button class="thumbnail-btn active" data-image="<?php echo esc_url($main_image); ?>">
-                                <img src="<?php echo esc_url(get_the_post_thumbnail_url($product->get_id(), 'thumbnail')); ?>" alt="">
-                            </button>
-                        <?php endif; ?>
 
                         <!-- Gallery thumbnails -->
                         <?php foreach ($attachment_ids as $attachment_id) : ?>
