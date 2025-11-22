@@ -54,6 +54,25 @@
   text-decoration: none !important;
 }
 
+/* Logo Responsive Toggle */
+.header-logo-desktop {
+  display: block;
+}
+
+.header-logo-mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .header-logo-desktop {
+    display: none;
+  }
+
+  .header-logo-mobile {
+    display: block !important;
+  }
+}
+
 .header-logo-icon {
   width: 32px;
   height: 32px;
