@@ -122,6 +122,9 @@
                 console.log('Hidden input value after update:', $galleryInput.val());
                 console.log('Hidden input element:', $galleryInput[0]);
 
+                // CRITICAL: Trigger change event so WooCommerce knows the variation needs saving
+                triggerVariationChange($galleryInput);
+
                 // Re-initialize sortable for new items
                 initSortable($galleryContainer, $galleryInput);
             });
@@ -151,6 +154,9 @@
             // Update hidden input
             $galleryInput.val(imageIds.join(','));
             console.log('Updated gallery IDs after removal:', imageIds.join(','));
+
+            // CRITICAL: Trigger change event so WooCommerce knows the variation needs saving
+            triggerVariationChange($galleryInput);
 
             // Remove from DOM
             $imageItem.remove();
@@ -197,8 +203,38 @@
 
                 $galleryInput.val(imageIds.join(','));
                 console.log('Sorted gallery IDs:', imageIds.join(','));
+
+                // CRITICAL: Trigger change event so WooCommerce knows the variation needs saving
+                triggerVariationChange($galleryInput);
             }
         });
+    }
+
+    /**
+     * Trigger WooCommerce variation change detection
+     * This makes the "Save changes" button active
+     */
+    function triggerVariationChange($input) {
+        console.log('Triggering WooCommerce variation change detection');
+
+        // Find the variation wrapper
+        var $variation = $input.closest('.woocommerce_variation');
+
+        if ($variation.length) {
+            // Mark variation as needing update
+            $variation.addClass('variation-needs-update');
+            console.log('Added variation-needs-update class');
+        }
+
+        // Enable the save changes button
+        var $saveButton = $('button.save-variation-changes, button.cancel-variation-changes');
+        if ($saveButton.length) {
+            $saveButton.removeAttr('disabled');
+            console.log('Enabled save changes button');
+        }
+
+        // Trigger change event on the input itself
+        $input.trigger('change');
     }
 
 })(jQuery);
