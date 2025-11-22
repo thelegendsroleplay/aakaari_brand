@@ -27,6 +27,7 @@ function aakaari_include_files() {
         '/inc/header-functions.php',      // Header functions and walkers
         '/inc/shop-functions.php',        // Shop page functions and filters
         '/inc/wc-color-attributes.php',   // WooCommerce color attributes
+        '/inc/variation-gallery.php',     // Variation gallery support
         '/inc/wishlist.php',              // Wishlist functionality
         '/inc/live-chat-system.php',      // Live chat system
         // Add more inc files here as you create them
