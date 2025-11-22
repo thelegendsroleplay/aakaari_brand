@@ -60,7 +60,9 @@ add_action('woocommerce_product_after_variable_attributes', 'aakaari_add_variati
  */
 function aakaari_save_variation_gallery_images($variation_id, $i) {
     // Log for debugging
+    error_log('==== VARIATION GALLERY SAVE HOOK FIRED ====');
     error_log('Saving variation gallery for variation ID: ' . $variation_id . ', loop index: ' . $i);
+    error_log('POST data keys: ' . print_r(array_keys($_POST), true));
 
     if (isset($_POST['variation_gallery_images'][$i])) {
         $gallery_images = sanitize_text_field($_POST['variation_gallery_images'][$i]);
