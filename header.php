@@ -23,7 +23,10 @@
             <div class="header-content">
                 <!-- Logo -->
                 <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="header-logo">
-                    <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/herrenn-logo-black-1.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" class="header-logo-img" style="height: 32px; width: auto;">
+                    <!-- Desktop Logo (Wordmark) -->
+                    <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/herrenn-wordmark-black-1.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" class="header-logo-desktop" style="height: 28px; width: auto;">
+                    <!-- Mobile Logo (Icon) -->
+                    <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/herrenn-icon-black-gold-1.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" class="header-logo-mobile" style="height: 32px; width: auto; display: none;">
                 </a>
 
                 <!-- Desktop Navigation -->

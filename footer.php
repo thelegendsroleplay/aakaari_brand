@@ -7,7 +7,7 @@
                 <!-- Brand -->
                 <div class="footer-brand">
                     <div class="footer-brand-logo">
-                        <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/herrenn-logo-black-1.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" class="footer-logo-img" style="height: 40px; width: auto;">
+                        <img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/herrenn-wordmark-black-1.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>" class="footer-logo-img" style="height: 32px; width: auto;">
                     </div>
                     <p class="footer-brand-description">
                         Premium streetwear essentials for the modern lifestyle. Quality you can feel.
