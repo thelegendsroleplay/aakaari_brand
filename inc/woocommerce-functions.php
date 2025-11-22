@@ -553,28 +553,46 @@ function aakaari_ajax_get_variation_data() {
         $thumbnail_url = wp_get_attachment_image_url($variation_image_id, 'thumbnail');
     }
 
-    // Get variation gallery images (if any custom gallery is set)
+    // Get variation gallery images
     $gallery_images = array();
 
-    // First, add the variation's main image if it exists
-    if ($variation_image_id) {
-        $gallery_images[] = array(
-            'large' => $main_image_url,
-            'thumbnail' => $thumbnail_url,
-            'id' => $variation_image_id
-        );
-    }
+    // Check if variation has custom gallery images
+    $variation_gallery = get_post_meta($variation_id, '_variation_gallery_images', true);
 
-    // Get product gallery images as fallback/additional images
-    $product_gallery_ids = $product->get_gallery_image_ids();
-    foreach ($product_gallery_ids as $gallery_image_id) {
-        // Skip if this is already the variation image
-        if ($gallery_image_id != $variation_image_id) {
+    if (!empty($variation_gallery)) {
+        // Use variation-specific gallery images
+        $variation_gallery_ids = explode(',', $variation_gallery);
+        foreach ($variation_gallery_ids as $gallery_image_id) {
+            if ($gallery_image_id) {
+                $gallery_images[] = array(
+                    'large' => wp_get_attachment_image_url($gallery_image_id, 'large'),
+                    'thumbnail' => wp_get_attachment_image_url($gallery_image_id, 'thumbnail'),
+                    'id' => $gallery_image_id
+                );
+            }
+        }
+    } else {
+        // Fallback to variation main image + product gallery
+        // First, add the variation's main image if it exists
+        if ($variation_image_id) {
             $gallery_images[] = array(
-                'large' => wp_get_attachment_image_url($gallery_image_id, 'large'),
-                'thumbnail' => wp_get_attachment_image_url($gallery_image_id, 'thumbnail'),
-                'id' => $gallery_image_id
+                'large' => $main_image_url,
+                'thumbnail' => $thumbnail_url,
+                'id' => $variation_image_id
             );
+        }
+
+        // Get product gallery images as fallback/additional images
+        $product_gallery_ids = $product->get_gallery_image_ids();
+        foreach ($product_gallery_ids as $gallery_image_id) {
+            // Skip if this is already the variation image
+            if ($gallery_image_id != $variation_image_id) {
+                $gallery_images[] = array(
+                    'large' => wp_get_attachment_image_url($gallery_image_id, 'large'),
+                    'thumbnail' => wp_get_attachment_image_url($gallery_image_id, 'thumbnail'),
+                    'id' => $gallery_image_id
+                );
+            }
         }
     }
 
