@@ -10,7 +10,53 @@
 
     $(document).ready(function() {
         initVariationGallery();
+        debugFormSubmission();
     });
+
+    /**
+     * Debug form submission to verify our data is being sent
+     */
+    function debugFormSubmission() {
+        // Hook into form submission
+        $('#post').on('submit', function(e) {
+            console.log('==== FORM SUBMISSION DEBUG ====');
+
+            // Get all our gallery inputs
+            $('.variation-gallery-images-input').each(function() {
+                var $input = $(this);
+                var name = $input.attr('name');
+                var value = $input.val();
+                var loop = $input.data('loop');
+
+                console.log('Gallery Input Found:');
+                console.log('  - Name:', name);
+                console.log('  - Value:', value);
+                console.log('  - Loop:', loop);
+                console.log('  - Element:', $input[0]);
+            });
+
+            // Check if inputs are actually in the form
+            var formData = new FormData(this);
+            console.log('Checking FormData for variable_gallery_images:');
+            for (var pair of formData.entries()) {
+                if (pair[0].indexOf('variable_gallery_images') !== -1) {
+                    console.log('  Found in FormData:', pair[0], '=', pair[1]);
+                }
+            }
+        });
+
+        // Hook into AJAX save if it exists
+        $(document).on('click', '.save-variation-changes', function() {
+            console.log('==== AJAX VARIATION SAVE CLICKED ====');
+
+            setTimeout(function() {
+                $('.variation-gallery-images-input').each(function() {
+                    var $input = $(this);
+                    console.log('Gallery Input:', $input.attr('name'), '=', $input.val());
+                });
+            }, 100);
+        });
+    }
 
     /**
      * Initialize variation gallery functionality

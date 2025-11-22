@@ -146,7 +146,7 @@ function aakaari_enqueue_variation_gallery_admin_scripts($hook) {
         'aakaari-variation-gallery-admin',
         get_template_directory_uri() . '/assets/js/admin/variation-gallery.js',
         array('jquery', 'jquery-ui-sortable'),
-        '1.0.4', // Changed version to force refresh
+        '1.0.5', // Changed version to force refresh
         true
     );
 
@@ -155,7 +155,7 @@ function aakaari_enqueue_variation_gallery_admin_scripts($hook) {
         'aakaari-variation-gallery-admin',
         get_template_directory_uri() . '/assets/css/admin/variation-gallery.css',
         array(),
-        '1.0.4' // Changed version to force refresh
+        '1.0.5' // Changed version to force refresh
     );
 }
 add_action('admin_enqueue_scripts', 'aakaari_enqueue_variation_gallery_admin_scripts');
