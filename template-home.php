@@ -15,30 +15,28 @@ get_header();
         <!-- Hero Slider Section -->
         <section class="hero-slider-section">
             <div class="hero-slider-container">
-                <!-- Slide 1 – HERRENN "Built for the Grind" -->
-<div class="hero-slide active hero-slide--grind">
-    <div class="hero-slide-background">
-        <?php
-        // Upload your 1600x600 hero image in Media and paste the URL below in Customizer
-        $hero_image_1 = get_theme_mod(
-            'aakaari_hero_slide_1_image',
-            'https://your-site.com/wp-content/uploads/hero-herrenn-1600x600.jpg'
-        );
-        if ($hero_image_1) :
-        ?>
-            <img src="<?php echo esc_url($hero_image_1); ?>"
-                 alt="<?php echo esc_attr(get_theme_mod('aakaari_hero_slide_1_title', 'Built for the Grind')); ?>"
-                 class="hero-slide-image" />
-        <?php endif; ?>
+                <!-- Slide 1 – HERRENN Hero -->
+    <div class="hero-slide active hero-slide--grind">
+    <?php
+    // Get hero image from Customizer (set this to your Capsule Collection / Built for the Grind image)
+    $hero_image_1 = get_theme_mod(
+        'aakaari_hero_slide_1_image',
+        'https://your-site.com/wp-content/uploads/hero-herrenn-1600x600.jpg' // fallback
+    );
+    ?>
+    
+    <!-- Background as CSS background-image -->
+    <div class="hero-slide-background hero-slide-background--image"
+         style="background-image: url('<?php echo esc_url( $hero_image_1 ); ?>');">
     </div>
 
     <div class="hero-slide-overlay">
-        <!-- Corner badge -->
+        <!-- Top-left badge -->
         <div class="hero-corner-badge">
             <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_tag', 'FRESH ARRIVAL')); ?>
         </div>
 
-        <!-- Main content -->
+        <!-- Text + CTAs -->
         <div class="hero-slide-content">
             <h1 class="hero-slide-title animate-slide-up">
                 <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_title', 'Built for the Grind')); ?>
@@ -58,10 +56,11 @@ get_header();
                    class="hero-cta-secondary">
                     <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_2_text', 'OUR STORY')); ?>
                 </a>
+                    </div>
+                </div>
             </div>
-        </div>
     </div>
-</div>
+
 
                 <!-- Slide 2 -->
                 <div class="hero-slide">
