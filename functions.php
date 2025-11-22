@@ -41,3 +41,11 @@ function aakaari_include_files() {
     }
 }
 add_action('after_setup_theme', 'aakaari_include_files', 1);
+
+/**
+ * Remove WordPress 2560px image size limit
+ * By default, WordPress scales down images larger than 2560px
+ * This filter disables that behavior to preserve full-size uploads
+ */
+add_filter('big_image_size_threshold', '__return_false');
+

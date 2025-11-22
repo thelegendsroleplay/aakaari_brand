@@ -10,53 +10,7 @@
 
     $(document).ready(function() {
         initVariationGallery();
-        debugFormSubmission();
     });
-
-    /**
-     * Debug form submission to verify our data is being sent
-     */
-    function debugFormSubmission() {
-        // Hook into form submission
-        $('#post').on('submit', function(e) {
-            console.log('==== FORM SUBMISSION DEBUG ====');
-
-            // Get all our gallery inputs
-            $('.variation-gallery-images-input').each(function() {
-                var $input = $(this);
-                var name = $input.attr('name');
-                var value = $input.val();
-                var loop = $input.data('loop');
-
-                console.log('Gallery Input Found:');
-                console.log('  - Name:', name);
-                console.log('  - Value:', value);
-                console.log('  - Loop:', loop);
-                console.log('  - Element:', $input[0]);
-            });
-
-            // Check if inputs are actually in the form
-            var formData = new FormData(this);
-            console.log('Checking FormData for variable_gallery_images:');
-            for (var pair of formData.entries()) {
-                if (pair[0].indexOf('variable_gallery_images') !== -1) {
-                    console.log('  Found in FormData:', pair[0], '=', pair[1]);
-                }
-            }
-        });
-
-        // Hook into AJAX save if it exists
-        $(document).on('click', '.save-variation-changes', function() {
-            console.log('==== AJAX VARIATION SAVE CLICKED ====');
-
-            setTimeout(function() {
-                $('.variation-gallery-images-input').each(function() {
-                    var $input = $(this);
-                    console.log('Gallery Input:', $input.attr('name'), '=', $input.val());
-                });
-            }, 100);
-        });
-    }
 
     /**
      * Initialize variation gallery functionality
@@ -70,8 +24,6 @@
             var loop = $button.data('loop');
             var $galleryContainer = $('.variation-gallery-images[data-loop="' + loop + '"]');
             var $galleryInput = $('.variation-gallery-images-input[data-loop="' + loop + '"]');
-
-            console.log('Opening media library for variation loop:', loop);
 
             // Create the media frame
             variationGalleryFrame = wp.media({
@@ -90,12 +42,8 @@
                 var selection = variationGalleryFrame.state().get('selection');
                 var imageIds = $galleryInput.val() ? $galleryInput.val().split(',').filter(function(id) { return id; }) : [];
 
-                console.log('Current image IDs:', imageIds);
-
                 selection.map(function(attachment) {
                     attachment = attachment.toJSON();
-
-                    console.log('Adding image:', attachment.id);
 
                     // Add to array if not already present
                     if (imageIds.indexOf(attachment.id.toString()) === -1) {
@@ -117,12 +65,8 @@
 
                 // Update hidden input
                 $galleryInput.val(imageIds.join(','));
-                console.log('Updated gallery IDs:', imageIds.join(','));
-                console.log('Hidden input name:', $galleryInput.attr('name'));
-                console.log('Hidden input value after update:', $galleryInput.val());
-                console.log('Hidden input element:', $galleryInput[0]);
 
-                // CRITICAL: Trigger change event so WooCommerce knows the variation needs saving
+                // Trigger change event so WooCommerce knows the variation needs saving
                 triggerVariationChange($galleryInput);
 
                 // Re-initialize sortable for new items
@@ -143,8 +87,6 @@
             var loop = $galleryContainer.data('loop');
             var $galleryInput = $('.variation-gallery-images-input[data-loop="' + loop + '"]');
 
-            console.log('Removing image:', imageId);
-
             // Remove from array
             var imageIds = $galleryInput.val() ? $galleryInput.val().split(',').filter(function(id) { return id; }) : [];
             imageIds = imageIds.filter(function(id) {
@@ -153,9 +95,8 @@
 
             // Update hidden input
             $galleryInput.val(imageIds.join(','));
-            console.log('Updated gallery IDs after removal:', imageIds.join(','));
 
-            // CRITICAL: Trigger change event so WooCommerce knows the variation needs saving
+            // Trigger change event so WooCommerce knows the variation needs saving
             triggerVariationChange($galleryInput);
 
             // Remove from DOM
@@ -202,9 +143,8 @@
                 });
 
                 $galleryInput.val(imageIds.join(','));
-                console.log('Sorted gallery IDs:', imageIds.join(','));
 
-                // CRITICAL: Trigger change event so WooCommerce knows the variation needs saving
+                // Trigger change event so WooCommerce knows the variation needs saving
                 triggerVariationChange($galleryInput);
             }
         });
@@ -215,22 +155,18 @@
      * This makes the "Save changes" button active
      */
     function triggerVariationChange($input) {
-        console.log('Triggering WooCommerce variation change detection');
-
         // Find the variation wrapper
         var $variation = $input.closest('.woocommerce_variation');
 
         if ($variation.length) {
             // Mark variation as needing update
             $variation.addClass('variation-needs-update');
-            console.log('Added variation-needs-update class');
         }
 
         // Enable the save changes button
         var $saveButton = $('button.save-variation-changes, button.cancel-variation-changes');
         if ($saveButton.length) {
             $saveButton.removeAttr('disabled');
-            console.log('Enabled save changes button');
         }
 
         // Trigger change event on the input itself

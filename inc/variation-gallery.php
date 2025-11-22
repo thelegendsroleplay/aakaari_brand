@@ -17,9 +17,6 @@ if (!defined('ABSPATH')) {
 function aakaari_add_variation_gallery_field($loop, $variation_data, $variation) {
     $variation_id = $variation->ID;
     $gallery_images = get_post_meta($variation_id, '_variation_gallery_images', true);
-
-    // Debug: Log what we retrieved
-    error_log('Loading variation gallery for variation ID ' . $variation_id . ': ' . $gallery_images);
     ?>
     <div class="form-row form-row-full variation-gallery-wrapper" style="clear: both; margin-top: 15px;">
         <h4 style="margin-bottom: 10px; font-weight: 600;"><?php esc_html_e('Variation Gallery Images', 'aakaari'); ?></h4>
@@ -59,68 +56,17 @@ add_action('woocommerce_product_after_variable_attributes', 'aakaari_add_variati
  * Save variation gallery images
  */
 function aakaari_save_variation_gallery_images($variation_id, $i) {
-    // Log for debugging
-    error_log('==== VARIATION GALLERY SAVE HOOK FIRED ====');
-    error_log('Saving variation gallery for variation ID: ' . $variation_id . ', loop index: ' . $i);
-    error_log('POST data keys: ' . print_r(array_keys($_POST), true));
-
     if (isset($_POST['variable_gallery_images'][$i])) {
         $gallery_images = sanitize_text_field($_POST['variable_gallery_images'][$i]);
-        error_log('Gallery images to save: ' . $gallery_images);
 
         if (!empty($gallery_images)) {
             update_post_meta($variation_id, '_variation_gallery_images', $gallery_images);
-            error_log('Successfully saved gallery images for variation ' . $variation_id);
         } else {
             delete_post_meta($variation_id, '_variation_gallery_images');
-            error_log('Deleted empty gallery for variation ' . $variation_id);
         }
-    } else {
-        error_log('No variable_gallery_images found in POST for index: ' . $i);
     }
 }
 add_action('woocommerce_save_product_variation', 'aakaari_save_variation_gallery_images', 10, 2);
-
-/**
- * Alternative save hook to debug if the variation-specific hook isn't firing
- */
-function aakaari_debug_product_save($post_id) {
-    error_log('==== PRODUCT UPDATE HOOK FIRED FOR POST ID: ' . $post_id . ' ====');
-    error_log('All POST keys: ' . print_r(array_keys($_POST), true));
-
-    if (isset($_POST['variable_gallery_images'])) {
-        error_log('Found variable_gallery_images in POST: ' . print_r($_POST['variable_gallery_images'], true));
-    } else {
-        error_log('No variable_gallery_images in POST data');
-    }
-
-    if (isset($_POST['variable_post_id'])) {
-        error_log('Found variable_post_id (variation IDs): ' . print_r($_POST['variable_post_id'], true));
-    }
-}
-add_action('woocommerce_update_product', 'aakaari_debug_product_save', 10, 1);
-
-/**
- * Verify hooks are registered - run on init
- */
-function aakaari_verify_hooks_registered() {
-    global $wp_filter;
-    error_log('==== VERIFYING VARIATION GALLERY HOOKS ====');
-
-    if (isset($wp_filter['woocommerce_save_product_variation'])) {
-        error_log('woocommerce_save_product_variation hook IS registered');
-        error_log('Callbacks: ' . print_r($wp_filter['woocommerce_save_product_variation'], true));
-    } else {
-        error_log('woocommerce_save_product_variation hook NOT registered');
-    }
-
-    if (isset($wp_filter['woocommerce_update_product'])) {
-        error_log('woocommerce_update_product hook IS registered');
-    } else {
-        error_log('woocommerce_update_product hook NOT registered');
-    }
-}
-add_action('init', 'aakaari_verify_hooks_registered', 999);
 
 /**
  * Enqueue admin scripts for variation gallery
@@ -146,7 +92,7 @@ function aakaari_enqueue_variation_gallery_admin_scripts($hook) {
         'aakaari-variation-gallery-admin',
         get_template_directory_uri() . '/assets/js/admin/variation-gallery.js',
         array('jquery', 'jquery-ui-sortable'),
-        '1.0.6', // Changed version to force refresh
+        '1.0.7',
         true
     );
 
@@ -155,7 +101,7 @@ function aakaari_enqueue_variation_gallery_admin_scripts($hook) {
         'aakaari-variation-gallery-admin',
         get_template_directory_uri() . '/assets/css/admin/variation-gallery.css',
         array(),
-        '1.0.6' // Changed version to force refresh
+        '1.0.7'
     );
 }
 add_action('admin_enqueue_scripts', 'aakaari_enqueue_variation_gallery_admin_scripts');
