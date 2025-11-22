@@ -65,6 +65,9 @@
 
                 // Add active class to clicked button
                 this.classList.add('active');
+
+                // Update variation data (image, price, etc.)
+                updateVariationData();
             });
         });
 
@@ -83,6 +86,9 @@
 
                 // Add active class to clicked button
                 this.classList.add('active');
+
+                // Update variation data (image, price, etc.)
+                updateVariationData();
             });
         });
 
@@ -95,6 +101,11 @@
         const firstColorBtn = document.querySelector('.color-btn');
         if (firstColorBtn) {
             firstColorBtn.classList.add('active');
+        }
+
+        // Load initial variation data if this is a variable product
+        if (firstOptionBtn || firstColorBtn) {
+            updateVariationData();
         }
     }
 
@@ -443,6 +454,154 @@
 
         // Set initial cursor
         carousel.style.cursor = 'grab';
+    }
+
+    /**
+     * Update variation data (image, price, stock) based on selected attributes
+     */
+    function updateVariationData() {
+        // Check if this is a variable product
+        const optionsSection = document.querySelector('.options-section');
+        if (!optionsSection) {
+            return;
+        }
+
+        const quantityValue = document.querySelector('.quantity-value');
+        if (!quantityValue) {
+            return;
+        }
+
+        const productId = quantityValue.getAttribute('data-product-id');
+        if (!productId) {
+            return;
+        }
+
+        // Get selected attributes
+        const selectedAttributes = getSelectedOptions();
+
+        // Check if all required attributes are selected
+        const attributeGroups = document.querySelectorAll('.option-btns, .color-btns');
+        let allSelected = true;
+
+        attributeGroups.forEach(function(group) {
+            const attribute = group.getAttribute('data-attribute');
+            if (attribute && !selectedAttributes[attribute]) {
+                allSelected = false;
+            }
+        });
+
+        if (!allSelected) {
+            console.log('Not all attributes selected yet');
+            return;
+        }
+
+        // Make AJAX call to get variation data
+        $.ajax({
+            type: 'POST',
+            url: aakaariAjax.ajaxUrl,
+            data: {
+                action: 'aakaari_get_variation_data',
+                product_id: productId,
+                attributes: selectedAttributes,
+                nonce: aakaariAjax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    const data = response.data;
+
+                    // Update main image if variation has an image
+                    if (data.image_url) {
+                        const mainImage = document.getElementById('mainProductImage');
+                        if (mainImage) {
+                            mainImage.src = data.image_url;
+                        }
+                    }
+
+                    // Update thumbnail gallery
+                    if (data.gallery_images && data.gallery_images.length > 0) {
+                        const thumbnailList = document.querySelector('.thumbnail-list');
+                        if (thumbnailList) {
+                            // Clear existing thumbnails
+                            thumbnailList.innerHTML = '';
+
+                            // Add new thumbnails
+                            data.gallery_images.forEach(function(image, index) {
+                                const button = document.createElement('button');
+                                button.className = 'thumbnail-btn' + (index === 0 ? ' active' : '');
+                                button.setAttribute('data-image', image.large);
+
+                                const img = document.createElement('img');
+                                img.src = image.thumbnail;
+                                img.alt = '';
+
+                                button.appendChild(img);
+                                thumbnailList.appendChild(button);
+
+                                // Add click event
+                                button.addEventListener('click', function() {
+                                    const mainImage = document.getElementById('mainProductImage');
+                                    const allThumbnails = document.querySelectorAll('.thumbnail-btn');
+
+                                    allThumbnails.forEach(function(thumb) {
+                                        thumb.classList.remove('active');
+                                    });
+
+                                    button.classList.add('active');
+
+                                    const newImageSrc = button.getAttribute('data-image');
+                                    if (newImageSrc && mainImage) {
+                                        mainImage.src = newImageSrc;
+                                    }
+                                });
+                            });
+                        }
+                    }
+
+                    // Update price
+                    if (data.price_html) {
+                        const priceElement = document.querySelector('.price-row .price');
+                        if (priceElement) {
+                            priceElement.innerHTML = data.price_html;
+                        }
+                    }
+
+                    // Update stock status
+                    if (data.stock_html) {
+                        const stockElement = document.querySelector('.stock-text');
+                        if (stockElement) {
+                            stockElement.textContent = data.stock_html;
+                        }
+                    }
+
+                    // Update add to cart button state
+                    const addToCartBtn = document.querySelector('.add-cart-btn');
+                    const buyNowBtn = document.querySelector('.buy-btn');
+
+                    if (data.is_in_stock) {
+                        if (addToCartBtn) {
+                            addToCartBtn.disabled = false;
+                            addToCartBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Add to Cart';
+                        }
+                        if (buyNowBtn) {
+                            buyNowBtn.disabled = false;
+                        }
+                    } else {
+                        if (addToCartBtn) {
+                            addToCartBtn.disabled = true;
+                            addToCartBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Out of Stock';
+                        }
+                        if (buyNowBtn) {
+                            buyNowBtn.disabled = true;
+                        }
+                    }
+                } else {
+                    console.log('Failed to get variation data:', response.data.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX error getting variation data:', status, error);
+            }
+        });
     }
 
 })(jQuery);
