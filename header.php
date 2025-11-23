@@ -34,8 +34,7 @@
                     <?php
                     $menu_items = array(
                         array( 'label' => 'Home', 'url' => home_url('/'), 'page' => 'home' ),
-                        array( 'label' => 'T-Shirts', 'url' => home_url('/shop/?filter_categories=t-shirts&orderby=popularity'), 'page' => 'products' ),
-                        array( 'label' => 'Hoodies', 'url' => home_url('/shop/?product_cat=hoodies'), 'page' => 'hoodies' ),
+                        array( 'label' => 'Hoodies', 'url' => home_url('/shop'), 'page' => 'homee' ),
                         array( 'label' => 'New Arrivals', 'url' => home_url('/shop/?orderby=date'), 'page' => 'new-arrivals' ),
                     );
 
