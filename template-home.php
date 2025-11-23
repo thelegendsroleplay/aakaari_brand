@@ -47,11 +47,6 @@ get_header();
                                    class="hero-cta-primary">
                                     <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_text', 'SHOP NOW')); ?>
                                 </a>
-
-                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_1_button_2_link', home_url('/our-story/'))); ?>"
-                                   class="hero-cta-secondary">
-                                    <?php echo esc_html(get_theme_mod('aakaari_hero_slide_1_button_2_text', 'OUR STORY')); ?>
-                                </a>
                             </div>
                         </div>
                     </div>
