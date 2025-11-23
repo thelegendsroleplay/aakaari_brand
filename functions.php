@@ -31,6 +31,7 @@ function aakaari_include_files() {
         '/inc/wishlist.php',              // Wishlist functionality
         '/inc/live-chat-system.php',      // Live chat system
         '/inc/social-login.php',          // Social login (Google, Facebook)
+        '/inc/upi-payment-gateway.php',   // UPI Payment Gateway
         // Add more inc files here as you create them
     );
 
