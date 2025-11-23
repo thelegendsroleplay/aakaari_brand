@@ -173,25 +173,39 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
             </div>
 
             <!-- Social Login Section -->
+            <?php
+            // Check if social login is available
+            $social_login = aakaari_social_login();
+            $google_enabled = $social_login->is_google_enabled();
+            $facebook_enabled = $social_login->is_facebook_enabled();
+
+            if ($google_enabled || $facebook_enabled) :
+            ?>
             <div class="social-login">
                 <div class="divider">
                     <span><?php esc_html_e( 'Or continue with', 'woocommerce' ); ?></span>
                 </div>
                 <div class="social-buttons">
-                    <button type="button" class="social-btn" onclick="alert('Google login not configured')">
+                    <?php if ($google_enabled) : ?>
+                    <a href="<?php echo esc_url($social_login->get_google_auth_url()); ?>" class="social-btn google-login-btn">
                         <svg class="social-icon" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
                         </svg>
                         <?php esc_html_e( 'Google', 'woocommerce' ); ?>
-                    </button>
-                    <button type="button" class="social-btn" onclick="alert('Facebook login not configured')">
+                    </a>
+                    <?php endif; ?>
+
+                    <?php if ($facebook_enabled) : ?>
+                    <a href="<?php echo esc_url($social_login->get_facebook_auth_url()); ?>" class="social-btn facebook-login-btn">
                         <svg class="social-icon" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M24,12.073c0,5.989-4.394,10.954-10.13,11.855v-8.363h2.789l0.531-3.46H13.87V9.86c0-0.947,0.464-1.869,1.95-1.869h1.509V5.045c0,0-1.37-0.234-2.679-0.234c-2.734,0-4.52,1.657-4.52,4.656v2.637H7.091v3.46h3.039v8.363C4.395,23.025,0,18.061,0,12.073c0-6.627,5.373-12,12-12S24,5.445,24,12.073z"/>
                         </svg>
                         <?php esc_html_e( 'Facebook', 'woocommerce' ); ?>
-                    </button>
+                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
 
         </div>
     </div>

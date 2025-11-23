@@ -30,6 +30,7 @@ function aakaari_include_files() {
         '/inc/variation-gallery.php',     // Variation gallery support
         '/inc/wishlist.php',              // Wishlist functionality
         '/inc/live-chat-system.php',      // Live chat system
+        '/inc/social-login.php',          // Social login (Google, Facebook)
         // Add more inc files here as you create them
     );
 
