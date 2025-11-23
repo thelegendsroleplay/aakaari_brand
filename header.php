@@ -37,7 +37,6 @@
                         array( 'label' => 'T-Shirts', 'url' => home_url('/shop/?filter_categories=t-shirts&orderby=popularity'), 'page' => 'products' ),
                         array( 'label' => 'Hoodies', 'url' => home_url('/shop/?product_cat=hoodies'), 'page' => 'hoodies' ),
                         array( 'label' => 'New Arrivals', 'url' => home_url('/shop/?orderby=date'), 'page' => 'new-arrivals' ),
-                        array( 'label' => 'Sale', 'url' => home_url('/shop/?on_sale=yes'), 'page' => 'sale' ),
                     );
 
                     $current_url = home_url( $_SERVER['REQUEST_URI'] );
