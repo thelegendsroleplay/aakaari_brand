@@ -871,12 +871,42 @@ body.logged-in.page .entry-title {
   font-weight: 500;
   transition: all 0.2s ease;
   color: #374151;
+  text-decoration: none;
 }
 
 .social-btn:hover {
   background: #f9fafb;
   border-color: #667eea;
   color: #667eea;
+  text-decoration: none;
+}
+
+.social-btn:active {
+  transform: scale(0.98);
+}
+
+/* Loading state for social buttons */
+.social-btn.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.social-btn.loading::after {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-left: 8px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .social-icon {
