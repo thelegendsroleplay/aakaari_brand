@@ -163,7 +163,7 @@ get_header();
                     $slug = $category->slug;
 
                     // Custom images for specific categories
-                    if ($slug === 't-shirt' || $slug === 't-shirts' || $slug === 'tshirts-men') {
+                    if ($slug === 't-shirts' || $slug === 't-shirt' || $slug === 'tshirts-men') {
                         // T-shirt category image
                         $image_url = 'https://herrenn.com/wp-content/uploads/2025/11/ChatGPT-Image-Nov-23-2025-08_05_26-PM.png';
                     } elseif ($slug === 'hoodies' || $slug === 'hoodie') {
