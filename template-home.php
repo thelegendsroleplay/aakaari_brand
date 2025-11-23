@@ -144,42 +144,58 @@ get_header();
         });
         </script>
 
-        <section class="category-section">
-            <div class="page-container">
-                <h2 class="category-section-title">Shop by Category</h2>
-                <div class="category-grid">
-                    <?php
-                    // Get product categories
-                    $categories = get_terms(array(
-                        'taxonomy'   => 'product_cat',
-                        'hide_empty' => false,
-                        'number'     => 2,
-                        'orderby'    => 'count',
-                        'order'      => 'DESC',
-                    ));
+<section class="category-section">
+    <div class="page-container">
+        <h2 class="category-section-title">Shop by Category</h2>
+        <div class="category-grid">
+            <?php
+            // Get product categories
+            $categories = get_terms(array(
+                'taxonomy'   => 'product_cat',
+                'hide_empty' => false,
+                'number'     => 2,
+                'orderby'    => 'count',
+                'order'      => 'DESC',
+            ));
 
-                    if (!empty($categories) && !is_wp_error($categories)) :
-                        foreach ($categories as $category) :
-                            $thumbnail_id = get_term_meta($category->term_id, 'thumbnail_id', true);
-                            $image_url = $thumbnail_id ? wp_get_attachment_url($thumbnail_id) : 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80';
-                            $category_link = get_term_link($category);
-                            ?>
-                            <div class="category-card" onclick="window.location.href='<?php echo esc_url($category_link); ?>'">
-                                <img src="<?php echo esc_url($image_url); ?>"
-                                     alt="<?php echo esc_attr($category->name); ?>"
-                                     class="category-card-image" />
-                                <div class="category-card-overlay">
-                                    <h3 class="category-card-title"><?php echo esc_html($category->name); ?></h3>
-                                    <p class="category-card-subtitle">Explore Collection</p>
-                                </div>
-                            </div>
-                            <?php
-                        endforeach;
-                    endif;
+            if (!empty($categories) && !is_wp_error($categories)) :
+                foreach ($categories as $category) :
+                    $slug = $category->slug;
+
+                    // Custom images for specific categories
+                    if ($slug === 't-shirt' || $slug === 't-shirts' || $slug === 'tshirts-men') {
+                        // T-shirt category image
+                        $image_url = 'https://herrenn.com/wp-content/uploads/2025/11/ChatGPT-Image-Nov-23-2025-08_05_26-PM.png';
+                    } elseif ($slug === 'hoodies' || $slug === 'hoodie') {
+                        // Hoodies category image
+                        $image_url = 'https://herrenn.com/wp-content/uploads/2025/11/8936b3a3-dd76-4aa9-b4cf-2b8699823291.png';
+                    } else {
+                        // Fallback: use WooCommerce category thumbnail or a default
+                        $thumbnail_id = get_term_meta($category->term_id, 'thumbnail_id', true);
+                        $image_url = $thumbnail_id 
+                            ? wp_get_attachment_url($thumbnail_id) 
+                            : 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80';
+                    }
+
+                    $category_link = get_term_link($category);
                     ?>
-                </div>
-            </div>
-        </section>
+                    <div class="category-card" onclick="window.location.href='<?php echo esc_url($category_link); ?>'">
+                        <img src="<?php echo esc_url($image_url); ?>"
+                             alt="<?php echo esc_attr($category->name); ?>"
+                             class="category-card-image" />
+                        <div class="category-card-overlay">
+                            <h3 class="category-card-title"><?php echo esc_html($category->name); ?></h3>
+                            <p class="category-card-subtitle">Explore Collection</p>
+                        </div>
+                    </div>
+                    <?php
+                endforeach;
+            endif;
+            ?>
+        </div>
+    </div>
+</section>
+
 
         <section class="products-section">
             <div class="page-container">
