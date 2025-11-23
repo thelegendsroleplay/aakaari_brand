@@ -356,7 +356,7 @@ while (have_posts()) :
                         <div class="review-form-wrapper">
                             <h3>Add Your Review</h3>
                             <form class="review-form" id="reviewForm">
-                                <div class="form-row">
+                                <div class="review-form-row">
                                     <div class="form-group">
                                         <label for="review-email">Email *</label>
                                         <input type="email" id="review-email" name="email" required <?php if (is_user_logged_in()) : ?>value="<?php echo esc_attr(wp_get_current_user()->user_email); ?>" readonly<?php endif; ?>>

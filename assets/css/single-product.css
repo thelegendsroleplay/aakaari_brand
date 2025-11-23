@@ -1365,3 +1365,20 @@
         font-size: 0.8125rem;
     }
 }
+/* Find this block around line 770 in your provided CSS */
+.review-form-row { /* Changed from .form-row */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    width: 100%;
+    align-items: start;
+}/* Find this around line 1313 in your provided CSS */
+@media (max-width: 480px) {
+    /* ... existing styles ... */
+
+    /* Change .form-row to .review-form-row */
+    .review-form-row {
+        grid-template-columns: 1fr; /* Stacks them on mobile */
+        gap: 0.875rem;
+    }
+}
