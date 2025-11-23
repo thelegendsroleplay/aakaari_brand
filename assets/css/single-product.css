@@ -722,12 +722,20 @@
     max-width: 100%;
 }
 
-.form-row {
+/* UPDATED: Using .review-form-row instead of .form-row */
+.review-form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
+    gap: 1.5rem;
     width: 100%;
     align-items: start;
+    margin-bottom: 0;
+}
+
+/* Ensure items inside don't break grid */
+.review-form-row .form-group {
+    width: 100%;
+    margin: 0;
 }
 
 .form-group {
@@ -1308,9 +1316,11 @@
         padding: 1rem;
     }
 
-    /* Review form responsive - keep side by side on small screens too */
-    .form-row {
-        grid-template-columns: 1fr 1fr;
+    /* Review form responsive */
+    
+    /* UPDATED: Use .review-form-row to stack on mobile */
+    .review-form-row {
+        grid-template-columns: 1fr; 
         gap: 0.875rem;
     }
 
@@ -1363,22 +1373,5 @@
 
     .size-chart-note {
         font-size: 0.8125rem;
-    }
-}
-/* Find this block around line 770 in your provided CSS */
-.review-form-row { /* Changed from .form-row */
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-    width: 100%;
-    align-items: start;
-}/* Find this around line 1313 in your provided CSS */
-@media (max-width: 480px) {
-    /* ... existing styles ... */
-
-    /* Change .form-row to .review-form-row */
-    .review-form-row {
-        grid-template-columns: 1fr; /* Stacks them on mobile */
-        gap: 0.875rem;
     }
 }
