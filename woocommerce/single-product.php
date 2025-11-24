@@ -265,7 +265,7 @@ while (have_posts()) :
                             <circle cx="5.5" cy="18.5" r="2.5"></circle>
                             <circle cx="18.5" cy="18.5" r="2.5"></circle>
                         </svg>
-                        <span>Free shipping over ₹499</span>
+                        <span>Free shipping over ₹599</span>
                     </div>
                     <div class="feature">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

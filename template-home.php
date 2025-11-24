@@ -174,7 +174,7 @@ get_header();
                         $thumbnail_id = get_term_meta($category->term_id, 'thumbnail_id', true);
                         $image_url = $thumbnail_id 
                             ? wp_get_attachment_url($thumbnail_id) 
-                            : 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80';
+                            : 'https://herrenn.com/wp-content/uploads/2025/11/ChatGPT-Image-Nov-23-2025-08_05_26-PM.png';
                     }
 
                     // Get category link with error checking
@@ -267,7 +267,7 @@ get_header();
                         <div class="promo-features">
                             <div class="promo-feature-item">
                                 <div class="promo-feature-icon">✓</div>
-                                <span>100% Premium Cotton</span>
+                                <span>Premium Fabric</span>
                             </div>
                             <div class="promo-feature-item">
                                 <div class="promo-feature-icon">✓</div>
@@ -275,7 +275,7 @@ get_header();
                             </div>
                             <div class="promo-feature-item">
                                 <div class="promo-feature-icon">✓</div>
-                                <span>Lifetime Quality Guarantee</span>
+                                <span>Built for Longevity</span>
                             </div>
                         </div>
 
@@ -358,7 +358,7 @@ get_header();
                         </div>
                         <div class="trust-text">
                             <h4 class="trust-title">Free Shipping</h4>
-                            <p class="trust-desc">On orders over ₹499</p>
+                            <p class="trust-desc">On orders over ₹599</p>
                         </div>
                     </div>
 

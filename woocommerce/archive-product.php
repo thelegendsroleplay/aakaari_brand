@@ -116,8 +116,8 @@ $product_categories = get_terms(array(
                             class="price-slider"
                         />
                         <div class="price-labels">
-                            <span>$<span id="min-price-label"><?php echo esc_html($min_price); ?></span></span>
-                            <span>$<span id="max-price-label"><?php echo esc_html($max_price); ?></span></span>
+                            <span>₹<span id="min-price-label"><?php echo esc_html($min_price); ?></span></span>
+                            <span>₹<span id="max-price-label"><?php echo esc_html($max_price); ?></span></span>
                         </div>
                     </div>
                 </div>
