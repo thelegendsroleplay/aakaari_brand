@@ -136,6 +136,20 @@ function aakaari_enqueue_styles() {
         );
     }
 
+    // Special pages styles (Track Order, FAQ, Contact, About Us)
+    if (is_page_template('template-track-order.php') ||
+        is_page_template('template-faq.php') ||
+        is_page_template('template-contact.php') ||
+        is_page_template('template-about-us.php')) {
+        wp_enqueue_style(
+            'aakaari-special-pages',
+            AAKAARI_THEME_URI . '/assets/css/special-pages.css',
+            array('aakaari-main'),
+            AAKAARI_THEME_VERSION,
+            'all'
+        );
+    }
+
     // Live chat styles - load globally
     wp_enqueue_style(
         'aakaari-live-chat',
