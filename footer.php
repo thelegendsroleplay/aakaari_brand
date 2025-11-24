@@ -41,20 +41,6 @@
                         <ul class="footer-links-list">
                             <li>
                                 <a href="<?php
-                                    $tshirts_link = home_url('/shop/');
-                                    if ( function_exists( 'get_term_link' ) ) {
-                                        $tshirts_term_link = get_term_link( 't-shirts', 'product_cat' );
-                                        if ( ! is_wp_error( $tshirts_term_link ) ) {
-                                            $tshirts_link = $tshirts_term_link;
-                                        }
-                                    }
-                                    echo esc_url( $tshirts_link );
-                                ?>" class="footer-link">
-                                    T-Shirts
-                                </a>
-                            </li>
-                            <li>
-                                <a href="<?php
                                     $hoodies_link = home_url('/shop/');
                                     if ( function_exists( 'get_term_link' ) ) {
                                         $hoodies_term_link = get_term_link( 'hoodies', 'product_cat' );
@@ -64,7 +50,7 @@
                                     }
                                     echo esc_url( $hoodies_link );
                                 ?>" class="footer-link">
-                                    Hoodies
+                                    Shop
                                 </a>
                             </li>
                             <li>
