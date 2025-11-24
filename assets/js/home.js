@@ -518,7 +518,21 @@
                 });
             } else {
                 // For variable products, redirect to product page
-                window.location.href = $button.closest('.product-card-link').attr('href');
+                const productCard = $button.closest('.product-card');
+                const productLink = productCard.find('.product-card-link').attr('href');
+
+                if (productLink) {
+                    window.location.href = productLink;
+                } else {
+                    // Fallback: try to get from image link
+                    const imageLink = productCard.find('.product-card-image-link').attr('href');
+                    if (imageLink) {
+                        window.location.href = imageLink;
+                    } else {
+                        console.error('Could not find product link');
+                        showNotification('Unable to navigate to product page', 'error');
+                    }
+                }
             }
         });
     }

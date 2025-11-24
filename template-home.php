@@ -177,7 +177,11 @@ get_header();
                             : 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80';
                     }
 
+                    // Get category link with error checking
                     $category_link = get_term_link($category);
+                    if (is_wp_error($category_link)) {
+                        $category_link = home_url('/shop/');
+                    }
                     ?>
                     <div class="category-card" onclick="window.location.href='<?php echo esc_url($category_link); ?>'">
                         <img src="<?php echo esc_url($image_url); ?>"
