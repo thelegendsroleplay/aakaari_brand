@@ -422,6 +422,26 @@
             const productId = $button.data('product-id');
             const quantity = parseInt($('.quick-view-quantity-value').text()) || 1;
 
+            // Collect selected variations (for variable products)
+            const selectedOptions = {};
+            $('.quick-view-variation-option.active').each(function() {
+                const attribute = $(this).data('attribute');
+                const value = $(this).data('value');
+                if (attribute && value) {
+                    selectedOptions[attribute] = value;
+                }
+            });
+
+            // Check if product has variations and if all are selected
+            const $variationGroups = $('.quick-view-variation');
+            if ($variationGroups.length > 0) {
+                const selectedCount = Object.keys(selectedOptions).length;
+                if (selectedCount < $variationGroups.length) {
+                    showNotification('Please select all product options', 'error');
+                    return;
+                }
+            }
+
             $button.prop('disabled', true);
             const originalText = $button.text();
             $button.text('Adding...');
@@ -433,6 +453,7 @@
                     action: 'aakaari_add_to_cart',
                     product_id: productId,
                     quantity: quantity,
+                    options: selectedOptions,
                     nonce: aakaariAjax.nonce
                 },
                 success: function(response) {
