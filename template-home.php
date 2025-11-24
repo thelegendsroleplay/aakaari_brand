@@ -275,7 +275,7 @@ get_header();
                             </div>
                             <div class="promo-feature-item">
                                 <div class="promo-feature-icon">✓</div>
-                                <span>Built for Longevity</span>
+                                <span>Built for Men</span>
                             </div>
                         </div>
 
