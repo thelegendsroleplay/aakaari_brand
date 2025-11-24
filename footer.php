@@ -85,11 +85,6 @@
                         <h4 class="footer-links-title">Help</h4>
                         <ul class="footer-links-list">
                             <li>
-                                <a href="<?php echo esc_url( home_url('/support/') ); ?>" class="footer-link">
-                                    Support Center
-                                </a>
-                            </li>
-                            <li>
                                 <a href="<?php echo esc_url( home_url('/contact/') ); ?>" class="footer-link">
                                     Contact Us
                                 </a>
@@ -105,7 +100,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="<?php echo esc_url( home_url('/support/') ); ?>" class="footer-link">
+                                <a href="<?php echo esc_url( home_url('/FAQ/') ); ?>" class="footer-link">
                                     FAQ
                                 </a>
                             </li>
