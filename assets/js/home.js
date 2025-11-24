@@ -486,13 +486,21 @@
      * Initialize Add to Cart
      */
     function initAddToCart() {
+        console.log('=== initAddToCart function initialized ===');
+
         $(document).on('click', '.product-card-add-to-cart', function(e) {
+            console.log('=== ADD TO CART BUTTON CLICKED ===');
             e.preventDefault();
             e.stopPropagation();
 
             const $button = $(this);
             const productId = $button.data('product-id');
             const productType = $button.data('product-type');
+
+            console.log('Button element:', $button);
+            console.log('Product ID:', productId);
+            console.log('Product Type:', productType);
+            console.log('Product Type strict check:', productType === 'simple', productType === 'variable');
 
             // Validate product ID
             if (!productId) {
@@ -506,8 +514,11 @@
             const originalText = $button.text();
             $button.text('Adding...');
 
+            console.log('Entering conditional - productType:', productType);
+
             // Simple products can be added directly via AJAX
             if (productType === 'simple') {
+                console.log('=== SIMPLE PRODUCT PATH ===');
                 console.log('Adding simple product to cart:', productId);
                 $.ajax({
                     type: 'POST',
