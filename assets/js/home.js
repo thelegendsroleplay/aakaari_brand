@@ -494,6 +494,13 @@
             const productId = $button.data('product-id');
             const productType = $button.data('product-type');
 
+            // Validate product ID
+            if (!productId) {
+                console.error('Product ID not found');
+                showNotification('Unable to add product to cart', 'error');
+                return;
+            }
+
             // Disable button and show loading state
             $button.prop('disabled', true);
             const originalText = $button.text();
@@ -540,19 +547,29 @@
             } else {
                 // For variable products, redirect to product page
                 const productCard = $button.closest('.product-card');
-                const productLink = productCard.find('.product-card-link').attr('href');
 
-                if (productLink) {
+                if (!productCard.length) {
+                    console.error('Product card not found');
+                    $button.prop('disabled', false);
+                    $button.text(originalText);
+                    showNotification('Unable to find product information', 'error');
+                    return;
+                }
+
+                const productLink = productCard.find('.product-card-link').attr('href');
+                const imageLink = productCard.find('.product-card-image-link').attr('href');
+
+                // Ensure we have a valid URL before redirecting
+                if (productLink && productLink !== 'undefined' && productLink.trim() !== '') {
                     window.location.href = productLink;
-                } else {
+                } else if (imageLink && imageLink !== 'undefined' && imageLink.trim() !== '') {
                     // Fallback: try to get from image link
-                    const imageLink = productCard.find('.product-card-image-link').attr('href');
-                    if (imageLink) {
-                        window.location.href = imageLink;
-                    } else {
-                        console.error('Could not find product link');
-                        showNotification('Unable to navigate to product page', 'error');
-                    }
+                    window.location.href = imageLink;
+                } else {
+                    console.error('Could not find valid product link', {productLink, imageLink});
+                    $button.prop('disabled', false);
+                    $button.text(originalText);
+                    showNotification('Unable to navigate to product page', 'error');
                 }
             }
         });

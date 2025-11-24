@@ -82,7 +82,7 @@ get_header();
                             </p>
 
                             <div class="hero-slide-actions animate-slide-up">
-                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_2_btn_link', wc_get_page_id('shop'))); ?>" 
+                                <a href="<?php echo esc_url(get_theme_mod('aakaari_hero_slide_2_btn_link', get_permalink(wc_get_page_id('shop')))); ?>"
                                    class="hero-cta-primary">
                                     <?php echo esc_html(get_theme_mod('aakaari_hero_slide_2_btn_text', 'EXPLORE NOW')); ?>
                                 </a>
