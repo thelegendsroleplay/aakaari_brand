@@ -487,24 +487,25 @@
      */
     function initAddToCart() {
         console.log('=== initAddToCart function initialized ===');
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Is Mobile:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
-        function sanitizeProductLink(link) {
-            if (!link || typeof link !== 'string') {
-                return null;
-            }
-
-            const cleaned = link.trim();
-            if (!cleaned || cleaned === '#' || cleaned.toLowerCase() === 'undefined') {
-                return null;
-            }
-
-            return cleaned;
-        }
-
-        $(document).on('click', '.product-card-add-to-cart', function(e) {
-            console.log('=== ADD TO CART BUTTON CLICKED ===');
+        // Handle both click and touchend events for mobile compatibility
+        $(document).on('click touchend', '.product-card-add-to-cart', function(e) {
+            console.log('=== ADD TO CART BUTTON TRIGGERED ===');
+            console.log('Event type:', e.type);
             e.preventDefault();
             e.stopPropagation();
+            e.stopImmediatePropagation(); // Prevent other handlers from running
+
+            // Prevent double-firing on mobile (both touch and click)
+            if (e.type === 'touchend') {
+                $(this).one('click', function(clickEvent) {
+                    clickEvent.preventDefault();
+                    clickEvent.stopPropagation();
+                    return false;
+                });
+            }
 
             const $button = $(this);
             const productId = $button.data('product-id');
@@ -512,6 +513,11 @@
             const productUrl = $button.data('product-url');
 
             console.log('Button element:', $button);
+            console.log('Button tag:', $button.prop('tagName'));
+            console.log('Button has href?', $button.attr('href'));
+            console.log('Button parent:', $button.parent().prop('tagName'), $button.parent().attr('class'));
+            console.log('Is button in a link?', $button.closest('a').length > 0);
+            console.log('Is button in a form?', $button.closest('form').length > 0);
             console.log('Product ID:', productId);
             console.log('Product Type:', productType);
             console.log('Product Type strict check:', productType === 'simple', productType === 'variable');
