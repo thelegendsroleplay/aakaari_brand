@@ -122,6 +122,20 @@ function aakaari_enqueue_styles() {
         );
     }
 
+    // Policy pages styles
+    if (is_page_template('template-privacy-policy.php') ||
+        is_page_template('template-shipping-delivery.php') ||
+        is_page_template('template-terms-conditions.php') ||
+        is_page_template('template-cancellation-refund.php')) {
+        wp_enqueue_style(
+            'aakaari-policy',
+            AAKAARI_THEME_URI . '/assets/css/policy.css',
+            array('aakaari-main'),
+            AAKAARI_THEME_VERSION,
+            'all'
+        );
+    }
+
     // Live chat styles - load globally
     wp_enqueue_style(
         'aakaari-live-chat',

@@ -1,0 +1,295 @@
+/* ============================================
+   POLICY PAGES STYLING
+   ============================================ */
+
+.policy-page {
+    background: #f9fafb;
+    min-height: 100vh;
+    padding: 3rem 0;
+}
+
+.policy-page .page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.policy-content {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 3rem;
+}
+
+/* ============================================
+   TITLE AND HEADER
+   ============================================ */
+
+.policy-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.policy-updated {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+/* ============================================
+   SECTIONS
+   ============================================ */
+
+.policy-section {
+    margin-bottom: 3rem;
+}
+
+.policy-section:last-child {
+    margin-bottom: 0;
+}
+
+.policy-section > p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #374151;
+    margin-bottom: 1rem;
+}
+
+/* ============================================
+   HEADINGS
+   ============================================ */
+
+.policy-section h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 1.25rem;
+    margin-top: 0;
+    padding-top: 0.5rem;
+}
+
+.policy-section h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 2rem 0 1rem;
+}
+
+/* ============================================
+   LISTS
+   ============================================ */
+
+.policy-section ul {
+    margin: 1.25rem 0;
+    padding-left: 2rem;
+    list-style-type: disc;
+}
+
+.policy-section ul li {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #374151;
+    margin-bottom: 0.75rem;
+}
+
+.policy-section ul li:last-child {
+    margin-bottom: 0;
+}
+
+.policy-section ul li strong {
+    color: #000000;
+    font-weight: 600;
+}
+
+/* Nested lists */
+.policy-section ul ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+
+.policy-section a {
+    color: #000000;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: #d1d5db;
+    text-underline-offset: 3px;
+    transition: all 0.2s ease;
+}
+
+.policy-section a:hover {
+    color: #000000;
+    text-decoration-color: #000000;
+}
+
+/* ============================================
+   CONTACT INFO BOX
+   ============================================ */
+
+.contact-info {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.contact-info p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.contact-info p:first-child {
+    margin-top: 0;
+}
+
+.contact-info p:last-child {
+    margin-bottom: 0;
+}
+
+.contact-info strong {
+    color: #000000;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.contact-info a {
+    color: #000000;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: #d1d5db;
+}
+
+/* ============================================
+   SPECIAL EMPHASIS
+   ============================================ */
+
+.policy-section > p strong {
+    color: #000000;
+    font-weight: 700;
+}
+
+/* Last paragraph emphasis */
+.policy-section:last-child > p:last-child {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    color: #92400e;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .policy-page {
+        padding: 2rem 0;
+    }
+
+    .policy-content {
+        padding: 2rem 1.5rem;
+        border-radius: 8px;
+    }
+
+    .policy-title {
+        font-size: 2rem;
+    }
+
+    .policy-updated {
+        font-size: 0.85rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+    }
+
+    .policy-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .policy-section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .policy-section h3 {
+        font-size: 1.15rem;
+        margin: 1.5rem 0 0.75rem;
+    }
+
+    .policy-section ul {
+        padding-left: 1.5rem;
+    }
+
+    .policy-section ul li {
+        font-size: 0.95rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .contact-info {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .policy-page {
+        padding: 1.5rem 0;
+    }
+
+    .policy-page .page-container {
+        padding: 0 0.75rem;
+    }
+
+    .policy-content {
+        padding: 1.5rem 1rem;
+    }
+
+    .policy-title {
+        font-size: 1.75rem;
+    }
+
+    .policy-section h2 {
+        font-size: 1.35rem;
+    }
+
+    .policy-section h3 {
+        font-size: 1.1rem;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    .policy-page {
+        background: #ffffff;
+        padding: 0;
+    }
+
+    .policy-content {
+        box-shadow: none;
+        padding: 1rem;
+    }
+
+    .policy-section a {
+        color: #000000;
+        text-decoration: underline;
+    }
+
+    .policy-section:last-child > p:last-child {
+        background: none;
+        border: 1px solid #000000;
+    }
+}
