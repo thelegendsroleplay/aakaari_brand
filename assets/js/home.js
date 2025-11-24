@@ -506,8 +506,9 @@
             const originalText = $button.text();
             $button.text('Adding...');
 
-            // Simple products can be added directly
+            // Simple products can be added directly via AJAX
             if (productType === 'simple') {
+                console.log('Adding simple product to cart:', productId);
                 $.ajax({
                     type: 'POST',
                     url: aakaariAjax.ajaxUrl,
@@ -545,7 +546,8 @@
                     }
                 });
             } else {
-                // For variable products, redirect to product page
+                // For variable products, redirect to product page to select variations
+                console.log('Redirecting to product page for variable product:', productId, 'Type:', productType);
                 const productCard = $button.closest('.product-card');
 
                 if (!productCard.length) {
@@ -559,11 +561,15 @@
                 const productLink = productCard.find('.product-card-link').attr('href');
                 const imageLink = productCard.find('.product-card-image-link').attr('href');
 
+                console.log('Found product links:', {productLink, imageLink});
+
                 // Ensure we have a valid URL before redirecting
                 if (productLink && productLink !== 'undefined' && productLink.trim() !== '') {
+                    console.log('Redirecting to product link:', productLink);
                     window.location.href = productLink;
                 } else if (imageLink && imageLink !== 'undefined' && imageLink.trim() !== '') {
                     // Fallback: try to get from image link
+                    console.log('Using image link as fallback:', imageLink);
                     window.location.href = imageLink;
                 } else {
                     console.error('Could not find valid product link', {productLink, imageLink});
