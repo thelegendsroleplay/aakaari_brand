@@ -371,9 +371,17 @@ function aakaari_ajax_get_quick_view() {
                                 </div>
                             <?php else : ?>
                                 <div class="quick-view-variation-options">
-                                    <?php foreach ($options as $option) : ?>
+                                    <?php foreach ($options as $option) :
+                                        // Get term object to retrieve proper label
+                                        $term = get_term_by('slug', sanitize_title($option), $attribute_name);
+                                        if (!$term) {
+                                            $term = get_term_by('name', $option, $attribute_name);
+                                        }
+                                        // Use term name if found, otherwise use the option value
+                                        $display_label = $term ? $term->name : $option;
+                                    ?>
                                         <button class="quick-view-variation-option" data-attribute="<?php echo esc_attr($attribute_name); ?>" data-value="<?php echo esc_attr($option); ?>">
-                                            <?php echo esc_html($option); ?>
+                                            <?php echo esc_html($display_label); ?>
                                         </button>
                                     <?php endforeach; ?>
                                 </div>
