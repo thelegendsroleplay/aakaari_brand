@@ -490,6 +490,19 @@
         console.log('User Agent:', navigator.userAgent);
         console.log('Is Mobile:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
+        function sanitizeProductLink(link) {
+            if (typeof link !== 'string') {
+                return null;
+            }
+
+            const cleaned = link.trim();
+            if (!cleaned || cleaned === '#' || cleaned.toLowerCase() === 'undefined') {
+                return null;
+            }
+
+            return cleaned;
+        }
+
         // Handle both click and touchend events for mobile compatibility
         $(document).on('click touchend', '.product-card-add-to-cart', function(e) {
             console.log('=== ADD TO CART BUTTON TRIGGERED ===');
