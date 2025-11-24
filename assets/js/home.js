@@ -488,6 +488,19 @@
     function initAddToCart() {
         console.log('=== initAddToCart function initialized ===');
 
+        function sanitizeProductLink(link) {
+            if (!link || typeof link !== 'string') {
+                return null;
+            }
+
+            const cleaned = link.trim();
+            if (!cleaned || cleaned === '#' || cleaned.toLowerCase() === 'undefined') {
+                return null;
+            }
+
+            return cleaned;
+        }
+
         $(document).on('click', '.product-card-add-to-cart', function(e) {
             console.log('=== ADD TO CART BUTTON CLICKED ===');
             e.preventDefault();
@@ -496,6 +509,7 @@
             const $button = $(this);
             const productId = $button.data('product-id');
             const productType = $button.data('product-type');
+            const productUrl = $button.data('product-url');
 
             console.log('Button element:', $button);
             console.log('Product ID:', productId);
@@ -569,21 +583,19 @@
                     return;
                 }
 
-                const productLink = productCard.find('.product-card-link').attr('href');
-                const imageLink = productCard.find('.product-card-image-link').attr('href');
+                const sanitizedPrimaryLink = sanitizeProductLink(productUrl);
+                const productLink = sanitizeProductLink(productCard.find('.product-card-link').attr('href'));
+                const imageLink = sanitizeProductLink(productCard.find('.product-card-image-link').attr('href'));
+                const redirectTarget = sanitizedPrimaryLink || productLink || imageLink;
 
-                console.log('Found product links:', {productLink, imageLink});
+                console.log('Found product links:', {sanitizedPrimaryLink, productLink, imageLink});
 
                 // Ensure we have a valid URL before redirecting
-                if (productLink && productLink !== 'undefined' && productLink.trim() !== '') {
-                    console.log('Redirecting to product link:', productLink);
-                    window.location.href = productLink;
-                } else if (imageLink && imageLink !== 'undefined' && imageLink.trim() !== '') {
-                    // Fallback: try to get from image link
-                    console.log('Using image link as fallback:', imageLink);
-                    window.location.href = imageLink;
+                if (redirectTarget) {
+                    console.log('Redirecting to product link:', redirectTarget);
+                    window.location.href = redirectTarget;
                 } else {
-                    console.error('Could not find valid product link', {productLink, imageLink});
+                    console.error('Could not find valid product link', {productUrl, productLink, imageLink});
                     $button.prop('disabled', false);
                     $button.text(originalText);
                     showNotification('Unable to navigate to product page', 'error');

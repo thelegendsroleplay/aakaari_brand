@@ -75,9 +75,11 @@ if (empty($product) || !$product->is_visible()) {
                 </div>
 
                 <?php if ($product->is_in_stock()) : ?>
-                    <button class="product-card-add-to-cart"
+                    <button type="button"
+                            class="product-card-add-to-cart"
                             data-product-id="<?php echo esc_attr($product->get_id()); ?>"
-                            data-product-type="<?php echo esc_attr($product->get_type()); ?>">
+                            data-product-type="<?php echo esc_attr($product->get_type()); ?>"
+                            data-product-url="<?php echo esc_url($product->get_permalink()); ?>">
                         Add to Cart
                     </button>
                 <?php endif; ?>
